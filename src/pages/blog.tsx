@@ -23,7 +23,7 @@ const WorkList = ({
 }
 
 WorkList.propTypes = {
-    data: PropTypes.node
+    data: PropTypes.any
 }
 
 export default WorkList

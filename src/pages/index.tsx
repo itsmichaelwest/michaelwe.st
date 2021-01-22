@@ -36,7 +36,7 @@ const IndexPage = ({
 }
 
 IndexPage.propTypes = {
-  data: PropTypes.node
+  data: PropTypes.any
 }
 
 export default IndexPage
