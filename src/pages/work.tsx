@@ -16,7 +16,7 @@ const WorkList = ({
 
     return (
         <Layout>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 m-8 sm:mx-32 sm:my-16">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 m-8 sm:mx-32 sm:my-16">
                 {Works}
             </div>
             <ContactLowerBanner/>

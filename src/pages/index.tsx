@@ -23,7 +23,7 @@ const IndexPage = ({
                         <p className="text-lg font-body font-light leading-relaxed tracking-tight">screaming</p>
                     </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mt-16 mb-16">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-16 mb-16">
                     {Works}
                 </div>
                 <Link className="font-body" to="/archive/">

@@ -18,6 +18,14 @@ class Header extends React.Component<Header, State> {
     }
   }
 
+  componentDidMount() {
+    if (!this.state.shown) {
+      document.body.style.overflow = 'unset'
+    } else {
+      document.body.style.overflow = 'hidden'
+    }
+  }
+
   toggleHidden() {
     this.setState({
       shown: !this.state.shown
@@ -28,6 +36,8 @@ class Header extends React.Component<Header, State> {
       document.body.style.overflow = 'hidden'
     }
   }
+
+
 
   render() {
     return (
@@ -48,7 +58,7 @@ class Header extends React.Component<Header, State> {
             ))}
           </nav>
           <div className="-mr-2 -my-2 md:hidden">
-            <button type="button" className="bg-white rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500" onClick={this.toggleHidden.bind(this)}>
+            <button type="button" style={{ backdropFilter: 'blur(30px)' }} className="bg-white bg-opacity-10 rounded-md p-2 inline-flex items-center justify-center text-gray-400 text-opacity-80 hover:text-gray-500 hover:text-opacity-100 hover:bg-gray-100 hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue transition-colors" onClick={this.toggleHidden.bind(this)}>
               {!this.state.shown
               ?
               <div>
