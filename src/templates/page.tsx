@@ -35,7 +35,7 @@ export default function Template({ data }) {
       post.frontmatter.featuredImage
       ?
       <article className="mb-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 md:gap-16 m-8 sm:mx-32 sm:my-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-16 m-8 sm:mx-32 sm:my-16">
           <div>
             <h1 className="text-5xl font-medium">{post.frontmatter.title}</h1>
             {post.frontmatter.officialURL && <Button isInternal={false} to={post.frontmatter.officialURL}>{post.frontmatter.officialURLText}</Button>}
@@ -54,7 +54,7 @@ export default function Template({ data }) {
       </article>
       :
       <article className="mb-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:gap-16 m-8 sm:mx-32 sm:my-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 m-8 sm:mx-32 sm:my-16">
           <div>
             <h1 className="text-5xl font-medium">{post.frontmatter.title}</h1>
             {post.frontmatter.officialURL && <Button isInternal={false} to={post.frontmatter.officialURL}>{post.frontmatter.officialURLText}</Button>}

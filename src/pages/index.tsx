@@ -19,7 +19,7 @@ const IndexPage = ({data: { allMdx: { edges },},}) => {
             <IndexHero />
             <div className="mt-24 m-8 sm:mb-16 sm:mx-32">
                 <div className="flex justify-start">
-                    <div className="w-full md:w-6/12">
+                    <div className="w-full lg:w-6/12">
                         <h2 className="text-5xl font-medium mb-8">Recent work</h2>
                         <p className="text-lg font-body font-light leading-relaxed tracking-tight">screaming</p>
                     </div>

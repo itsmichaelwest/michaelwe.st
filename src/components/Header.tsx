@@ -61,7 +61,7 @@ class Header extends React.Component<Header, State> {
           }
         </a>
         <div className="float-right pointer-events-auto">
-          <nav className="hidden md:inline">
+          <nav className="hidden lg:inline">
             {this.props.menuLinks.map(link => (
               <Link 
                 key={link.link}
@@ -72,7 +72,7 @@ class Header extends React.Component<Header, State> {
               </Link>
             ))}
           </nav>
-          <div className="-mr-1 -my-1 md:hidden">
+          <div className="-mr-1 -my-1 lg:hidden">
             <button type="button" style={{ backdropFilter: 'blur(30px)' }} className="bg-white bg-opacity-10 rounded-md p-2 inline-flex items-center justify-center text-gray-400 text-opacity-80 hover:text-gray-500 hover:text-opacity-100 hover:bg-gray-100 hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue transition-colors" onClick={this.toggleHidden.bind(this)}>
               {!this.state.shown
               ?
