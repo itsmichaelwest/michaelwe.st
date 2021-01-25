@@ -8,6 +8,7 @@ aliases:
 category: "Design Concept"
 noMSFT: true
 featuredImage: hero.jpg
+featuredBlockImage: hero.jpg
 featuredImageAlt: "Your Phone app concepts."
 ---
 

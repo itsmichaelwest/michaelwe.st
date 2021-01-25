@@ -4,46 +4,49 @@ import Layout from "../components/Layout"
 import { graphql } from "gatsby"
 import PropTypes from 'prop-types'
 
-const WorkList = ({
-    data: {
-        allMdx: { edges },
-    },
-}) => {
-    const Works = edges
-        .filter(edge => !!edge.node.frontmatter.date) // You can filter your posts based on some criteria
-        .map(edge => <BlogLink key={edge.node.id} post={edge.node} />)
+export default function BlogList({data: {allMdx: { edges }}}) {
+  const blogs = edges
+    .filter(edge => !!edge.node.frontmatter.date) // You can filter your posts based on some criteria
+    .map(edge => <BlogLink key={edge.node.id} post={edge.node} />)
 
-    return (
-        <Layout>
-            <div className="m-8 sm:mx-32 sm:mb-16">
-                {Works}
-            </div>
-        </Layout>
-    )
+  return (
+    blogs.length > 0 
+    ?
+    <Layout>
+      <div className="m-8 sm:mx-32 sm:mb-16">
+        {blogs}
+      </div>
+    </Layout>
+    :
+    <Layout>
+      <div className="m-8 sm:mx-32 sm:mb-16">
+        <h1 className="text-3xl font-semibold">No blog posts!</h1>
+        <p className="font-body mt-4">Perhaps some will appear here in the future... 🙂</p>
+      </div>
+    </Layout>
+  )
 }
 
-WorkList.propTypes = {
-    data: PropTypes.any
+BlogList.propTypes = {
+  data: PropTypes.any
 }
-
-export default WorkList
 
 export const pageQuery = graphql`
-    query {
-        allMdx(sort: { order: DESC, fields: [frontmatter___date] } filter: { fileAbsolutePath: { regex: "/(\/content\/blog)/.*/" } }) {
-            edges {
-                node {
-                    id
-                    fields {
-                        slug
-                    }
-                    frontmatter {
-                        title
-                        description
-                        date(formatString: "MMMM DD, YYYY")
-                    }
-                }
-            }
+  query {
+    allMdx(sort: { order: DESC, fields: [frontmatter___date] } filter: { fileAbsolutePath: { regex: "/(\/content\/blog)/.*/" } }) {
+      edges {
+        node {
+          id
+          fields {
+            slug
+          }
+          frontmatter {
+            title
+            description
+            date(formatString: "MMMM DD, YYYY")
+          }
         }
+      }
     }
+  }
 `

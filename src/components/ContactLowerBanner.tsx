@@ -1,7 +1,7 @@
 import React from "react"
 import Button from "./Button"
 
-const ContactLowerBanner = () => {
+export default function ContactLowerBanner() {
   return (
     <div className="bg-blue-700 p-8 sm:px-32 sm:py-16">
       <div className="sm:w-6/12">
@@ -15,7 +15,7 @@ const ContactLowerBanner = () => {
         font-light 
         leading-relaxed 
         tracking-tight">
-          I&apos;m looking for new opportunities starting summmer 2021. If you think I&apos;d be a good fit for your design team, get in touch — it could be the start of something great!
+          I&apos;m looking for new opportunities starting summer 2021. If you think I&apos;d be a good fit for your design team, get in touch — it could be the start of something great!
         </p>
         <Button isInternal={true} style="onPrimary" to='/about/'>
           Contact
@@ -24,5 +24,3 @@ const ContactLowerBanner = () => {
     </div>
   )
 }
-
-export default ContactLowerBanner

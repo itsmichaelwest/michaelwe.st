@@ -14,7 +14,7 @@ const WorkBlock = ({ post }) => {
         return (
             post.frontmatter.redirectToOfficialURL 
             ? 
-            <div className="relative overflow-hidden transition-all">
+            <div className="relative h-96 overflow-hidden transition-all">
                 <a className="absolute w-full h-full z-10 opacity-0 hover:opacity-100 bg-gray-100 transition-all" href={post.frontmatter.officialURL}>
                   <div className="absolute inset-x-8 bottom-8">
                     <h2 className="text-2xl text-black font-semibold" aria-label={'Title and description: ' + post.frontmatter.title + '.'}>{post.frontmatter.title}</h2>
@@ -24,7 +24,7 @@ const WorkBlock = ({ post }) => {
                 <Img className="h-full" fluid={post.frontmatter.featuredBlockImage.childImageSharp.fluid} alt={post.frontmatter.featuredImageAlt} />
             </div>
             : 
-            <div className="relative overflow-hidden transition-all">
+            <div className="relative h-96 overflow-hidden transition-all">
                 <Link className="absolute w-full h-full z-10 opacity-0 hover:opacity-100 bg-gray-100 transition-all" to={post.fields.slug} ref={wrapperRef}>
                     <div className="absolute inset-x-8 bottom-8">
                         <h2 className="text-2xl text-black font-semibold" aria-label={'Title and description: ' + post.frontmatter.title + '.'}>{post.frontmatter.title}</h2>

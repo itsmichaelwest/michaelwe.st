@@ -9,6 +9,7 @@ date: "2018-07-20"
 category: "Design Concept"
 noMSFT: true
 featuredImage: hero.jpg
+featuredBlockImage: hero.jpg
 featuredImageAlt: "A Surface Pro shows a podcast app concept, with a pair of Surface Headphones in front of it."
 ---
 

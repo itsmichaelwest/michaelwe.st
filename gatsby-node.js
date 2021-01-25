@@ -4,7 +4,7 @@ const { createFilePath } = require(`gatsby-source-filesystem`)
 exports.createPages = async ({ graphql, actions }) => {
   const { createPage, createRedirect } = actions
 
-  const articleTemplate = path.resolve(`./src/templates/article.tsx`)
+  const articleTemplate = path.resolve(`./src/templates/page.tsx`)
 
   const result = await graphql(`
     {

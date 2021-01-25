@@ -10,6 +10,7 @@ hideFromList: true
 category: "Design Concept"
 noMSFT: true
 featuredImage: hero.jpg
+featuredBlockImage: hero.jpg
 featuredImageAlt: "Two laptops display concepts of a setup experience." 
 ---
 

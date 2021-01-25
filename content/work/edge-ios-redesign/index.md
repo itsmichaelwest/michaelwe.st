@@ -7,6 +7,7 @@ aliases:
 category: "Design Concept"
 noMSFT: true
 featuredImage: hero.jpg
+featuredBlockImage: hero.jpg
 featuredImageAlt: "iPhones display screenshots of a redesigned Microsoft Edge for mobile."
 ---
 

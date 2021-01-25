@@ -37,13 +37,28 @@ class Header extends React.Component<Header, State> {
     }
   }
 
-
-
   render() {
     return (
       <header className={!this.state.shown ? "sticky top-0 h-24 sm:h-40 z-20 p-8 sm:px-32 sm:py-16 pointer-events-none" : "bg-white sticky top-0 h-24 sm:h-40 z-20 p-8 sm:px-32 sm:py-16"}>
         <a className="text-xl font-body font-bold tracking-tight text-blue hover:text-blue-700 pointer-events-auto" href="/" aria-label={this.props.siteTitle}>
-          Michael.
+          {process.env.NODE_ENV === 'development' ? (
+            <svg className="inline-block" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M32 32L0 0V32H32Z" fill="#3590F3"/>
+              <path d="M0 32L32 0V32H0Z" fill="#84BCF7"/>
+              <path d="M16 16L0 32H32L16 16Z" fill="#1B6AEB"/>
+              <rect x="9" y="19" width="21" height="11" rx="2" fill="#222222"/>
+              <path d="M15.37 22.7H13.6V26.948H15.37C16.726 26.948 17.578 26.024 17.578 24.812C17.578 23.588 16.726 22.7 15.37 22.7ZM14.932 25.76V23.864H15.25C15.838 23.864 16.228 24.194 16.228 24.812C16.228 25.43 15.838 25.76 15.25 25.76H14.932Z" fill="white"/>
+              <path d="M20.891 22.7H18.059V26.948H20.891V25.886H19.391V25.286H20.711V24.284H19.391V23.762H20.891V22.7Z" fill="white"/>
+              <path d="M23.3849 25.622L22.5089 22.7H21.0929L22.5209 26.948H24.2429L25.6709 22.7H24.2549L23.3849 25.622Z" fill="white"/>
+            </svg>
+          ) : (
+            <svg className="inline-block" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M32 32H-9.53674e-07L32 0V32Z" fill="#62BFED"/>
+                <path d="M0 32H32L0 0V32Z" fill="#3590F3"/>
+                <path d="M16 16L0 32H32L16 16Z" fill="#146CE2"/>
+            </svg>
+          )
+          }
         </a>
         <div className="float-right pointer-events-auto">
           <nav className="hidden md:inline">
@@ -51,13 +66,13 @@ class Header extends React.Component<Header, State> {
               <Link 
                 key={link.link}
                 to={link.link}
-                className="font-body ml-8 text-gray-400 hover:text-blue"
+                className="font-body ml-8 text-gray-400 text-opacity-70 hover:text-blue hover:text-opacity-100 transition-all"
                 activeClassName="font-bold text-gray-900">
                   {link.name}
               </Link>
             ))}
           </nav>
-          <div className="-mr-2 -my-2 md:hidden">
+          <div className="-mr-1 -my-1 md:hidden">
             <button type="button" style={{ backdropFilter: 'blur(30px)' }} className="bg-white bg-opacity-10 rounded-md p-2 inline-flex items-center justify-center text-gray-400 text-opacity-80 hover:text-gray-500 hover:text-opacity-100 hover:bg-gray-100 hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue transition-colors" onClick={this.toggleHidden.bind(this)}>
               {!this.state.shown
               ?

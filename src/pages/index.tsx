@@ -5,12 +5,13 @@ import WorkBlock from "../components/WorkBlock"
 import IndexHero from "../components/IndexHero"
 import ContactLowerBanner from "../components/ContactLowerBanner"
 import { graphql, Link } from "gatsby"
-
 import SEO from "../components/Seo"
-import { siteMetadata } from "../../gatsby-config"
 
-const IndexPage = ({
-    data: { allMdx: { edges },},}) => {const Works = edges.filter(edge => !!edge.node.frontmatter.date).map(edge => <WorkBlock key={edge.node.id} post={edge.node} />)
+const IndexPage = ({data: { allMdx: { edges },},}) => {
+      
+    const Works = edges
+      .filter(edge => !!edge.node.frontmatter.date)
+      .map(edge => <WorkBlock key={edge.node.id} post={edge.node} />)
 
     return (
         <Layout>
@@ -26,8 +27,8 @@ const IndexPage = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-16 mb-16">
                     {Works}
                 </div>
-                <Link className="font-body" to="/archive/">
-                  Explore the archive
+                <Link className="font-body hover:text-blue" to="/work/">
+                  Explore more &rarr;
                 </Link>
             </div>
             <ContactLowerBanner />
@@ -43,7 +44,7 @@ export default IndexPage
 
 export const query = graphql`
   query {
-    allMdx(sort: { fields: [frontmatter___date], order: DESC } filter: { fileAbsolutePath: { regex: "/(\/content\/work)/.*/" } }) {
+    allMdx(sort: { fields: [frontmatter___date], order: DESC } filter: { fileAbsolutePath: { regex: "/(\/content\/work)/.*/" } } limit: 4) {
       edges {
         node {
           id
