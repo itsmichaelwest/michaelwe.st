@@ -6,10 +6,12 @@ module.exports = {
       center: true,
     },
     fontFamily: {
-      'sans': ['acumin-pro', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'],
-      'body': ['poppins', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'],
+      'sans': ['vaccine', 'serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'],
+      'body': ['canada-type-gibson', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'],
     },
     extend: {
+      backgroundColor: ['active'],
+      boxShadow: ['active'],
       colors: {
         blue: {
           DEFAULT: '#3591f3',
@@ -35,6 +37,18 @@ module.exports = {
           200: '#dadada',
           100: '#eaeaea',
           50: '#f4f4f4',
+        },
+        twitter: {
+          DEFAULT: '#1da1f2',
+        },
+        linkedin: {
+          DEFAULT: '#0073b1',
+        },
+        dribbble: {
+          DEFAULT: '#ea4c89',
+        },
+        behance: {
+          DEFAULT: '#1769ff',
         },
       },
     },
