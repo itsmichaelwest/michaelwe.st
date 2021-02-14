@@ -8,7 +8,7 @@ export default function IndexHero() {
     <StaticQuery
       query={graphql`
         query {
-          file(relativePath: { eq: "michael-home.png" }) {
+          file(relativePath: { eq: "michael-face.jpg" }) {
             childImageSharp {
               fluid(maxWidth: 1600, quality: 100) {
                 ...GatsbyImageSharpFluid_withWebp
@@ -19,23 +19,25 @@ export default function IndexHero() {
       `}
       render={data => (
         <>
-        <div className='h-3/5 bg-gray-100 overflow-hidden p-8 sm:px-32 sm:py-24'>
-          <div className='z-10 w-100 md:w-8/12'>
-            <div className='relative'>
-              <h1 className="text-3xl md:text-5xl leading-tight mb-4">
-                Michael is a user experience designer and developer.
-              </h1>
-              <p>
-                He previously worked at Microsoft.
-              </p>
-              <SocialIcons/>
+        <div className='max-w-screen-xl sm:mx-auto sm:px-32 mx-8 sm:mt-16 mt-8 sm:mb-48 mb-16'>
+          <div className='z-10 w-100 md:w-8/12 mx-auto'>
+            <div className='flex flex-col'>
+              <div className="flex-initial md:h-48 h-32 md:w-48 w-32 rounded-full overflow-hidden mb-8 shadow-xl mx-auto border-4 border-white">
+                <Img fluid={data.file.childImageSharp.fluid} alt="Photo of Michael West" />
+              </div>
+              <div className="flex-1">
+                <h1 className="text-3xl md:text-5xl text-center font-semibold leading-tight mb-4">
+                  [write a title]
+                </h1>
+                <div className="w-min mx-auto sm:mt-12 mt-8">
+                  <SocialIcons/>
+                </div>
+              </div>
             </div>
           </div>
         </div>
         </>
       )}
     />
-  )
-
-  //          <Img className='inset-0 h-screen' fluid={data.file.childImageSharp.fluid} alt="Photo of Michael West" />
+  )     
 }

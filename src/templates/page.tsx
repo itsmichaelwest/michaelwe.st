@@ -34,7 +34,7 @@ export default function Template({ data }) {
       {
       post.frontmatter.featuredImage
       ?
-      <article className="mb-16">
+      <article className="max-w-screen-xl mx-auto mb-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-16 m-8 sm:mx-32 sm:my-16">
           <div>
             <h1 className="text-5xl font-medium">{post.frontmatter.title}</h1>
@@ -45,21 +45,23 @@ export default function Template({ data }) {
           </div>
         </div>
         <Img fluid={post.frontmatter.featuredImage.childImageSharp.fluid} alt={post.frontmatter.featuredImageAlt}/>
-        <div className="container prose font-body font-light leading-relaxed tracking-tight mt-8" style={{ padding: '6vmax 4vw' }}>
-          {post.frontmatter.noMSFT && <NoMSFTDisclaimer title={post.frontmatter.title} />}
-          <MDXProvider components={shortcodes}>
-            <MDXRenderer>{post.body}</MDXRenderer>
-          </MDXProvider>
+        <div className="mx-8 sm:mx-0">
+          <div className="container prose font-body leading-relaxed tracking-tight my-24">
+            {post.frontmatter.noMSFT && <NoMSFTDisclaimer title={post.frontmatter.title} />}
+            <MDXProvider components={shortcodes}>
+              <MDXRenderer>{post.body}</MDXRenderer>
+            </MDXProvider>
+          </div>
         </div>
       </article>
       :
-      <article className="mb-16">
+      <article className="max-w-screen-xl mx-auto mb-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 m-8 sm:mx-32 sm:my-16">
           <div>
             <h1 className="text-5xl font-medium">{post.frontmatter.title}</h1>
             {post.frontmatter.officialURL && <Button isInternal={false} to={post.frontmatter.officialURL}>{post.frontmatter.officialURLText}</Button>}
           </div>
-          <div className="container prose font-body font-light leading-loose">
+          <div className="container prose font-body leading-loose">
             {post.frontmatter.noMSFT && <NoMSFTDisclaimer title={post.frontmatter.title} />}
             <MDXProvider components={shortcodes}>
               <MDXRenderer>{post.body}</MDXRenderer>
@@ -73,7 +75,7 @@ export default function Template({ data }) {
 }
 
 Template.propTypes = {
-  data: PropTypes.node
+  data: PropTypes.any
 }
 
 export const pageQuery = graphql`

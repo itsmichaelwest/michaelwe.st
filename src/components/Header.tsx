@@ -36,13 +36,14 @@ class Header extends React.Component<Header, State> {
       document.body.style.overflow = 'hidden'
     }
   }
-
   render() {
+    const classes = "sticky max-w-screen-xl mx-auto top-0 h-24 sm:h-40 z-20 p-8 sm:px-32 sm:py-16 pointer-events-none"
+
     return (
-      <header className={!this.state.shown ? "sticky top-0 h-24 sm:h-40 z-20 p-8 sm:px-32 sm:py-16 pointer-events-none" : "bg-white sticky top-0 h-24 sm:h-40 z-20 p-8 sm:px-32 sm:py-16"}>
+      <header className={!this.state.shown ? `${classes}` : `bg-white ${classes}`}>
         <a className="text-xl font-body font-bold tracking-tight text-blue hover:text-blue-700 pointer-events-auto" href="/" aria-label={this.props.siteTitle}>
           {process.env.NODE_ENV === 'development' ? (
-            <svg className="inline-block" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg className="inline-block shadow-md" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M32 32L0 0V32H32Z" fill="#3590F3"/>
               <path d="M0 32L32 0V32H0Z" fill="#84BCF7"/>
               <path d="M16 16L0 32H32L16 16Z" fill="#1B6AEB"/>
@@ -52,7 +53,7 @@ class Header extends React.Component<Header, State> {
               <path d="M23.3849 25.622L22.5089 22.7H21.0929L22.5209 26.948H24.2429L25.6709 22.7H24.2549L23.3849 25.622Z" fill="white"/>
             </svg>
           ) : (
-            <svg className="inline-block" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg className="inline-block shadow-md" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M32 32H-9.53674e-07L32 0V32Z" fill="#62BFED"/>
                 <path d="M0 32H32L0 0V32Z" fill="#3590F3"/>
                 <path d="M16 16L0 32H32L16 16Z" fill="#146CE2"/>
@@ -73,7 +74,7 @@ class Header extends React.Component<Header, State> {
             ))}
           </nav>
           <div className="-mr-1 -my-1 lg:hidden">
-            <button type="button" style={{ backdropFilter: 'blur(30px)' }} className="bg-white bg-opacity-10 rounded-md p-2 inline-flex items-center justify-center text-gray-400 text-opacity-80 hover:text-gray-500 hover:text-opacity-100 hover:bg-gray-100 hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue transition-colors" onClick={this.toggleHidden.bind(this)}>
+            <button type="button" style={{ backdropFilter: 'blur(30px)' }} className="bg-white bg-opacity-10 rounded-md p-2 inline-flex items-center justify-center text-gray-400 text-opacity-80 hover:text-gray-500 hover:text-opacity-100 hover:bg-gray-100 hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue transition-colors   shadow-sm" onClick={this.toggleHidden.bind(this)}>
               {!this.state.shown
               ?
               <div>

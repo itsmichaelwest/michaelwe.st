@@ -70,3 +70,5 @@ yarn-error.log
 
 # JetBrains IDE configuration files
 .idea/
+# Local Netlify folder
+.netlify

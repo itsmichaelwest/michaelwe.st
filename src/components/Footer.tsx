@@ -1,7 +1,7 @@
 import React from "react"
 import { useStaticQuery, graphql } from "gatsby"
 
-const Footer = ()  => {
+export default function Footer() {
   const copyright = useStaticQuery(graphql`
     query CopyrightQuery {
       site {
@@ -13,11 +13,8 @@ const Footer = ()  => {
   `)
 
   return (
-    <footer className="my-8 mx-8 sm:mx-32">
+    <footer className="max-w-screen-xl sm:mx-auto sm:px-32 mx-8 my-8">
       <p className="text-xs text-gray-400">{copyright.site.siteMetadata.copyright}</p>
     </footer>
   )
-
 }
-
-export default Footer

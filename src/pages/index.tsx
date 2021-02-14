@@ -7,40 +7,41 @@ import ContactLowerBanner from "../components/ContactLowerBanner"
 import { graphql, Link } from "gatsby"
 import SEO from "../components/Seo"
 
-const IndexPage = ({data: { allMdx: { edges },},}) => {
-      
+export default function IndexPage({data: { allMdx: { edges }}}) {     
     const Works = edges
       .filter(edge => !!edge.node.frontmatter.date)
       .map(edge => <WorkBlock key={edge.node.id} post={edge.node} />)
 
     return (
-        <Layout>
-            <SEO title="Michael West" />
-            <IndexHero />
-            <div className="mt-24 m-8 sm:mb-16 sm:mx-32">
-                <div className="flex justify-start">
-                    <div className="w-full lg:w-6/12">
-                        <h2 className="text-5xl font-medium mb-8">Recent work</h2>
-                        <p className="text-lg font-body font-light leading-relaxed tracking-tight">screaming</p>
-                    </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-16 mb-16">
-                    {Works}
-                </div>
-                <Link className="font-body hover:text-blue" to="/work/">
-                  Explore more &rarr;
-                </Link>
+      <Layout>
+        <SEO title="Michael West" />
+        <IndexHero />
+        <div className="max-w-screen-xl sm:mx-auto sm:px-32 mx-8 lg:my-24 my-16">
+          <div className="flex justify-start">
+            <div className="w-full lg:w-6/12">
+              <h2 className="lg:text-5xl text-3xl font-semibold lg:mb-8 mb-4">
+                Recent work
+              </h2>
+              <p className="text-lg font-body font-light leading-relaxed tracking-tight">
+                screaming
+              </p>
             </div>
-            <ContactLowerBanner />
-        </Layout>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-32 mt-16 mb-16">
+            {Works}
+          </div>
+          <Link className="font-body font-semibold text-blue hover:text-blue-800 hover:underline" to="/work/">
+            Explore more &rarr;
+          </Link>
+        </div>
+        <ContactLowerBanner />
+      </Layout>
     )
 }
 
 IndexPage.propTypes = {
   data: PropTypes.any
 }
-
-export default IndexPage
 
 export const query = graphql`
   query {
