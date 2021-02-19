@@ -14,14 +14,18 @@ export default function WorkList({data: {allMdx: { edges }}}) {
   return (
     <Layout>
       <SEO title="Work" />
-      <div className="mt-0 m-8 sm:mb-16 sm:mx-32">
+      <div className="max-w-screen-lg sm:mx-auto sm:px-32 mx-8 lg:mb-24 mb-16">
         <div className="flex justify-start mb-16">
-            <div className="w-full md:w-6/12">
-                <h2 className="text-5xl font-medium mb-8">Work</h2>
-                <p className="text-lg font-body font-light leading-relaxed tracking-tight">screaming</p>
-            </div>
+          <div className="w-full md:w-6/12">
+              <h2 className="text-2xl font-semibold lg:mb-4 mb-2">
+                Work
+              </h2>
+              <p className="font-body font-light leading-relaxed tracking-tight">
+                screaming
+              </p>
+          </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-32 mt-16 mb-16">
           {Works}
         </div>
       </div>
@@ -35,30 +39,30 @@ WorkList.propTypes = {
 }
 
 export const pageQuery = graphql`
-    query {
-        allMdx(sort: { order: DESC, fields: [frontmatter___date] } filter: { fileAbsolutePath: { regex: "/(\/content\/work)/.*/" } }) {
-            edges {
-                node {
-                    id
-                    fields {
-                        slug
-                    }
-                    frontmatter {
-                        title
-                        description
-                        date(formatString: "MMMM YYYY")
-                        hideFromList
-                        featuredBlockImage {
-                            childImageSharp {
-                                fluid(maxWidth: 800) {
-                                    ...GatsbyImageSharpFluid_withWebp
-                                }
-                            }
-                        }
-                        featuredImageAlt
-                    }
+  query {
+    allMdx(sort: { order: DESC, fields: [frontmatter___date] } filter: { fileAbsolutePath: { regex: "/(\/content\/work)/.*/" } }) {
+      edges {
+        node {
+          id
+          fields {
+            slug
+          }
+          frontmatter {
+            title
+            description
+            date(formatString: "MMMM YYYY")
+            hideFromList
+            featuredBlockImage {
+              childImageSharp {
+                fluid(maxWidth: 800) {
+                  ...GatsbyImageSharpFluid_withWebp
                 }
+              }
             }
+            featuredImageAlt
+          }
         }
+      }
     }
+  }
 `

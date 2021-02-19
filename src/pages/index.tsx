@@ -16,21 +16,21 @@ export default function IndexPage({data: { allMdx: { edges }}}) {
       <Layout>
         <SEO title="Michael West" />
         <IndexHero />
-        <div className="max-w-screen-xl sm:mx-auto sm:px-32 mx-8 lg:my-24 my-16">
+        <div className="max-w-screen-lg sm:mx-auto sm:px-32 mx-8 lg:my-24 my-16">
           <div className="flex justify-start">
             <div className="w-full lg:w-6/12">
-              <h2 className="lg:text-5xl text-3xl font-semibold lg:mb-8 mb-4">
+              <h2 className="text-2xl font-semibold lg:mb-4 mb-2">
                 Recent work
               </h2>
-              <p className="text-lg font-body font-light leading-relaxed tracking-tight">
-                screaming
+              <p className="font-body font-light leading-relaxed tracking-tight">
+                A collection of recent projects.
               </p>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-32 mt-16 mb-16">
             {Works}
           </div>
-          <Link className="font-body font-semibold text-blue hover:text-blue-800 hover:underline" to="/work/">
+          <Link className="font-body font-light leading-relaxed tracking-tight text-blue hover:text-blue-800 hover:underline" to="/work/">
             Explore more &rarr;
           </Link>
         </div>

@@ -37,7 +37,7 @@ class Header extends React.Component<Header, State> {
     }
   }
   render() {
-    const classes = "sticky max-w-screen-xl mx-auto top-0 h-24 sm:h-40 z-20 p-8 sm:px-32 sm:py-16 pointer-events-none"
+    const classes = "sticky max-w-screen-lg mx-auto top-0 h-24 sm:h-40 z-20 p-8 sm:px-32 sm:py-16 pointer-events-none"
 
     return (
       <header className={!this.state.shown ? `${classes}` : `bg-white ${classes}`}>

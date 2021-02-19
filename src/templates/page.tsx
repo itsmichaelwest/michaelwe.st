@@ -35,18 +35,18 @@ export default function Template({ data }) {
       post.frontmatter.featuredImage
       ?
       <article className="max-w-screen-xl mx-auto mb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-16 m-8 sm:mx-32 sm:my-16">
+        <div className="max-w-screen-lg grid grid-cols-1 lg:grid-cols-2 lg:gap-16 mx-auto px-8 sm:px-32 mb-16">
           <div>
-            <h1 className="text-5xl font-medium">{post.frontmatter.title}</h1>
+            <h1 className="text-4xl font-medium mb-8">{post.frontmatter.title}</h1>
             {post.frontmatter.officialURL && <Button isInternal={false} to={post.frontmatter.officialURL}>{post.frontmatter.officialURLText}</Button>}
           </div>
           <div>
-            {post.frontmatter.description && <p className="font-body font-light leading-loose">{post.frontmatter.description}</p>}
+            {post.frontmatter.description && <p className="font-body font-light leading-loose mt-8 sm:mt-0">{post.frontmatter.description}</p>}
           </div>
         </div>
         <Img fluid={post.frontmatter.featuredImage.childImageSharp.fluid} alt={post.frontmatter.featuredImageAlt}/>
         <div className="mx-8 sm:mx-0">
-          <div className="container prose font-body leading-relaxed tracking-tight my-24">
+          <div className="max-w-screen-lg sm:mx-auto sm:px-32 prose font-body leading-relaxed tracking-tight my-24">
             {post.frontmatter.noMSFT && <NoMSFTDisclaimer title={post.frontmatter.title} />}
             <MDXProvider components={shortcodes}>
               <MDXRenderer>{post.body}</MDXRenderer>
@@ -55,13 +55,13 @@ export default function Template({ data }) {
         </div>
       </article>
       :
-      <article className="max-w-screen-xl mx-auto mb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 m-8 sm:mx-32 sm:my-16">
+      <article className="max-w-screen-lg mx-auto mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 sm:gap-8 m-8 sm:mx-32 mb-16">
           <div>
-            <h1 className="text-5xl font-medium">{post.frontmatter.title}</h1>
+            <h1 className="text-4xl font-medium mb-8">{post.frontmatter.title}</h1>
             {post.frontmatter.officialURL && <Button isInternal={false} to={post.frontmatter.officialURL}>{post.frontmatter.officialURLText}</Button>}
           </div>
-          <div className="container prose font-body leading-loose">
+          <div className="prose font-body leading-loose tracking-tight">
             {post.frontmatter.noMSFT && <NoMSFTDisclaimer title={post.frontmatter.title} />}
             <MDXProvider components={shortcodes}>
               <MDXRenderer>{post.body}</MDXRenderer>

@@ -1,20 +1,10 @@
 import React from "react"
-import { useStaticQuery, graphql } from "gatsby"
+import config from '../../gatsby-config'
 
 export default function Footer() {
-  const copyright = useStaticQuery(graphql`
-    query CopyrightQuery {
-      site {
-        siteMetadata {
-          copyright
-        }
-      }
-    }
-  `)
-
   return (
-    <footer className="max-w-screen-xl sm:mx-auto sm:px-32 mx-8 my-8">
-      <p className="text-xs text-gray-400">{copyright.site.siteMetadata.copyright}</p>
+    <footer className="max-w-screen-lg sm:mx-auto sm:px-32 mx-8 my-8">
+      <p className="text-xs text-gray-400">{config.siteMetadata.copyright}</p>
     </footer>
   )
 }

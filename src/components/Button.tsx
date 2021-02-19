@@ -11,14 +11,16 @@ const Button = ({ isInternal, style, to, children }) => {
         bg = "bg-blue text-white hover:bg-blue-700"
     }
 
+    const classes = "transition-colors px-8 py-4 rounded inline-block font-body font-light leading-relaxed tracking-tight"
+
     return (
         isInternal 
         ?
-        <Link to={to} className={`${bg} transition-colors px-8 py-4 my-8 rounded inline-block font-body`}>
+        <Link to={to} className={`${bg} ${classes}`}>
             {children}
         </Link>
         :
-        <a href={to} className={`${bg} transition-colors px-8 py-4 my-8 rounded inline-block font-body`}>
+        <a href={to} className={`${bg} ${classes}`}>
             {children} &rarr;
         </a>
     )
