@@ -20,7 +20,7 @@ export default function IndexPage({data: { allMdx: { edges }}}) {
           <div className="flex justify-start">
             <div className="w-full lg:w-6/12">
               <h2 className="text-xl font-bold">
-                Selected work
+                Recent work
               </h2>
             </div>
           </div>

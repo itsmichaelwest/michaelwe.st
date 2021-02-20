@@ -51,6 +51,18 @@ module.exports = {
           DEFAULT: '#1769ff',
         },
       },
+      typography: {
+        DEFAULT: {
+          css: {
+            a: {
+              color: '#3591f3',
+              '&:hover': {
+                color: '#3071d1'
+              },
+            }
+          }
+        }
+      }
     },
   },
   variants: {

@@ -5,10 +5,6 @@ module.exports = {
       {
         name: 'Work',
         link: '/work'
-      },
-      {
-        name: 'Blog',
-        link: '/blog'
       }
     ],
     siteURL: `https://www.michaelwe.st/`,
