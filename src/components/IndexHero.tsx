@@ -19,21 +19,15 @@ export default function IndexHero() {
       `}
       render={data => (
         <>
-        <div className='max-w-screen-lg sm:mt-16 mt-8 sm:mb-48 mb-16'>
-          <div className='z-10 w-100 md:w-8/12 mx-auto'>
-            <div className='flex flex-col'>
-              <div className="flex-initial h-32 w-32 rounded-full overflow-hidden mb-8 shadow-xl mx-auto border-2 border-white">
-                <Img fluid={data.file.childImageSharp.fluid} alt="Photo of Michael West" />
-              </div>
-              <div className="flex-1">
-                <h1 className="text-3xl text-center font-semibold leading-tight mb-4">
-                  Michael is a designer and developer.
-                </h1>
-                <div className="w-min mx-auto sm:mt-8 mt-6">
-                  <SocialIcons/>
-                </div>
-              </div>
-            </div>
+        <div className='w-auto max-w-prose my-32'>
+          <h1 className="text-8xl font-bold max-w-max mb-6">
+            👋
+          </h1>
+          <h1 className="text-3xl font-semibold leading-tight mb-4">
+            Designer and developer, passionate about magical software/hardware experiences.
+          </h1>
+          <div className="sm:mt-8 mt-6">
+            <SocialIcons/>
           </div>
         </div>
         </>
@@ -41,3 +35,11 @@ export default function IndexHero() {
     />
   )     
 }
+
+/*
+            <span className="relative block bg-blue h-2 bottom-1 rounded-full" />
+
+          <div className="flex-initial h-40 w-40 rounded-full overflow-hidden mb-8 shadow-2xl border-2 border-white">
+            <Img fluid={data.file.childImageSharp.fluid} alt="Photo of Michael West" />
+          </div>
+          */

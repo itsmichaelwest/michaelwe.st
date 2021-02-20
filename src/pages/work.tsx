@@ -14,18 +14,8 @@ export default function WorkList({data: {allMdx: { edges }}}) {
   return (
     <Layout>
       <SEO title="Work" />
-      <div className="max-w-screen-lg sm:mx-auto sm:px-32 mx-8 lg:mb-24 mb-16">
-        <div className="flex justify-start mb-16">
-          <div className="w-full md:w-6/12">
-              <h2 className="text-2xl font-semibold lg:mb-4 mb-2">
-                Work
-              </h2>
-              <p className="font-body font-light leading-relaxed tracking-tight">
-                screaming
-              </p>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-32 mt-16 mb-16">
+      <div className="lg:mb-24 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-32 mb-16">
           {Works}
         </div>
       </div>

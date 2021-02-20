@@ -19,20 +19,14 @@ export default function IndexPage({data: { allMdx: { edges }}}) {
         <div className="lg:my-24 my-16">
           <div className="flex justify-start">
             <div className="w-full lg:w-6/12">
-              <h2 className="text-2xl font-semibold lg:mb-4 mb-2">
-                Recent work
+              <h2 className="text-xl font-bold">
+                Selected work
               </h2>
-              <p className="font-body font-light leading-relaxed tracking-tight">
-                A collection of recent projects.
-              </p>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-32 mt-16 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16 md:gap-y-16 mt-8">
             {Works}
           </div>
-          <Link className="font-body font-light leading-relaxed tracking-tight text-blue hover:text-blue-800 hover:underline" to="/work/">
-            Explore more &rarr;
-          </Link>
         </div>
         <ContactLowerBanner />
       </Layout>

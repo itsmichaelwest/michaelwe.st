@@ -3,8 +3,12 @@ module.exports = {
     title: `Michael West`,
     menuLinks: [
       {
+        name: 'Work',
+        link: '/work'
+      },
+      {
         name: 'Blog',
-        link: '/blog/'
+        link: '/blog'
       }
     ],
     siteURL: `https://www.michaelwe.st/`,
