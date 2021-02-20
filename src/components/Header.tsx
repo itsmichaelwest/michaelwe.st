@@ -2,6 +2,7 @@ import { Link } from "gatsby"
 import React from "react"
 import Button from './Button'
 import avatar from '../images/michael-face.jpg'
+import { siteMetadata } from '../../gatsby-config'
 
 interface Header {
   siteTitle: string,
@@ -45,20 +46,20 @@ class Header extends React.Component<Header, State> {
 
     return (
       <header className={!this.state.shown ? `${classes}` : `bg-white ${classes}`}>
-        <a className="flex items-center text-xl font-body font-bold tracking-tight text-blue hover:text-blue-700 pointer-events-auto" href="/" aria-label={this.props.siteTitle}>
+        <a className="flex items-center text-xl font-body font-bold tracking-tight text-gray-900 hover:text-blue pointer-events-auto transition-colors" href="/" aria-label={this.props.siteTitle}>
           <div className="flex-initial h-8 w-8 rounded-full overflow-hidden mr-3 shadow-md">
             <img src={avatar} alt="Photo of Michael West" />
           </div>
           {process.env.NODE_ENV === 'development' ? (
             'Michael.dev'
           ) : (
-            'Michael.'
+            siteMetadata.title
           )
           }
         </a>
         <div className="flex-grow pointer-events-auto">
           <div className="hidden float-right lg:flex flex-row items-center">
-            <nav className="flex-auto mr-8">
+            <nav className="flex-auto">
               {this.props.menuLinks.map(link => (
                 <Link 
                   key={link.link}
@@ -69,11 +70,6 @@ class Header extends React.Component<Header, State> {
                 </Link>
               ))}
             </nav>
-            <div>
-              <Button to="/about" isInternal={true}>
-                Get in touch
-              </Button>
-            </div>
           </div>
           <div className="float-right -mr-1 -my-1 lg:hidden">
             <button type="button" style={{ backdropFilter: 'blur(30px)' }} className="bg-white bg-opacity-10 rounded-md p-2 inline-flex items-center justify-center text-gray-400 text-opacity-80 hover:text-gray-500 hover:text-opacity-100 hover:bg-gray-50 hover:bg-opacity-90 outline-none focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue transition-all hover:shadow" onClick={this.toggleHidden.bind(this)}>
@@ -111,11 +107,6 @@ class Header extends React.Component<Header, State> {
             </div>
           ))}
           </nav>
-          <div className="mx-auto max-w-max mt-4">
-            <Button to="/about" isInternal={true}>
-              Get in touch
-            </Button>
-          </div>
         </div>
         }
       </header>

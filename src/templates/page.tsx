@@ -35,17 +35,17 @@ export default function Template({ data }) {
       post.frontmatter.featuredImage
       ?
       <article className="mb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 lg:gap-16 mt-16 mb-32">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 mt-16 mb-32">
           <div>
             <h1 className="text-4xl font-bold mb-8">{post.frontmatter.title}</h1>
             {post.frontmatter.officialURL && <Button isInternal={false} to={post.frontmatter.officialURL}>{post.frontmatter.officialURLText}</Button>}
           </div>
           <div>
-            {post.frontmatter.description && <p className="font-body font-light leading-loose mt-8 sm:mt-0">{post.frontmatter.description}</p>}
+            {post.frontmatter.description && <p className="font-body font-light leading-loose">{post.frontmatter.description}</p>}
           </div>
         </div>
-        <Img fluid={post.frontmatter.featuredImage.childImageSharp.fluid} alt={post.frontmatter.featuredImageAlt}/>
-        <div className="prose w-3/6 lg:ml-auto lg:pl-8 font-body leading-relaxed tracking-tight my-24">
+        <Img className="lg:h-screen" fluid={post.frontmatter.featuredImage.childImageSharp.fluid} alt={post.frontmatter.featuredImageAlt}/>
+        <div className="prose mx-auto lg:mx-0 lg:w-3/6 lg:ml-auto lg:pl-8 font-body leading-relaxed tracking-tight my-24">
           {post.frontmatter.noMSFT && <NoMSFTDisclaimer title={post.frontmatter.title} />}
           <MDXProvider components={shortcodes}>
             <MDXRenderer>{post.body}</MDXRenderer>

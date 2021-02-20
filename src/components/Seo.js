@@ -9,6 +9,7 @@ import React from "react"
 import PropTypes from "prop-types"
 import { Helmet } from "react-helmet"
 import { useStaticQuery, graphql } from "gatsby"
+import { siteMetadata } from '../../gatsby-config'
 
 function SEO({ description, lang, meta, title, image }) {
   const { site } = useStaticQuery(
@@ -31,7 +32,7 @@ function SEO({ description, lang, meta, title, image }) {
   const metaDescription = description || site.siteMetadata.description
 
   var titleTemplate
-  if (title === "Michael West") {
+  if (title === siteMetadata.title) {
     titleTemplate = `%s`
   } else {
     titleTemplate = `%s - ${site.siteMetadata.title}`

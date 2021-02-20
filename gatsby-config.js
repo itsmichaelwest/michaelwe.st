@@ -1,10 +1,14 @@
 module.exports = {
   siteMetadata: {
-    title: `Michael West`,
+    title: `Michael.`,
     menuLinks: [
       {
         name: 'Work',
         link: '/work'
+      },
+      {
+        name: 'About',
+        link: '/about'
       }
     ],
     siteURL: `https://www.michaelwe.st/`,
@@ -81,7 +85,7 @@ module.exports = {
         background_color: `#FFFFFF`,
         theme_color: `#62BFED`,
         display: `minimal-ui`,
-        icon: `src/images/logo.svg`,
+        icon: `src/images/michael-face.jpg`,
         icon_options: {
           purpose: `any maskable`
         },

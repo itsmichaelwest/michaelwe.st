@@ -4,7 +4,7 @@ import Layout from "../components/Layout"
 import WorkBlock from "../components/WorkBlock"
 import IndexHero from "../components/IndexHero"
 import ContactLowerBanner from "../components/ContactLowerBanner"
-import { graphql, Link } from "gatsby"
+import { graphql } from "gatsby"
 import SEO from "../components/Seo"
 
 export default function IndexPage({data: { allMdx: { edges }}}) {     
@@ -14,7 +14,7 @@ export default function IndexPage({data: { allMdx: { edges }}}) {
 
     return (
       <Layout>
-        <SEO title="Michael West" />
+        <SEO title="Michael." />
         <IndexHero />
         <div className="lg:my-24 my-16">
           <div className="flex justify-start">

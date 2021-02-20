@@ -20,7 +20,7 @@ export default function IndexHero() {
       render={data => (
         <>
         <div className='w-auto max-w-prose my-32'>
-          <h1 className="text-8xl font-bold max-w-max mb-6">
+          <h1 className="text-8xl font-emoji font-bold max-w-max mb-6">
             👋
           </h1>
           <h1 className="text-3xl font-semibold leading-tight mb-4">
