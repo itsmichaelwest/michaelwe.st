@@ -85,7 +85,7 @@ module.exports = {
         background_color: `#FFFFFF`,
         theme_color: `#62BFED`,
         display: `minimal-ui`,
-        icon: `src/images/michael-face.jpg`,
+        icon: `src/images/michael-face-masked.png`,
         icon_options: {
           purpose: `any maskable`
         },

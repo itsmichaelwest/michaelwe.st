@@ -41,7 +41,6 @@ export const pageQuery = graphql`
             title
             description
             date(formatString: "MMMM YYYY")
-            hideFromList
             featuredBlockImage {
               childImageSharp {
                 fluid(maxWidth: 800) {
@@ -50,6 +49,9 @@ export const pageQuery = graphql`
               }
             }
             featuredImageAlt
+            officialURL
+            redirectToOfficialURL
+            hideFromList
           }
         }
       }
