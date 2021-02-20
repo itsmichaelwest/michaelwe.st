@@ -71,7 +71,7 @@ class Header extends React.Component<Header, State> {
               ))}
             </nav>
           </div>
-          <div className="float-right -mr-1 -my-1 lg:hidden">
+          <div className="float-right -my-1 lg:hidden">
             <button type="button" style={{ backdropFilter: 'blur(30px)' }} className="bg-white bg-opacity-10 rounded-md p-2 inline-flex items-center justify-center text-gray-400 text-opacity-80 hover:text-gray-500 hover:text-opacity-100 hover:bg-gray-50 hover:bg-opacity-90 outline-none focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue transition-all hover:shadow" onClick={this.toggleHidden.bind(this)}>
               {!this.state.shown
               ?
