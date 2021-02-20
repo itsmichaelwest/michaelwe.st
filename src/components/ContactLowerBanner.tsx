@@ -4,9 +4,9 @@ import Button from "./Button"
 export default function ContactLowerBanner() {
   return (
     <div className="bg-gray-200">
-      <div className="max-w-screen-lg sm:mx-auto sm:px-32 mx-8 lg:py-24 py-16">
+      <div className="max-w-screen-lg md:mx-auto md:px-32 mx-8 md:py-24 py-16">
         <div className="lg:w-6/12">
-          <h2 className="text-2xl font-semibold lg:mb-4 mb-2">
+          <h2 className="text-2xl font-semibold md:mb-4 mb-2">
             Let&apos;s work together
           </h2>
           <p className="text-gray-900 font-body font-light leading-relaxed tracking-tight mb-4">

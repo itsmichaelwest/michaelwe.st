@@ -16,7 +16,7 @@ export default function IndexPage({data: { allMdx: { edges }}}) {
       <Layout>
         <SEO title="Michael West" />
         <IndexHero />
-        <div className="max-w-screen-lg sm:mx-auto sm:px-32 mx-8 lg:my-24 my-16">
+        <div className="lg:my-24 my-16">
           <div className="flex justify-start">
             <div className="w-full lg:w-6/12">
               <h2 className="text-2xl font-semibold lg:mb-4 mb-2">

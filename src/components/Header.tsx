@@ -1,5 +1,6 @@
 import { Link } from "gatsby"
 import React from "react"
+import Button from './Button'
 
 interface Header {
   siteTitle: string,
@@ -37,7 +38,7 @@ class Header extends React.Component<Header, State> {
     }
   }
   render() {
-    const classes = "sticky max-w-screen-lg mx-auto top-0 h-24 sm:h-40 z-20 p-8 sm:px-32 sm:py-16 pointer-events-none"
+    const classes = "sticky lg:relative flex align-center max-w-screen-lg mx-auto top-0 p-8 h-40 z-20 pointer-events-none"
 
     return (
       <header className={!this.state.shown ? `${classes}` : `bg-white ${classes}`}>
@@ -61,19 +62,26 @@ class Header extends React.Component<Header, State> {
           )
           }
         </a>
-        <div className="float-right pointer-events-auto">
-          <nav className="hidden lg:inline">
-            {this.props.menuLinks.map(link => (
-              <Link 
-                key={link.link}
-                to={link.link}
-                className="font-body ml-8 text-gray-400 text-opacity-70 hover:text-blue hover:text-opacity-100 transition-all"
-                activeClassName="font-bold text-gray-900">
-                  {link.name}
-              </Link>
-            ))}
-          </nav>
-          <div className="-mr-1 -my-1 lg:hidden">
+        <div className="flex-grow pointer-events-auto">
+          <div className="hidden float-right lg:flex flex-row items-center">
+            <nav className="flex-auto mr-12">
+              {this.props.menuLinks.map(link => (
+                <Link 
+                  key={link.link}
+                  to={link.link}
+                  className="font-body ml-8 text-gray-400 text-opacity-70 hover:text-blue hover:text-opacity-100 transition-all"
+                  activeClassName="font-bold text-gray-900">
+                    {link.name}
+                </Link>
+              ))}
+            </nav>
+            <div>
+              <Button to="/about" isInternal={true}>
+                Get in touch
+              </Button>
+            </div>
+          </div>
+          <div className="float-right -mr-1 -my-1 lg:hidden">
             <button type="button" style={{ backdropFilter: 'blur(30px)' }} className="bg-white bg-opacity-10 rounded-md p-2 inline-flex items-center justify-center text-gray-400 text-opacity-80 hover:text-gray-500 hover:text-opacity-100 hover:bg-gray-100 hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue transition-colors   shadow-sm" onClick={this.toggleHidden.bind(this)}>
               {!this.state.shown
               ?
@@ -95,14 +103,14 @@ class Header extends React.Component<Header, State> {
           </div>
         </div>
         {this.state.shown &&
-        <div className="absolute top-24 sm:top-32 inset-0 h-screen transition transform origin-top-right bg-white pointer-events-auto">
+        <div className="absolute top-40 inset-0 h-screen transition transform origin-top-right bg-white pointer-events-auto">
           <nav className="sm:mt-4">
           {this.props.menuLinks.map(link => (
               <div key={link.link}>
               <Link 
                   key={link.link}
                   to={link.link}
-                  className="block w-100 h-full px-8 py-4 sm:px-32 sm:py-4 font-body text-black hover:bg-blue-700 hover:text-white"
+                  className="block w-100 h-full px-8 py-4 sm:py-4 font-body text-black hover:bg-blue-700 hover:text-white"
                   activeClassName="font-bold text-white bg-blue hover:bg-blue-700 hover:text-white">
                   {link.name}
               </Link>

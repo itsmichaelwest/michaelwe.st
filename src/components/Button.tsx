@@ -2,7 +2,7 @@ import React from "react"
 import { Link } from "gatsby"
 import PropTypes from 'prop-types'
 
-const Button = ({ isInternal, style, to, children }) => {
+const Button = ({ className, isInternal, style, to, children }) => {
     let bg: string
 
     if (style === "onPrimary") {
@@ -11,7 +11,7 @@ const Button = ({ isInternal, style, to, children }) => {
         bg = "bg-blue text-white hover:bg-blue-700"
     }
 
-    const classes = "transition-colors px-8 py-4 rounded inline-block font-body font-light leading-relaxed tracking-tight"
+    const classes = "transition-colors px-6 py-2 rounded inline-block font-body"
 
     return (
         isInternal 
@@ -27,6 +27,7 @@ const Button = ({ isInternal, style, to, children }) => {
 }
 
 Button.propTypes = {
+    className: PropTypes.string,
     isInternal: PropTypes.bool,
     style: PropTypes.string,
     to: PropTypes.string,
