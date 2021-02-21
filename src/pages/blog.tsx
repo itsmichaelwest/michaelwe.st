@@ -20,7 +20,7 @@ export default function BlogList({data: {allMdx: { edges }}}) {
     :
     <Layout>
       <div className="lg:mb-24 mb-16">
-        <h1 className="text-3xl font-semibold">No blog posts!</h1>
+        <h1 className="text-3xl font-header font-semibold">No blog posts!</h1>
         <p className="font-body mt-4">Perhaps some will appear here in the future... 🙂</p>
       </div>
     </Layout>
