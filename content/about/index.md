@@ -12,3 +12,5 @@ I strongly believe in open design, and encourage co-creation that can help deliv
 Accessibility and inclusion sit at the center of my process — nobody should be left with a subpar experience.
 
 Currently taking a break. Previously design intern at [Microsoft](https://www.microsoft.com/) working on a variety of products and design systems, and freelance before that. Awarded 2018-19 [Microsoft MVP](https://mvp.microsoft.com/) (Most Valuable Professional) for Windows Design.
+
+[Download resumé](./mw-resume-dec2020.pdf)
