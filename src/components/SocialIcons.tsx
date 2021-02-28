@@ -31,7 +31,7 @@ export default function SocialIcons() {
                 </a>
             </div>
             <div className="h-10 w-10 bg-white hover:bg-gray-50 border border-gray-100 dark:text-white dark:bg-gray-900 dark:hover:bg-gray-700 dark:border-gray-800 box-content hover:shadow-md hover:text-behance rounded-full transition-all duration-100">
-                <a href="https://dribbble.com/itsmichaelwest">
+                <a href="https://www.behance.net/itsmichaelwest">
                     <span className="sr-only">Behance</span>
                     <svg className="relative h-6 mx-2 top-2 fill-current" viewBox="0 0 28 28">
                         <title>Behance</title>
