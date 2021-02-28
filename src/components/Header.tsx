@@ -42,7 +42,7 @@ class Header extends React.Component<Header, State> {
   }
   
   render() {
-    const classes = "flex align-center px-8 sm:px-16 py-8 sm:py-16 z-20 pointer-events-none transition-all"
+    const classes = "flex align-center px-8 sm:px-16 py-8 sm:py-16 z-20 pointer-events-none transition-all z-10"
 
     return (
       <header className={!this.state.shown ? `${classes}` : `bg-white dark:bg-black ${classes}`}>
@@ -93,7 +93,7 @@ class Header extends React.Component<Header, State> {
           </div>
         </div>
         {this.state.shown &&
-        <div className="absolute top-24 sm:top-32 inset-0 h-screen transition-all bg-white dark:bg-black pointer-events-auto">
+        <div className="absolute top-24 sm:top-32 inset-0 h-screen transition-all bg-white dark:bg-black pointer-events-auto z-10">
           <nav className="sm:mt-4">
           {this.props.menuLinks.map(link => (
             <div key={link.link}>
