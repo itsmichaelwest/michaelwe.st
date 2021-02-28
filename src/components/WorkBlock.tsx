@@ -12,7 +12,7 @@ export default function WorkBlock({ post }) {
     post.frontmatter.redirectToOfficialURL 
     ? 
     <div className="group">
-      <div className="relative h-64 sm:h-96 transition-all overflow-hidden">
+      <div className="relative h-64 sm:h-work-block transition-all overflow-hidden" style={{ maxHeight: '120rem' }}>
         <a className="absolute w-full h-full z-10 opacity-0 group-hover:opacity-75 bg-white transition-all" href={post.frontmatter.officialURL}></a>
         <Img className="h-full" fluid={post.frontmatter.featuredBlockImage.childImageSharp.fluid} alt={post.frontmatter.featuredImageAlt} />
       </div>
@@ -24,7 +24,7 @@ export default function WorkBlock({ post }) {
     </div>
     :
     <div className="group">
-      <div className="relative h-64 sm:h-96 transition-all overflow-hidden">
+      <div className="relative h-64 sm:h-work-block transition-all overflow-hidden" style={{ maxHeight: '120rem' }}>
         <Link className="absolute w-full h-full z-10 opacity-0 group-hover:opacity-75 bg-white transition-all" to={post.fields.slug}></Link>
         {
           post.frontmatter.featuredBlockImage && 

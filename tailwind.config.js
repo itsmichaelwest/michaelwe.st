@@ -63,6 +63,9 @@ module.exports = {
             }
           }
         }
+      },
+      height: {
+        'work-block': '70vh',
       }
     },
   },

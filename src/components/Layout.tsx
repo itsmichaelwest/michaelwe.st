@@ -24,7 +24,7 @@ const Layout = ({ children }) => {
   return (
     <>
       <Header siteTitle={data.site.siteMetadata.title} menuLinks={data.site.siteMetadata.menuLinks} />
-      <main className="mx-8 sm:mx-16 transition-all">
+      <main className="mx-8 sm:mx-16 2xl:mx-auto max-w-screen-2xl w-auto transition-all">
         {children}
       </main>
       <Footer/>

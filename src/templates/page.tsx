@@ -44,8 +44,8 @@ export default function Template({ data }) {
             {post.frontmatter.description && <p className="font-body font-light leading-loose">{post.frontmatter.description}</p>}
           </div>
         </div>
-        <Img className="lg:h-screen" fluid={post.frontmatter.featuredImage.childImageSharp.fluid} alt={post.frontmatter.featuredImageAlt}/>
-        <div className="prose mx-auto lg:mx-0 lg:w-3/6 lg:ml-auto lg:pl-8 font-body leading-relaxed tracking-tight my-24">
+        <Img className="lg:h-screen" style={{ maxHeight: '100rem' }} fluid={post.frontmatter.featuredImage.childImageSharp.fluid} alt={post.frontmatter.featuredImageAlt}/>
+        <div className="prose mx-auto font-body leading-relaxed tracking-tight my-24">
           {post.frontmatter.noMSFT && <NoMSFTDisclaimer title={post.frontmatter.title} />}
           <MDXProvider components={shortcodes}>
             <MDXRenderer>{post.body}</MDXRenderer>
