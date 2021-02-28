@@ -45,5 +45,3 @@ We spent a lot of time researching how people react to and use SwiftKey on this 
 I also had to opportunity to collaborate closely with the Surface design team themselves to craft tailor-made software experiences that work beautifully in any posture.
 
 <YouTubeVideo videoSrcUrl="https://www.youtube.com/embed/CqRKOY4Cgvw?controls=0&disablekb=1" videoTitle="The new Surface Duo. Do one better." />
-
-Surface Duo is available in the US at [Microsoft Store](https://www.microsoft.com/en-us/surface/devices/surface-duo), AT&T, and Best Buy.
