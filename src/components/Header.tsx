@@ -42,7 +42,7 @@ class Header extends React.Component<Header, State> {
   }
   
   render() {
-    const classes = "sticky lg:relative flex align-center top-0 px-8 sm:px-16 py-8 sm:py-16 z-20 pointer-events-none transition-all"
+    const classes = "flex align-center px-8 sm:px-16 py-8 sm:py-16 z-20 pointer-events-none transition-all"
 
     return (
       <header className={!this.state.shown ? `${classes}` : `bg-white dark:bg-black ${classes}`}>
