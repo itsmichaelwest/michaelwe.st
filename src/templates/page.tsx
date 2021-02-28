@@ -25,82 +25,81 @@ export default function Template({ data }) {
   const imageSocial = origin + imageSrc
 
   return (
-    <Layout>
-      <SEO
-        title={post.frontmatter.title}
-        description={post.frontmatter.description}
-        image={imageSocial}
-      />
-      {
-      post.frontmatter.featuredImage
-      ?
-      <article className="mb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 mt-16 mb-32">
-          <div>
-            <h1 className="text-4xl font-header font-bold mb-8 dark:text-white">{post.frontmatter.title}</h1>
-            {post.frontmatter.officialURL && <Button isInternal={false} to={post.frontmatter.officialURL}>{post.frontmatter.officialURLText}</Button>}
-          </div>
-          <div>
-            {post.frontmatter.description && <p className="font-body font-light leading-loose dark:text-gray-100">{post.frontmatter.description}</p>}
-          </div>
-        </div>
-        <Img className="lg:h-screen" style={{ maxHeight: '100rem' }} fluid={post.frontmatter.featuredImage.childImageSharp.fluid} alt={post.frontmatter.featuredImageAlt}/>
-        <div className="prose mx-auto font-body leading-relaxed tracking-tight my-24 dark:prose-dark">
-          {post.frontmatter.noMSFT && <NoMSFTDisclaimer title={post.frontmatter.title} />}
-          <MDXProvider components={shortcodes}>
-            <MDXRenderer>{post.body}</MDXRenderer>
-          </MDXProvider>
-        </div>
-      </article>
-      :
-      <article className="mb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 sm:gap-8 my-16">
-          <div>
-            <h1 className="text-4xl font-header font-bold mb-8 dark:text-white">{post.frontmatter.title}</h1>
-            {post.frontmatter.officialURL && <Button isInternal={false} to={post.frontmatter.officialURL}>{post.frontmatter.officialURLText}</Button>}
-          </div>
-          <div className="prose font-body leading-loose tracking-tight dark:prose-dark">
-            {post.frontmatter.noMSFT && <NoMSFTDisclaimer title={post.frontmatter.title} />}
-            <MDXProvider components={shortcodes}>
-              <MDXRenderer>{post.body}</MDXRenderer>
-            </MDXProvider>
-          </div>
-        </div>
-      </article>
-      }
-    </Layout>
-  )
+        <Layout>
+            <SEO
+                title={post.frontmatter.title}
+                description={post.frontmatter.description}
+                image={imageSocial}
+            />
+            {
+            post.frontmatter.featuredImage
+            ?
+            <article className="mb-16">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 mt-16 mb-32">
+                    <div>
+                        <h1 className="text-4xl font-header font-bold mb-8 dark:text-white">{post.frontmatter.title}</h1>
+                        {post.frontmatter.officialURL && <Button isInternal={false} to={post.frontmatter.officialURL}>{post.frontmatter.officialURLText}</Button>}
+                    </div>
+                    <div>
+                        {post.frontmatter.description && <p className="font-body font-light leading-loose dark:text-gray-100">{post.frontmatter.description}</p>}
+                    </div>
+                    </div>
+                    <Img className="lg:h-screen" style={{ maxHeight: '100rem' }} fluid={post.frontmatter.featuredImage.childImageSharp.fluid} alt={post.frontmatter.featuredImageAlt}/>
+                    <div className="prose mx-auto font-body leading-relaxed tracking-tight my-24 dark:prose-dark">
+                    {post.frontmatter.noMSFT && <NoMSFTDisclaimer title={post.frontmatter.title} />}
+                    <MDXProvider components={shortcodes}>
+                        <MDXRenderer>{post.body}</MDXRenderer>
+                    </MDXProvider>
+                </div>
+            </article>
+            :
+            <article className="mb-16">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 sm:gap-8 my-16">
+                    <div>
+                        <h1 className="text-4xl font-header font-bold mb-8 dark:text-white">{post.frontmatter.title}</h1>
+                        {post.frontmatter.officialURL && <Button isInternal={false} to={post.frontmatter.officialURL}>{post.frontmatter.officialURLText}</Button>}
+                    </div>
+                    <div className="prose font-body leading-loose tracking-tight dark:prose-dark">
+                        {post.frontmatter.noMSFT && <NoMSFTDisclaimer title={post.frontmatter.title} />}
+                        <MDXProvider components={shortcodes}>
+                        <MDXRenderer>{post.body}</MDXRenderer>
+                        </MDXProvider>
+                    </div>
+                </div>
+            </article>
+            }
+        </Layout>
+    )
 }
 
 Template.propTypes = {
-  data: PropTypes.any
+    data: PropTypes.any
 }
 
 export const pageQuery = graphql`
-  query ArticleBySlug($slug: String!) {
+query ArticleBySlug($slug: String!) {
     mdx(fields: { slug: { eq: $slug } }) {
-      id
-      body
-      frontmatter {
-        title
-        date(formatString: "MMMM DD, YYYY")
-        description
-        category
-        featuredImage {
-          name
-          extension
-          childImageSharp {
-            fluid(maxWidth: 2560) {
-              ...GatsbyImageSharpFluid_withWebp
+        id
+        body
+        frontmatter {
+            title
+            date(formatString: "MMMM DD, YYYY")
+            description
+            category
+            featuredImage {
+                name
+                extension
+                childImageSharp {
+                    fluid(maxWidth: 2560) {
+                        ...GatsbyImageSharpFluid_withWebp
+                    }
+                }
             }
-          }
+            featuredImageAlt
+            officialURL
+            officialURLText
+            noMSFT
+            aliases
         }
-        featuredImageAlt
-        officialURL
-        officialURLText
-        noMSFT
-        aliases
-      }
     }
-  }
-`
+}`
