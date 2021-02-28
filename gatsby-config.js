@@ -19,6 +19,9 @@ module.exports = {
       twitter: `@itsmichaelwest`,
     },
   },
+  flags: {
+    FAST_DEV: true,
+  },
   plugins: [
     `gatsby-plugin-postcss`,
     `gatsby-plugin-netlify-cache`,
