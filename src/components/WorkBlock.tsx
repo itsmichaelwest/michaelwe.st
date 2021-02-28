@@ -17,7 +17,7 @@ export default function WorkBlock({ post }) {
         <Img className="h-full" fluid={post.frontmatter.featuredBlockImage.childImageSharp.fluid} alt={post.frontmatter.featuredImageAlt} />
       </div>
       <a href={post.frontmatter.officialURL}>
-        <h2 className="group-hover:text-blue mt-4 text-2xl font-header font-semibold transition-colors">
+        <h2 className="group-hover:text-blue dark:text-white mt-4 text-2xl font-header font-semibold transition-colors">
           {post.frontmatter.title}
         </h2>
       </a>
@@ -32,7 +32,7 @@ export default function WorkBlock({ post }) {
         }
       </div>
       <Link to={post.fields.slug}>
-        <h2 className="group-hover:text-blue mt-4 text-2xl font-header font-semibold transition-colors">
+        <h2 className="group-hover:text-blue dark:text-white mt-4 text-2xl font-header font-semibold transition-colors">
           {post.frontmatter.title}
         </h2>
       </Link>

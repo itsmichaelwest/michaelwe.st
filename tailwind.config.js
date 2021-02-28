@@ -52,24 +52,50 @@ module.exports = {
           DEFAULT: '#1769ff',
         },
       },
-      typography: {
+      typography: (theme) => ({
         DEFAULT: {
           css: {
+            color: theme('colors.gray.500'),
             a: {
-              color: '#3591f3',
-              '&:hover': {
-                color: '#3071d1'
+              color: theme('colors.blue.500'),
+              textDecoration: 'none',
+              "&:hover": {
+                color: theme('colors.blue.700'),
+                textDecoration: 'none',
               },
-            }
-          }
-        }
-      },
+            },
+          },
+        },
+        dark: {
+          css: {
+            color: theme('colors.gray.100'),
+            a: {
+              color: theme('colors.blue.500'),
+              textDecoration: 'none',
+              "&:hover": {
+                color: theme('colors.blue.300'),
+                textDecoration: 'none',
+              },
+            },
+            h2: {
+              color: theme('colors.gray.200')
+            },
+            h4: {
+              color: theme('colors.gray.200')
+            },
+            strong: {
+              color: theme('colors.gray.100')
+            },
+          },
+        },
+      }),
       height: {
         'work-block': '70vh',
       }
     },
   },
   variants: {
+    typography: ['dark'],
     extend: {},
   },
   plugins: [

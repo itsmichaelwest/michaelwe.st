@@ -3,7 +3,7 @@ import React from 'react'
 export default function SocialIcons() {
     return (
         <div className="mt-4 flex">
-            <div className="h-10 w-10 mr-2 bg-white hover:bg-gray-50 border border-gray-100 box-content hover:shadow-md hover:text-twitter rounded-full transition-all duration-100">
+            <div className="h-10 w-10 mr-2 bg-white hover:bg-gray-50 border border-gray-100 dark:text-white dark:bg-gray-900 dark:hover:bg-gray-700 dark:border-gray-800 box-content hover:shadow-md hover:text-twitter rounded-full transition-all duration-100">
                 <a href="https://twitter.com/itsmichaelwest">
                     <span className="sr-only">Twitter</span>
                     <svg className="relative h-6 mx-2 top-2 fill-current" viewBox="0 0 28 28">
@@ -12,7 +12,7 @@ export default function SocialIcons() {
                     </svg>
                 </a>
             </div>
-            <div className="h-10 w-10 mr-2 bg-white hover:bg-gray-50 border border-gray-100 box-content hover:shadow-md hover:text-linkedin rounded-full transition-all duration-100">
+            <div className="h-10 w-10 mr-2 bg-white hover:bg-gray-50 border border-gray-100 dark:text-white dark:bg-gray-900 dark:hover:bg-gray-700 dark:border-gray-800 box-content hover:shadow-md hover:text-linkedin rounded-full transition-all duration-100">
                 <a href="https://www.linkedin.com/in/itsmichaelwest">
                     <span className="sr-only">LinkedIn</span>
                     <svg className="relative h-6 mx-2 top-2 fill-current" viewBox="0 0 28 28">
@@ -21,7 +21,7 @@ export default function SocialIcons() {
                     </svg>
                 </a>
             </div>
-            <div className="h-10 w-10 mr-2 bg-white hover:bg-gray-50 border border-gray-100 box-content hover:shadow-md hover:text-dribbble rounded-full transition-all duration-100">
+            <div className="h-10 w-10 mr-2 bg-white hover:bg-gray-50 border border-gray-100 dark:text-white dark:bg-gray-900 dark:hover:bg-gray-700 dark:border-gray-800 box-content hover:shadow-md hover:text-dribbble rounded-full transition-all duration-100">
                 <a href="https://dribbble.com/itsmichaelwest">
                     <span className="sr-only">Dribbble</span>
                     <svg className="relative h-6 mx-2 top-2 fill-current" viewBox="0 0 28 28">
@@ -30,7 +30,7 @@ export default function SocialIcons() {
                     </svg>
                 </a>
             </div>
-            <div className="h-10 w-10 bg-white hover:bg-gray-50 border border-gray-100 box-content hover:shadow-md hover:text-behance rounded-full transition-all duration-100">
+            <div className="h-10 w-10 bg-white hover:bg-gray-50 border border-gray-100 dark:text-white dark:bg-gray-900 dark:hover:bg-gray-700 dark:border-gray-800 box-content hover:shadow-md hover:text-behance rounded-full transition-all duration-100">
                 <a href="https://dribbble.com/itsmichaelwest">
                     <span className="sr-only">Behance</span>
                     <svg className="relative h-6 mx-2 top-2 fill-current" viewBox="0 0 28 28">

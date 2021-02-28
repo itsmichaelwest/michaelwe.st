@@ -19,7 +19,7 @@ export default function IndexPage({data: { allMdx: { edges }}}) {
         <div className="lg:my-24 my-16">
           <div className="flex justify-start">
             <div className="w-full lg:w-6/12">
-              <h2 className="text-xl text-gray-900 font-header font-bold">
+              <h2 className="text-xl text-gray-900 dark:text-gray-100 font-header font-bold">
                 Recent work
               </h2>
             </div>
