@@ -41,7 +41,7 @@ Logically, one of the next steps for the Your Phone app after photos and message
 
 First you can see how the list of recent calls would look. There are status icons associated with each call, informing the user if a call was outgoing, incoming, or if it wasn’t answered. Wherever possible, there is a button that can be tapped to instantly initiate a new call with that contact.
 
-![Recent calls from the user's Android phone are displayed.](./YP_calls.jpg)
+![Recent calls from the user's Android phone are displayed.](./YP_Calls.jpg)
 
 In addition to seeing and making calls to phone contacts, there’s also a Bing-powered search experience that allows a user to type a query—in this case, Martina is looking for lunch in the Bellevue area—and see matching businesses or people. From there, the user can tap an item to view more info or instantly go into a call by using the phone icon.
 
