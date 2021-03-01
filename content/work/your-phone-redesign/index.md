@@ -21,7 +21,7 @@ The messaging features of Your Phone are already quite well done today. The next
 
 ![The messages view of Your Phone. No conversation is selected right now.](./YP_Messages.jpg)
 
-![The messages view of Your Phone, now with a selected conversation thread.](/YP_Messages_Selected.jpg)
+![The messages view of Your Phone, now with a selected conversation thread.](./YP_Messages_Selected.jpg)
 
 What is new is this popover that now appears when tapping or clicking on a contact’s avatar. This view provides clear information about the person (or persons, in the case of group conversations) you are talking to. It’s also possible to initiate a phone or Skype call directly from here, as well as map an address or start composing an email.
 
