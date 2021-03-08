@@ -36,7 +36,7 @@
     "gatsby-source-git": "^1.1.0",
     "gatsby-transformer-sharp": "^2.5.10",
     "lottie-web": "^5.7.0",
-    "postcss": "^8.2.4",
+    "postcss": "^8.2.7",
     "prop-types": "^15.7.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
