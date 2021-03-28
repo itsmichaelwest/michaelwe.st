@@ -8,22 +8,26 @@ import Layout from "../components/Layout"
 import SEO from "../components/Seo"
 import NoMSFTDisclaimer from "../components/NoMSFTDisclaimer"
 import Button from "../components/Button"
-import ContactLowerBanner from '../components/ContactLowerBanner'
 
 const shortcodes = { Link }
 
 export default function Template({ data }) {
     const post = data.mdx
-    const image = getImage(post.frontmatter.featuredImage)
 
-    const imageSrc = image.images.fallback.src
+    let image, imageSocial
 
-    let origin = ""
-    if (typeof window !== "undefined") {
-        origin = window.location.origin
+    if (post.frontmatter.featuredImage !== undefined) {
+        image = getImage(post.frontmatter.featuredImage)
+
+        const imageSrc = image.images.fallback.src
+
+        let origin
+        if (typeof window !== "undefined") {
+            origin = window.location.origin
+        }
+
+        imageSocial = origin + imageSrc
     }
-
-    const imageSocial = origin + imageSrc
 
     return (
         <Layout>
@@ -51,7 +55,7 @@ export default function Template({ data }) {
                     </div>
                 </div>
                 <GatsbyImage className="lg:h-screen" style={{ maxHeight: '100rem' }} image={image} alt={post.frontmatter.featuredImageAlt}/>
-                <div className="prose mx-auto font-body leading-relaxed tracking-tight my-24 dark:prose-dark">
+                <div className="prose mx-auto font-body leading-loose tracking-tight my-24 dark:prose-dark">
                     {post.frontmatter.noMSFT && <NoMSFTDisclaimer title={post.frontmatter.title} />}
                     <MDXProvider components={shortcodes}>
                         <MDXRenderer>{post.body}</MDXRenderer>
@@ -60,26 +64,28 @@ export default function Template({ data }) {
             </article>
             :
             <article className="mb-16">
-                <div className="my-16">
+                <div className="mt-16 mb-32">
                     <p className="text-sm mb-4 text-gray-600">
                         {post.frontmatter.category} — {post.frontmatter.date}
                     </p>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 sm:gap-8">
-                    <div>
-                        <h1 className="text-4xl font-header font-bold mb-8 dark:text-white">{post.frontmatter.title}</h1>
-                        {post.frontmatter.officialURL && <Button isInternal={false} to={post.frontmatter.officialURL}>{post.frontmatter.officialURLText}</Button>}
-                    </div>
-                    <div className="prose font-body leading-loose tracking-tight dark:prose-dark">
-                        {post.frontmatter.noMSFT && <NoMSFTDisclaimer title={post.frontmatter.title} />}
-                        <MDXProvider components={shortcodes}>
-                            <MDXRenderer>{post.body}</MDXRenderer>
-                        </MDXProvider>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
+                        <div>
+                            <h1 className="text-4xl font-header font-bold mb-8 dark:text-white">{post.frontmatter.title}</h1>
+                            {post.frontmatter.officialURL && <Button isInternal={false} to={post.frontmatter.officialURL}>{post.frontmatter.officialURLText}</Button>}
+                        </div>
+                        <div>
+                            {post.frontmatter.description && <p className="font-body font-light leading-loose dark:text-gray-100">{post.frontmatter.description}</p>}
+                        </div>
                     </div>
                 </div>
+                <div className="prose mx-auto font-body leading-loose tracking-tight my-24 dark:prose-dark">
+                    {post.frontmatter.noMSFT && <NoMSFTDisclaimer title={post.frontmatter.title} />}
+                    <MDXProvider components={shortcodes}>
+                        <MDXRenderer>{post.body}</MDXRenderer>
+                    </MDXProvider>
                 </div>
             </article>
             }
-            <ContactLowerBanner/>
         </Layout>
     )
 }
