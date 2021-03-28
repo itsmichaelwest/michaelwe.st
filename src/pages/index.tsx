@@ -14,7 +14,7 @@ export default function IndexPage({data: { allMdx: { edges }}}) {
 
     return (
         <Layout>
-            <SEO title="Michael." />
+            <SEO title="Michael" />
             <IndexHero />
             <div className="lg:my-24 my-16">
             <div className="flex justify-start">
@@ -54,9 +54,11 @@ query {
                     category
                     featuredBlockImage {
                         childImageSharp {
-                            fluid(maxWidth: 1200, quality: 100) {
-                                ...GatsbyImageSharpFluid_withWebp
-                            }
+                            gatsbyImageData(
+                                width: 1200
+                                placeholder: BLURRED
+                                formats: [AUTO, WEBP, AVIF]
+                            )
                         }
                     }
                     featuredImageAlt

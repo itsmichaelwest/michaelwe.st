@@ -17,7 +17,7 @@ const Button = ({ className, isInternal, style, to, children }) => {
         isInternal 
         ?
         <Link to={to} className={`${bg} ${classes}`}>
-            {children}
+            {children} &rarr;
         </Link>
         :
         <a href={to} className={`${bg} ${classes}`}>

@@ -43,9 +43,11 @@ query {
                     date(formatString: "MMMM YYYY")
                     featuredBlockImage {
                         childImageSharp {
-                            fluid(maxWidth: 800) {
-                                ...GatsbyImageSharpFluid_withWebp
-                            }
+                            gatsbyImageData(
+                                width: 1200
+                                placeholder: BLURRED
+                                formats: [AUTO, WEBP, AVIF]
+                            )
                         }
                     }
                     featuredImageAlt

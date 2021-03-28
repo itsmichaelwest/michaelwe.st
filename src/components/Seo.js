@@ -29,7 +29,7 @@ function SEO({ description, lang, meta, title, image }) {
 
     const metaDescription = description || site.siteMetadata.description
 
-    var titleTemplate
+    let titleTemplate
     if (title === siteMetadata.title) {
         titleTemplate = `%s`
     } else {

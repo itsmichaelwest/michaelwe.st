@@ -1,30 +1,31 @@
 import React from "react"
 import PropTypes from 'prop-types'
 import { graphql, Link } from "gatsby"
-import Img from "gatsby-image"
+import { GatsbyImage, getImage } from "gatsby-plugin-image"
 import { MDXProvider } from "@mdx-js/react"
 import { MDXRenderer } from "gatsby-plugin-mdx"
 import Layout from "../components/Layout"
 import SEO from "../components/Seo"
 import NoMSFTDisclaimer from "../components/NoMSFTDisclaimer"
 import Button from "../components/Button"
+import ContactLowerBanner from '../components/ContactLowerBanner'
 
 const shortcodes = { Link }
 
 export default function Template({ data }) {
-  const post = data.mdx
-  const image = post.frontmatter.featuredImage
+    const post = data.mdx
+    const image = getImage(post.frontmatter.featuredImage)
 
-  const imageSrc = image && image.childImageSharp.fluid.src
+    const imageSrc = image.images.fallback.src
 
-  let origin = ""
-  if (typeof window !== "undefined") {
-      origin = window.location.origin
-  }
+    let origin = ""
+    if (typeof window !== "undefined") {
+        origin = window.location.origin
+    }
 
-  const imageSocial = origin + imageSrc
+    const imageSocial = origin + imageSrc
 
-  return (
+    return (
         <Layout>
             <SEO
                 title={post.frontmatter.title}
@@ -35,17 +36,22 @@ export default function Template({ data }) {
             post.frontmatter.featuredImage
             ?
             <article className="mb-16">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 mt-16 mb-32">
-                    <div>
-                        <h1 className="text-4xl font-header font-bold mb-8 dark:text-white">{post.frontmatter.title}</h1>
-                        {post.frontmatter.officialURL && <Button isInternal={false} to={post.frontmatter.officialURL}>{post.frontmatter.officialURLText}</Button>}
+                <div className="mt-16 mb-32">
+                    <p className="text-sm mb-4 text-gray-600">
+                        {post.frontmatter.category} — {post.frontmatter.date}
+                    </p>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
+                        <div>
+                            <h1 className="text-4xl font-header font-bold mb-8 dark:text-white">{post.frontmatter.title}</h1>
+                            {post.frontmatter.officialURL && <Button isInternal={false} to={post.frontmatter.officialURL}>{post.frontmatter.officialURLText}</Button>}
+                        </div>
+                        <div>
+                            {post.frontmatter.description && <p className="font-body font-light leading-loose dark:text-gray-100">{post.frontmatter.description}</p>}
+                        </div>
                     </div>
-                    <div>
-                        {post.frontmatter.description && <p className="font-body font-light leading-loose dark:text-gray-100">{post.frontmatter.description}</p>}
-                    </div>
-                    </div>
-                    <Img className="lg:h-screen" style={{ maxHeight: '100rem' }} fluid={post.frontmatter.featuredImage.childImageSharp.fluid} alt={post.frontmatter.featuredImageAlt}/>
-                    <div className="prose mx-auto font-body leading-relaxed tracking-tight my-24 dark:prose-dark">
+                </div>
+                <GatsbyImage className="lg:h-screen" style={{ maxHeight: '100rem' }} image={image} alt={post.frontmatter.featuredImageAlt}/>
+                <div className="prose mx-auto font-body leading-relaxed tracking-tight my-24 dark:prose-dark">
                     {post.frontmatter.noMSFT && <NoMSFTDisclaimer title={post.frontmatter.title} />}
                     <MDXProvider components={shortcodes}>
                         <MDXRenderer>{post.body}</MDXRenderer>
@@ -54,7 +60,11 @@ export default function Template({ data }) {
             </article>
             :
             <article className="mb-16">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 sm:gap-8 my-16">
+                <div className="my-16">
+                    <p className="text-sm mb-4 text-gray-600">
+                        {post.frontmatter.category} — {post.frontmatter.date}
+                    </p>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 sm:gap-8">
                     <div>
                         <h1 className="text-4xl font-header font-bold mb-8 dark:text-white">{post.frontmatter.title}</h1>
                         {post.frontmatter.officialURL && <Button isInternal={false} to={post.frontmatter.officialURL}>{post.frontmatter.officialURLText}</Button>}
@@ -62,12 +72,14 @@ export default function Template({ data }) {
                     <div className="prose font-body leading-loose tracking-tight dark:prose-dark">
                         {post.frontmatter.noMSFT && <NoMSFTDisclaimer title={post.frontmatter.title} />}
                         <MDXProvider components={shortcodes}>
-                        <MDXRenderer>{post.body}</MDXRenderer>
+                            <MDXRenderer>{post.body}</MDXRenderer>
                         </MDXProvider>
                     </div>
                 </div>
+                </div>
             </article>
             }
+            <ContactLowerBanner/>
         </Layout>
     )
 }
@@ -83,16 +95,18 @@ query ArticleBySlug($slug: String!) {
         body
         frontmatter {
             title
-            date(formatString: "MMMM DD, YYYY")
+            date(formatString: "MMMM YYYY")
             description
             category
             featuredImage {
                 name
                 extension
                 childImageSharp {
-                    fluid(maxWidth: 2560) {
-                        ...GatsbyImageSharpFluid_withWebp
-                    }
+                    gatsbyImageData(
+                        width: 2560
+                        placeholder: BLURRED
+                        formats: [AUTO, WEBP, AVIF]
+                    )
                 }
             }
             featuredImageAlt

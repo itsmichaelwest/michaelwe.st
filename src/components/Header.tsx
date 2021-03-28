@@ -89,7 +89,7 @@ class Header extends React.Component<Header, State> {
                 </div>
                 </div>
                 {this.state.shown &&
-                <div className="absolute top-24 sm:top-32 inset-0 h-screen transition-all bg-white dark:bg-black pointer-events-auto z-10">
+                <div className="absolute top-24 sm:top-32 inset-0 h-screen transition-all bg-white dark:bg-black pointer-events-auto z-20">
                     <nav className="sm:mt-4">
                     {this.props.menuLinks.map(link => (
                         <div key={link.link}>

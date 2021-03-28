@@ -1,6 +1,6 @@
 module.exports = {
   siteMetadata: {
-    title: `Michael.`,
+    title: `Michael`,
     menuLinks: [
       {
         name: 'Work',
@@ -51,17 +51,11 @@ module.exports = {
           {
             resolve: `gatsby-remark-images`,
             options: {
-              maxWidth: 800,
+              maxWidth: 1200,
               linkImagesToOriginal: false,
               showCaptions: true,
               withWebp: true,
               quality: 80,
-            },
-          },
-          {
-            resolve: `gatsby-remark-responsive-iframe`,
-            options: {
-              wrapperStyle: `margin-bottom: 1.0725rem`,
             },
           },
           {
@@ -76,8 +70,9 @@ module.exports = {
         ],
       },
     },
-    `gatsby-transformer-sharp`,
+    `gatsby-plugin-image`,
     `gatsby-plugin-sharp`,
+    `gatsby-transformer-sharp`,
     `gatsby-plugin-typescript`,
     {
       resolve: `gatsby-plugin-manifest`,
