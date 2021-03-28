@@ -1,7 +1,7 @@
 import { Link } from "gatsby"
 import React from "react"
-import avatar from '../images/michael-face.jpg'
 import { siteMetadata } from '../../gatsby-config'
+import { StaticImage } from "gatsby-plugin-image"
 
 interface Header {
     menuLinks: any
@@ -45,7 +45,7 @@ class Header extends React.Component<Header, State> {
             <header className={!this.state.shown ? `${classes}` : `bg-white dark:bg-black ${classes}`}>
                 <a className="flex items-center text-xl font-header font-semibold tracking-tight text-gray-900 dark:text-gray-100 hover:text-blue dark:hover:text-blue-300 pointer-events-auto transition-colors" href="/" aria-label={this.props.siteTitle}>
                 <div className="flex-initial h-8 w-8 rounded-full overflow-hidden mr-3 shadow-md">
-                    <img src={avatar} alt="Photo of Michael West" />
+                    <StaticImage src="../images/michael-face.jpg" alt="Photo of Michael West" />
                 </div>
                 {process.env.NODE_ENV === 'development' ? (
                     'Michael.dev'

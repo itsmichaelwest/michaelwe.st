@@ -1,6 +1,7 @@
 ---
 title: "Redesigning navigation for Windows 10"
 description: "Making in-app navigation fit in better with Windows Sets."
+category: 'Design Concept'
 aliases:
     - /w10nav/
     - /projects/redesigning-navigation-for-windows-10/

@@ -9,13 +9,13 @@ const NotFoundPage = () => {
         <Layout>
             <SEO title="Page Not Found" />
             <div style={{ textAlign: "center", display: 'flex', flexDirection: 'column' }} className="dark:text-white">
-                <div className="mx-auto my-24">
-                    <h1 className="text-4xl"><span role="img" aria-label="Loudly crying face emoji">😭</span></h1>
+                <div className="mx-auto mt-20 mb-32">
+                    <h1 className="text-8xl font-emoji font-bold mb-6"><span role="img" aria-label="Loudly crying face emoji">😭</span></h1>
                     <h1 className="text-2xl font-header font-bold my-4">Page not found</h1>
-                    <div className="text-lg font-body font-light leading-relaxed tracking-tight">
+                    <div className="font-body leading-loose tracking-tight">
                         <p id="url">{url}</p>
-                        <p className="my-2">You just hit a route that doesn&#39;t exist... the sadness.</p>
-                        <p className="text-sm">HTTP 404</p>
+                        <p className="my-2">Oh no, the page you were trying to look for couldn&apos;t be found.</p>
+                        <p className="text-sm text-gray-500">HTTP 404</p>
                     </div>
                 </div>
             </div>

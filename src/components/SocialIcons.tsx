@@ -4,7 +4,7 @@ const classes = 'h-10 w-10 mr-2 bg-white hover:bg-gray-50 border border-gray-100
 
 export default function SocialIcons() {
     return (
-        <div className="mt-4 flex">
+        <div className="flex">
             <div className={classes + "hover:text-twitter"}>
                 <a href="https://twitter.com/itsmichaelwest">
                     <span className="sr-only">Twitter</span>

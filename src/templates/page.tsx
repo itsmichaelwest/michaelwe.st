@@ -14,11 +14,10 @@ const shortcodes = { Link }
 export default function Template({ data }) {
     const post = data.mdx
 
-    let image, imageSocial
+    const image = getImage(post.frontmatter.featuredImage)
+    let imageSocial
 
-    if (post.frontmatter.featuredImage !== undefined) {
-        image = getImage(post.frontmatter.featuredImage)
-
+    if (image !== undefined) {
         const imageSrc = image.images.fallback.src
 
         let origin
@@ -101,7 +100,7 @@ query ArticleBySlug($slug: String!) {
         body
         frontmatter {
             title
-            date(formatString: "MMMM YYYY")
+            date(formatString: "YYYY")
             description
             category
             featuredImage {
