@@ -63,6 +63,11 @@ module.exports = {
                 textDecoration: 'none',
               },
             },
+            figure: {
+              figcaption: {
+                color: theme('colors.gray.600')
+              }
+            }
           },
         },
         dark: {
@@ -85,6 +90,11 @@ module.exports = {
             strong: {
               color: theme('colors.gray.100')
             },
+            figure: {
+              figcaption: {
+                color: theme('colors.gray.500')
+              }
+            }
           },
         },
       }),

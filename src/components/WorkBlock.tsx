@@ -15,7 +15,9 @@ export default function WorkBlock({ post }) {
             ? 
             <div className="group">
                 <div className="relative h-96 sm:h-work-block transition-all overflow-hidden" style={{ maxHeight: '120rem' }}>
-                    <a className="absolute w-full h-full z-10 opacity-0 group-hover:opacity-75 bg-white transition-all" href={post.frontmatter.officialURL}></a>
+                    <a className="absolute w-full h-full z-10 opacity-0 group-hover:opacity-75 bg-white transition-all" href={post.frontmatter.officialURL}>
+                        <span className="sr-only">{post.frontmatter.title}</span>
+                    </a>
                     <GatsbyImage className="h-full" image={image} alt={post.frontmatter.featuredImageAlt} />
                 </div>
                 <a href={post.frontmatter.officialURL}>
@@ -27,7 +29,9 @@ export default function WorkBlock({ post }) {
             :
             <div className="group">
                 <div className="relative h-96 sm:h-work-block transition-all overflow-hidden" style={{ maxHeight: '120rem' }}>
-                    <Link className="absolute w-full h-full z-10 opacity-0 group-hover:opacity-75 bg-white transition-all" to={post.fields.slug}></Link>
+                    <Link className="absolute w-full h-full z-10 opacity-0 group-hover:opacity-75 bg-white transition-all" to={post.fields.slug}>
+                        <span className="sr-only">{post.frontmatter.title}</span>
+                    </Link>
                     {
                         post.frontmatter.featuredBlockImage && 
                         <GatsbyImage className="h-full" image={image} alt={post.frontmatter.featuredImageAlt} />

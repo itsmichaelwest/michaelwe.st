@@ -58,8 +58,8 @@ class Header extends React.Component<Header, State> {
                         <Link 
                         key={link.link}
                         to={link.link}
-                        className="font-header ml-8 text-gray-400 text-opacity-70 hover:text-blue dark:hover:text-blue-300 hover:text-opacity-100 transition-all"
-                        activeClassName="font-bold text-gray-900 dark:text-gray-100 dark:text-opacity-100">
+                        className="font-header ml-8 text-gray-600 dark:text-gray-500 hover:text-blue dark:hover:text-blue-300 hover:text-opacity-100 transition-all"
+                        activeClassName="font-bold text-gray-800 dark:text-gray-100 dark:text-opacity-100">
                             {link.name}
                         </Link>
                     ))}

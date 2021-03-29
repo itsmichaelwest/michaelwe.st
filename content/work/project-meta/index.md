@@ -6,6 +6,7 @@ aliases:
 date: 2019-12-01
 category: "Consultancy"
 featuredImage: metahero.jpg
+featuredImageAlt: "Render of Project Meta device."
 featuredBlockImage: metahero.jpg
 heroVideo: true
 canonical: https://www.behance.net/gallery/65838043/Project-Meta
