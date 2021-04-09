@@ -5,6 +5,7 @@ import Layout from "../components/Layout"
 import { graphql } from "gatsby"
 import PropTypes from 'prop-types'
 import ContactLowerBanner from "../components/ContactLowerBanner"
+import { motion } from 'framer-motion'
 
 export default function WorkList({data: {allMdx: { edges }}}) {
     const Works = edges
@@ -14,12 +15,17 @@ export default function WorkList({data: {allMdx: { edges }}}) {
     return (
         <Layout>
             <SEO title="Work" />
-            <div className="lg:mb-24 mb-16">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-32 mb-16">
-                    {Works}
+            <motion.div
+                initial={{ opacity :0, y: 300 }}
+                animate={{ opacity :1, y: 0 }}
+                transition={{ ease: 'circOut', delay: 0.2 }}>
+                <div className="lg:mb-24 mb-16">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-32 mb-16">
+                        {Works}
+                    </div>
                 </div>
-            </div>
-            <ContactLowerBanner/>
+                <ContactLowerBanner/>
+            </motion.div>
         </Layout>
     )
 }

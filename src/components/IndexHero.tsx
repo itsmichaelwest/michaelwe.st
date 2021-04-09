@@ -9,7 +9,7 @@ export default function IndexHero() {
                     👋
                 </h1>
                 <h1 className="text-3xl font-header font-semibold leading-tight mb-4 dark:text-white">
-                    Designer and developer, passionate about magical software/hardware experiences.
+                    Designer and developer. Passionate about simple, magical experiences.
                 </h1>
                 <div className="sm:mt-8 mt-6">
                     <SocialIcons/>
