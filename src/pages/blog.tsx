@@ -1,13 +1,13 @@
-import React from "react"
-import BlogLink from "../components/BlogLink"
-import Layout from "../components/Layout"
-import { graphql } from "gatsby"
+import React from 'react'
+import BlogLink from '../components/BlogLink'
+import Layout from '../components/Layout'
+import { graphql } from 'gatsby'
 import PropTypes from 'prop-types'
 import { motion } from 'framer-motion'
 
 export default function BlogList({data: {allMdx: { edges }}}) {
     const blogs = edges
-        .filter(edge => !!edge.node.frontmatter.date) // You can filter your posts based on some criteria
+        .filter(edge => !!edge.node.frontmatter.date)
         .map(edge => <BlogLink key={edge.node.id} post={edge.node} />)
 
     return (
@@ -30,8 +30,12 @@ export default function BlogList({data: {allMdx: { edges }}}) {
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}>
                 <div className="lg:mb-24 mb-16">
-                    <h1 className="text-3xl font-header font-semibold dark:text-white">No blog posts!</h1>
-                    <p className="font-body mt-4 dark:text-gray-100">Perhaps some will appear here in the future... 🙂</p>
+                    <h1 className="text-3xl font-header font-semibold dark:text-white">
+                        No blog posts!
+                    </h1>
+                    <p className="font-body mt-4 dark:text-gray-100">
+                        Perhaps some will appear here in the future... 🙂
+                    </p>
                 </div>
             </motion.div>
         </Layout>

@@ -1,7 +1,7 @@
-import { Link } from "gatsby"
-import React from "react"
+import { Link } from 'gatsby'
+import React from 'react'
 import { siteMetadata } from '../../gatsby-config'
-import { StaticImage } from "gatsby-plugin-image"
+import { StaticImage } from 'gatsby-plugin-image'
 
 interface Header {
     menuLinks: any
@@ -43,7 +43,7 @@ class Header extends React.Component<Header, State> {
 
         return (
             <header className={!this.state.shown ? `${classes}` : `bg-white dark:bg-black ${classes}`}>
-                <a className="flex items-center text-xl font-header font-semibold tracking-tight text-gray-900 dark:text-gray-100 hover:text-blue dark:hover:text-blue-300 pointer-events-auto transition-colors" href="/" aria-label={this.props.siteTitle}>
+                <a className="flex items-center text-xl font-header font-semibold tracking-tight text-gray-900 dark:text-gray-100 hover:text-blue dark:hover:text-blue-300 pointer-events-auto transition-colors" href="/" aria-label={siteMetadata.title}>
                 <StaticImage className="flex-initial h-8 w-8 rounded-full mr-3 shadow-md overflow-hidden" src="../images/michael-face.jpg" alt="Photo of Michael West" style={{ WebkitMaskImage: '-webkit-radial-gradient(white, black)' }} />
                 {process.env.NODE_ENV === 'development' ? (
                     'Michael.dev'

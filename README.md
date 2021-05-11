@@ -2,8 +2,6 @@
 
 Welcome to my home on the internet. 
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/cb0e3314-e6c0-4a14-873d-eb18f6bc5b75/deploy-status)](https://app.netlify.com/sites/michaelwest-portfolio/deploys)
-
 ## Build instructions
 
 This site is built with Gatsby. You'll need [Node.js](https://nodejs.org/download/) with [Yarn](https://classic.yarnpkg.com/en/).

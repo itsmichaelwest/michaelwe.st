@@ -1,13 +1,13 @@
-import React from "react"
+import React from 'react'
 import PropTypes from 'prop-types'
-import { graphql, Link } from "gatsby"
-import { GatsbyImage, getImage } from "gatsby-plugin-image"
-import { MDXProvider } from "@mdx-js/react"
-import { MDXRenderer } from "gatsby-plugin-mdx"
-import Layout from "../components/Layout"
-import SEO from "../components/Seo"
-import NoMSFTDisclaimer from "../components/NoMSFTDisclaimer"
-import Button from "../components/Button"
+import { graphql, Link } from 'gatsby'
+import { GatsbyImage, getImage } from 'gatsby-plugin-image'
+import { MDXProvider } from '@mdx-js/react'
+import { MDXRenderer } from 'gatsby-plugin-mdx'
+import Layout from '../components/Layout'
+import SEO from '../components/Seo'
+import NoMSFTDisclaimer from '../components/NoMSFTDisclaimer'
+import Button from '../components/Button'
 import { motion } from 'framer-motion'
 
 const shortcodes = { Link }
@@ -22,7 +22,7 @@ export default function Template({ data }) {
         const imageSrc = image.images.fallback.src
 
         let origin
-        if (typeof window !== "undefined") {
+        if (typeof window !== 'undefined') {
             origin = window.location.origin
         }
 
@@ -34,8 +34,7 @@ export default function Template({ data }) {
             <SEO
                 title={post.frontmatter.title}
                 description={post.frontmatter.description}
-                image={imageSocial}
-            />
+                image={imageSocial}/>
             {
             post.frontmatter.featuredImage
             ?
@@ -45,16 +44,26 @@ export default function Template({ data }) {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.2 }}>
                     <div className="mt-16 mb-32">
-                        <p className="text-sm mb-4 text-gray-600">
+                        <p className="font-body text-sm mb-4 text-gray-600">
                             {post.frontmatter.category} — {post.frontmatter.date}
                         </p>
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
                             <div>
-                                <h1 className="text-4xl font-header font-bold mb-8 dark:text-white">{post.frontmatter.title}</h1>
-                                {post.frontmatter.officialURL && <Button isInternal={false} to={post.frontmatter.officialURL}>{post.frontmatter.officialURLText}</Button>}
+                                <h1 className="text-4xl font-header font-bold mb-8 dark:text-white">
+                                    {post.frontmatter.title}
+                                </h1>
+                                {post.frontmatter.officialURL && 
+                                <Button isInternal={false} to={post.frontmatter.officialURL}>
+                                    {post.frontmatter.officialURLText}
+                                </Button>
+                                }
                             </div>
                             <div>
-                                {post.frontmatter.description && <p className="font-body font-light leading-loose dark:text-gray-100">{post.frontmatter.description}</p>}
+                                {post.frontmatter.description && 
+                                <p className="font-body leading-loose dark:text-gray-100">
+                                    {post.frontmatter.description}
+                                </p>
+                                }
                             </div>
                         </div>
                     </div>
@@ -69,10 +78,14 @@ export default function Template({ data }) {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ ease: 'circOut', delay: 0.5 }}>
-                    <div className="prose mx-auto font-body leading-loose tracking-tight my-24 dark:prose-dark">
-                        {post.frontmatter.noMSFT && <NoMSFTDisclaimer title={post.frontmatter.title} />}
+                    <div className="prose mx-auto font-body leading-loose my-24 dark:prose-dark">
+                        {post.frontmatter.noMSFT && 
+                        <NoMSFTDisclaimer title={post.frontmatter.title}/>
+                        }
                         <MDXProvider components={shortcodes}>
-                            <MDXRenderer>{post.body}</MDXRenderer>
+                            <MDXRenderer>
+                                {post.body}
+                            </MDXRenderer>
                         </MDXProvider>
                     </div>
                 </motion.div>
@@ -84,16 +97,26 @@ export default function Template({ data }) {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.2 }}>
                     <div className="mt-16 mb-32">
-                        <p className="text-sm mb-4 text-gray-600">
+                        <p className="font-body text-sm mb-4 text-gray-600">
                             {post.frontmatter.category} — {post.frontmatter.date}
                         </p>
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
                             <div>
-                                <h1 className="text-4xl font-header font-bold mb-8 dark:text-white">{post.frontmatter.title}</h1>
-                                {post.frontmatter.officialURL && <Button isInternal={false} to={post.frontmatter.officialURL}>{post.frontmatter.officialURLText}</Button>}
+                                <h1 className="text-4xl font-header font-bold mb-8 dark:text-white">
+                                    {post.frontmatter.title}
+                                </h1>
+                                {post.frontmatter.officialURL && 
+                                <Button isInternal={false} to={post.frontmatter.officialURL}>
+                                    {post.frontmatter.officialURLText}
+                                </Button>
+                                }
                             </div>
                             <div>
-                                {post.frontmatter.description && <p className="font-body font-light leading-loose dark:text-gray-100">{post.frontmatter.description}</p>}
+                                {post.frontmatter.description && 
+                                <p className="font-body leading-loose dark:text-gray-100">
+                                    {post.frontmatter.description}
+                                </p>
+                                }
                             </div>
                         </div>
                     </div>
@@ -102,10 +125,12 @@ export default function Template({ data }) {
                     initial={{ opacity :0, y: 300 }}
                     animate={{ opacity :1, y: 0 }}
                     transition={{ ease: 'circOut', delay: 0.5 }}>
-                    <div className="prose mx-auto font-body leading-loose tracking-tight my-24 dark:prose-dark">
+                    <div className="prose mx-auto font-body leading-loose my-24 dark:prose-dark">
                         {post.frontmatter.noMSFT && <NoMSFTDisclaimer title={post.frontmatter.title} />}
                         <MDXProvider components={shortcodes}>
-                            <MDXRenderer>{post.body}</MDXRenderer>
+                            <MDXRenderer>
+                                {post.body}
+                            </MDXRenderer>
                         </MDXProvider>
                     </div>
                 </motion.div>

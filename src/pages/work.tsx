@@ -1,20 +1,20 @@
-import React from "react"
-import SEO from "../components/Seo"
-import WorkLink from "../components/WorkBlock"
-import Layout from "../components/Layout"
-import { graphql } from "gatsby"
+import React from 'react'
+import SEO from '../components/Seo'
+import WorkLink from '../components/WorkBlock'
+import Layout from '../components/Layout'
+import { graphql } from 'gatsby'
 import PropTypes from 'prop-types'
-import ContactLowerBanner from "../components/ContactLowerBanner"
+import ContactLowerBanner from '../components/ContactLowerBanner'
 import { motion } from 'framer-motion'
 
 export default function WorkList({data: {allMdx: { edges }}}) {
     const Works = edges
-        .filter(edge => !!edge.node.frontmatter.date) // You can filter your posts based on some criteria
+        .filter(edge => !!edge.node.frontmatter.date)
         .map(edge => <WorkLink key={edge.node.id} post={edge.node} />)
 
     return (
         <Layout>
-            <SEO title="Work" />
+            <SEO title="Work"/>
             <motion.div
                 initial={{ opacity :0, y: 300 }}
                 animate={{ opacity :1, y: 0 }}

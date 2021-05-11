@@ -1,11 +1,11 @@
-import React from "react"
+import React from 'react'
 import PropTypes from 'prop-types'
-import Layout from "../components/Layout"
-import WorkBlock from "../components/WorkBlock"
-import IndexHero from "../components/IndexHero"
-import ContactLowerBanner from "../components/ContactLowerBanner"
-import { graphql } from "gatsby"
-import SEO from "../components/Seo"
+import Layout from '../components/Layout'
+import WorkBlock from '../components/WorkBlock'
+import IndexHero from '../components/IndexHero'
+import ContactLowerBanner from '../components/ContactLowerBanner'
+import { graphql } from 'gatsby'
+import SEO from '../components/Seo'
 import { motion } from 'framer-motion'
 
 export default function IndexPage({data: { allMdx: { edges }}}) {     
@@ -15,12 +15,12 @@ export default function IndexPage({data: { allMdx: { edges }}}) {
 
     return (
         <Layout>
-            <SEO title="Michael" />
+            <SEO title="Michael"/>
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}>
-                <IndexHero />
+                <IndexHero/>
             </motion.div>
             <motion.div
                 initial={{ opacity :0, y: 300 }}
@@ -38,7 +38,7 @@ export default function IndexPage({data: { allMdx: { edges }}}) {
                         {Works}
                     </div>
                 </div>
-                <ContactLowerBanner />
+                <ContactLowerBanner/>
             </motion.div>
         </Layout>
     )
