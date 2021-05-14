@@ -23,8 +23,8 @@ export default function IndexPage({data: { allMdx: { edges }}}): React.ReactElem
                 <IndexHero/>
             </motion.div>
             <motion.div
-                initial={{ opacity :0, y: 300 }}
-                animate={{ opacity :1, y: 0 }}
+                initial={{ opacity :0 }}
+                animate={{ opacity :1 }}
                 transition={{ ease: 'circOut', delay: 0.4 }}>
                 <div className="lg:my-24 my-16">
                     <div className="flex justify-start">

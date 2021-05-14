@@ -69,15 +69,15 @@ export default function Template({ data }): React.ReactElement {
                     </div>
                 </motion.div>
                 <motion.div
-                    initial={{ opacity :0, y: 300 }}
-                    animate={{ opacity :1, y: 0 }}
-                    transition={{ ease: 'circOut', delay: 0.3 }}>
+                    initial={{ opacity :0 }}
+                    animate={{ opacity :1 }}
+                    transition={{ ease: 'circOut', delay: 0.4 }}>
                     <GatsbyImage className="lg:h-screen" style={{ maxHeight: '100rem' }} image={image} alt={post.frontmatter.featuredImageAlt}/>
                 </motion.div>
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ ease: 'circOut', delay: 0.5 }}>
+                    transition={{ ease: 'circOut', delay: 0.6 }}>
                     <div className="prose mx-auto font-body leading-loose my-24 dark:prose-dark">
                         {post.frontmatter.noMSFT && 
                         <NoMSFTDisclaimer title={post.frontmatter.title}/>
@@ -122,9 +122,9 @@ export default function Template({ data }): React.ReactElement {
                     </div>
                 </motion.div>
                 <motion.div
-                    initial={{ opacity :0, y: 300 }}
-                    animate={{ opacity :1, y: 0 }}
-                    transition={{ ease: 'circOut', delay: 0.5 }}>
+                    initial={{ opacity :0 }}
+                    animate={{ opacity :1 }}
+                    transition={{ ease: 'circOut', delay: 0.4 }}>
                     <div className="prose mx-auto font-body leading-loose my-24 dark:prose-dark">
                         {post.frontmatter.noMSFT && <NoMSFTDisclaimer title={post.frontmatter.title} />}
                         <MDXProvider components={shortcodes}>

@@ -15,8 +15,8 @@ export default function BlogList({data: {allMdx: { edges }}}): React.ReactElemen
         ?
         <Layout>
             <motion.div
-                initial={{ opacity :0, y: 300 }}
-                animate={{ opacity :1, y: 0 }}
+                initial={{ opacity :0 }}
+                animate={{ opacity :1 }}
                 transition={{ ease: 'circOut', delay: 0.2 }}>
                 <div className="lg:mb-24 mb-16">
                     {blogs}
