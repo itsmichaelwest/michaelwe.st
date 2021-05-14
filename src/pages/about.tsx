@@ -7,7 +7,7 @@ import Resume from '../files/mw-resume-dec2020.pdf'
 import { Link } from 'gatsby'
 import { motion } from 'framer-motion'
 
-export default function AboutPage() {
+export default function AboutPage(): React.ReactElement {
     return (
         <>
         <SEO title="About"/>

@@ -1,7 +1,7 @@
 import React from "react"
 import SocialIcons from "./SocialIcons"
 
-export default function IndexHero() {
+export default function IndexHero(): React.ReactElement {
     return (
         <>
             <div className="relative w-auto max-w-prose my-40">

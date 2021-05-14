@@ -7,7 +7,7 @@ import PropTypes from 'prop-types'
 import ContactLowerBanner from '../components/ContactLowerBanner'
 import { motion } from 'framer-motion'
 
-export default function WorkList({data: {allMdx: { edges }}}) {
+export default function WorkList({data: {allMdx: { edges }}}): React.ReactElement {
     const Works = edges
         .filter(edge => !!edge.node.frontmatter.date)
         .map(edge => <WorkLink key={edge.node.id} post={edge.node} />)

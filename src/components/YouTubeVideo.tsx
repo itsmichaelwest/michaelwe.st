@@ -1,7 +1,6 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 
-const YouTubeVideo = ({ videoSrcUrl, videoTitle }) => (
+const YouTubeVideo = (videoSrcUrl: string, videoTitle: string): React.ReactElement => (
     <div className="relative" style={{ paddingBottom: '56.5%' }}>
         <div className="absolute inset-0 w-full h-full">
             <iframe
@@ -16,10 +15,5 @@ const YouTubeVideo = ({ videoSrcUrl, videoTitle }) => (
     </div>
 
 )
-
-YouTubeVideo.propTypes = {
-    videoSrcUrl: PropTypes.string,
-    videoTitle: PropTypes.string
-}
 
 export default YouTubeVideo

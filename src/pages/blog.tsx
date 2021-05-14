@@ -5,7 +5,7 @@ import { graphql } from 'gatsby'
 import PropTypes from 'prop-types'
 import { motion } from 'framer-motion'
 
-export default function BlogList({data: {allMdx: { edges }}}) {
+export default function BlogList({data: {allMdx: { edges }}}): React.ReactElement {
     const blogs = edges
         .filter(edge => !!edge.node.frontmatter.date)
         .map(edge => <BlogLink key={edge.node.id} post={edge.node} />)

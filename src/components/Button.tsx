@@ -1,8 +1,13 @@
 import React from 'react'
 import { Link } from 'gatsby'
-import PropTypes from 'prop-types'
 
-const Button = ({ isInternal, style, to, children }) => {
+type ButtonProps = {
+    isInternal: boolean,
+    to: string,
+    style?: string
+}
+
+const Button: React.FunctionComponent<ButtonProps> = ({ isInternal, to, style, children }) => {
     let bg: string
 
     if (style === 'onPrimary') {
@@ -14,24 +19,19 @@ const Button = ({ isInternal, style, to, children }) => {
     const classes = 'transition-colors px-6 py-2 rounded inline-block font-header'
 
     return (
-        isInternal 
-        ?
-        <Link to={to} className={`${bg} ${classes}`}>
-            {children} &rarr;
-        </Link>
-        :
-        <a href={to} className={`${bg} ${classes}`}>
-            {children} &rarr;
-        </a>
+        <>
+        {
+            isInternal ?
+            <Link to={to} className={`${bg} ${classes}`}>
+                {children} &rarr;
+            </Link>
+            :
+            <a href={to} className={`${bg} ${classes}`}>
+                {children} &rarr;
+            </a>
+        }
+        </>
     )
-}
-
-Button.propTypes = {
-    className: PropTypes.string,
-    isInternal: PropTypes.bool,
-    style: PropTypes.string,
-    to: PropTypes.string,
-    children: PropTypes.node
 }
 
 export default Button

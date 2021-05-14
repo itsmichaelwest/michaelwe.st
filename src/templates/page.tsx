@@ -12,7 +12,7 @@ import { motion } from 'framer-motion'
 
 const shortcodes = { Link }
 
-export default function Template({ data }) {
+export default function Template({ data }): React.ReactElement {
     const post = data.mdx
 
     const image = getImage(post.frontmatter.featuredImage)

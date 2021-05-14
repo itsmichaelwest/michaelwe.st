@@ -1,8 +1,7 @@
 import React from 'react'
 import { Link } from 'gatsby'
-import PropTypes from 'prop-types'
 
-export default function BlogLink({ post }) {
+export default function BlogLink({ post }): React.ReactElement {
     return (
         <div className="mb-16">
             <p className="font-light my-2">
@@ -18,8 +17,4 @@ export default function BlogLink({ post }) {
             </p>
         </div>
     )
-}
-
-BlogLink.propTypes = {
-    post: PropTypes.node
 }

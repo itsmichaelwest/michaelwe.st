@@ -8,7 +8,7 @@ import { graphql } from 'gatsby'
 import SEO from '../components/Seo'
 import { motion } from 'framer-motion'
 
-export default function IndexPage({data: { allMdx: { edges }}}) {     
+export default function IndexPage({data: { allMdx: { edges }}}): React.ReactElement {     
     const Works = edges
         .filter(edge => !!edge.node.frontmatter.date)
         .map(edge => <WorkBlock key={edge.node.id} post={edge.node} /> )

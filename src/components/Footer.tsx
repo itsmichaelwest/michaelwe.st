@@ -2,7 +2,7 @@ import React from 'react'
 import config from '../../gatsby-config'
 import { motion } from 'framer-motion'
 
-export default function Footer() {
+export default function Footer(): React.ReactElement {
     return (
         <motion.div
             initial={{ opacity :0 }}

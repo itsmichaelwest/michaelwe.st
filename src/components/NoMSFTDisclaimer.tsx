@@ -1,7 +1,6 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 
-const NoMSFTDisclaimer = ({ title }) => {
+const NoMSFTDisclaimer = (title: string): React.ReactElement => {
     return (
         <div className="bg-gray-100 dark:bg-gray-800 px-8 pb-2 pt-1 mb-16">
             <div>
@@ -13,14 +12,10 @@ const NoMSFTDisclaimer = ({ title }) => {
                     </span>
                     Not affiliated with Microsoft
                 </h4>
-                <p><em>{ title }</em> isn&apos;t affiliated with Microsoft. Concepts and mockups shown do not represent any product plans past, present, or future.</p>
+                <p><em>{title}</em> isn&apos;t affiliated with Microsoft. Concepts and mockups shown do not represent any product plans past, present, or future.</p>
             </div>
         </div>
     )
-}
-
-NoMSFTDisclaimer.propTypes = {
-    title: PropTypes.string.isRequired
 }
 
 export default NoMSFTDisclaimer
