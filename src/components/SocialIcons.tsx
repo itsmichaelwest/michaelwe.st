@@ -2,7 +2,7 @@ import React from 'react'
 
 const classes = 'h-10 w-10 mr-2 bg-white hover:bg-gray-50 border border-gray-100 dark:text-white dark:bg-gray-900 dark:hover:bg-gray-700 dark:border-gray-800 box-content hover:shadow-md rounded-full transition-all duration-100 '
 
-export default function SocialIcons(): React.ReactElement {
+const SocialIcons: React.FunctionComponent = () => {
     return (
         <div className="flex">
             <div className={classes + "hover:text-twitter"}>
@@ -43,4 +43,7 @@ export default function SocialIcons(): React.ReactElement {
             </div>
         </div>
     )
+
 }
+
+export default SocialIcons

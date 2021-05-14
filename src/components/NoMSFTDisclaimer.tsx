@@ -1,6 +1,10 @@
 import React from 'react'
 
-const NoMSFTDisclaimer = (title: string): React.ReactElement => {
+type NoMSFTDisclaimerProps = {
+    title: string
+}
+
+const NoMSFTDisclaimer: React.FunctionComponent<NoMSFTDisclaimerProps> = ({ title }) => {
     return (
         <div className="bg-gray-100 dark:bg-gray-800 px-8 pb-2 pt-1 mb-16">
             <div>
@@ -12,7 +16,9 @@ const NoMSFTDisclaimer = (title: string): React.ReactElement => {
                     </span>
                     Not affiliated with Microsoft
                 </h4>
-                <p><em>{title}</em> isn&apos;t affiliated with Microsoft. Concepts and mockups shown do not represent any product plans past, present, or future.</p>
+                <p>
+                    <em>{title}</em> isn&apos;t affiliated with Microsoft. Concepts and mockups shown do not represent any product plans past, present, or future.
+                </p>
             </div>
         </div>
     )
