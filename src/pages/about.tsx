@@ -3,7 +3,7 @@ import SEO from '../components/Seo'
 import Layout from '../components/Layout'
 import { StaticImage } from 'gatsby-plugin-image'
 import Button from '../components/Button'
-import Resume from '../files/mw-resume-dec2020.pdf'
+import Resume from '../files/mw-resume-apr2021.pdf'
 import { Link } from 'gatsby'
 import { motion } from 'framer-motion'
 
@@ -41,7 +41,7 @@ export default function AboutPage(): React.ReactElement {
                                 Accessibility and inclusion sit at the center of my process — technology should empower everyone and nobody should be left with a subpar experience.
                             </p>
                             <p>
-                                I&apos;m currently working on finishing my Computer Science degree, and am open for new work opportunities starting from July.
+                                I&apos;m currently working on finishing my Computer Science degree, and am open for new work opportunities starting from April.
                             </p>
                             <p>
                                 I was previously a Design Intern at <a href="https://www.microsoft.com/">Microsoft</a> working on products such as <Link to="/work/surface-duo">Surface Duo</Link>, <Link to="/work/swiftkey-design-system">SwiftKey</Link>, <Link to="/work/fluent-icons">Fluent Icons</Link>, and more. Before that, I worked independently on critically acclaimed concepts both by myself and with folks around the world. Awarded 2018-19 <a href="https://mvp.microsoft.com/">Microsoft MVP</a> (Most Valuable Professional) for Windows Design.

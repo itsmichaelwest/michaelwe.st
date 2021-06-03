@@ -47,7 +47,7 @@ exports.createPages = async ({ graphql, actions }) => {
       },
     })
 
-    console.log("Created page " + post.node.fields.slug)
+    console.log("✅ Created page " + post.node.fields.slug)
 
     if (post.node.frontmatter.aliases) {
       var i
@@ -58,7 +58,7 @@ exports.createPages = async ({ graphql, actions }) => {
           isPermanent: true,
         })
 
-        console.log("Created redirect from " + post.node.frontmatter.aliases[i] + " to " + post.node.fields.slug)
+        console.log("🔄 Created redirect from " + post.node.frontmatter.aliases[i] + " to " + post.node.fields.slug)
       }
     }
   })
