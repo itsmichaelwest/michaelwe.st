@@ -82,7 +82,6 @@ module.exports = {
         short_name: `Michael West`,
         start_url: `/`,
         background_color: `#FFFFFF`,
-        theme_color: `#62BFED`,
         display: `minimal-ui`,
         icon: `src/images/michael-face-masked.png`,
         icon_options: {
