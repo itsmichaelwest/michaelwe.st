@@ -10,10 +10,15 @@ const Header: React.FunctionComponent = () => {
     function toggleMenu(): void {
         setShowMenu(!showMenu)
         if (showMenu) {
-            document.body.style.overflow = 'unset'
+            document.body.style.overflow = 'visible'
         } else {
             document.body.style.overflow = 'hidden'
         }
+    }
+
+    function restoreScroll(): void {
+        document.body.style.overflow = 'visible'
+        setShowMenu(false)
     }
 
     return (
@@ -69,7 +74,8 @@ const Header: React.FunctionComponent = () => {
                         key={link.link}
                         to={link.link}
                         className="block w-100 h-full px-8 sm:px-16 py-4 sm:py-4 font-header text-black dark:text-gray-100 hover:bg-blue-700 dark:hover:text-black dark:hover:bg-blue-300 hover:text-white"
-                        activeClassName="font-bold text-white hover:text-white bg-blue hover:bg-blue-700 dark:hover:bg-blue-300 dark:text-black dark:hover:text-black">
+                        activeClassName="font-bold text-white hover:text-white bg-blue hover:bg-blue-700 dark:hover:bg-blue-300 dark:text-black dark:hover:text-black"
+                        onClick={restoreScroll}>
                         {link.name}
                     </Link>
                 ))}
