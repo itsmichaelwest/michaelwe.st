@@ -3,7 +3,7 @@ import SEO from '../components/Seo'
 import Layout from '../components/Layout'
 import { StaticImage } from 'gatsby-plugin-image'
 import Button from '../components/Button'
-import Resume from '../files/mw-resume-june2021.pdf'
+import Resume from '../files/mw-resume-july2021.pdf'
 import { Link } from 'gatsby'
 import { motion } from 'framer-motion'
 
