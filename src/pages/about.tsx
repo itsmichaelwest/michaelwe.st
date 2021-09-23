@@ -5,7 +5,6 @@ import { StaticImage } from 'gatsby-plugin-image'
 import Button from '../components/Button'
 import { Link } from 'gatsby'
 
-// @ts-ignore
 import Resume from '../files/mw-resume-july2021.pdf'
 
 export default function AboutPage(): React.ReactElement {

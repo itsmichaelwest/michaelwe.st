@@ -1,14 +1,14 @@
 import * as React from 'react'
 import { Link } from 'gatsby'
 
-type ButtonProps = {
+type AutoLinkProps = {
     isInternal: boolean,
     to: string,
     className?: string,
     style?: string
 }
 
-const Link2: React.FunctionComponent<ButtonProps> = ({ isInternal, to, className, children }) => {
+const AutoLink: React.FunctionComponent<AutoLinkProps> = ({ isInternal, to, className, children }) => {
     return (
         <>
         {
@@ -25,4 +25,4 @@ const Link2: React.FunctionComponent<ButtonProps> = ({ isInternal, to, className
     )
 }
 
-export default Link2
+export default AutoLink

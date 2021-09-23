@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { Link } from 'gatsby'
 
-export default function BlogLink({ post }): React.ReactElement {
+export default function BlogLink({ post }: any): React.ReactElement {
     return (
         <div className="mb-16">
             <p className="font-light my-2">

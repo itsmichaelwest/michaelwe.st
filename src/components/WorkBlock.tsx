@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { GatsbyImage, getImage } from 'gatsby-plugin-image'
-import Link2 from './Link2'
+import AutoLink from './AutoLink'
 
-export default function WorkBlock({ post }): React.ReactElement {
+export default function WorkBlock({ post }: any): React.ReactElement {
     const image = getImage(post.frontmatter.featuredBlockImage)
 
     if (post.frontmatter.hideFromList) {
@@ -23,7 +23,7 @@ export default function WorkBlock({ post }): React.ReactElement {
 
         return (
             <section className="relative" style={{ aspectRatio: "1" }}>
-                <Link2 isInternal={internal} to={url} className="absolute inset-0 group w-full h-full">
+                <AutoLink isInternal={internal} to={url} className="absolute inset-0 group w-full h-full">
                     <span className="sr-only">{post.frontmatter.title}</span>
                     <GatsbyImage className="w-full h-full" image={image} alt={post.frontmatter.featuredImageAlt} />
                     <div className="absolute inset-0 p-8 md:p-16 bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -34,7 +34,7 @@ export default function WorkBlock({ post }): React.ReactElement {
                             {post.frontmatter.description}
                         </p>
                     </div>
-                </Link2>
+                </AutoLink>
             </section>
         )
     }
