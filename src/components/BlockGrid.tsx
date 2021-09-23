@@ -12,7 +12,7 @@ const BlockGrid: React.FunctionComponent<BlockGridProps> = ({ data, className })
                     .map(edge => <WorkBlock key={edge.node.id} post={edge.node} /> )
 
     return (
-        <section className={`grid grid-cols-1 md:grid-cols-2${className ? ` ${className}` : ``}`}>
+        <section className={`grid grid-cols-1 md:grid-cols-2 ${className ? ` ${className}` : ``}`}>
             {blocks}
         </section>
     )
