@@ -8,7 +8,7 @@ export default function IndexHero(): React.ReactElement {
                 <h1 className="text-7xl sm:text-8xl font-emoji max-w-max">
                     👋
                 </h1>
-                <h1 className="text-5xl sm:text-6xl font-display font-semibold my-8 sm:my-12 dark:text-white">
+                <h1 className="text-5xl sm:text-6xl font-display font-semibold my-8 sm:my-12">
                     Designer. Developer.
                 </h1>
                 <SocialIcons/>
