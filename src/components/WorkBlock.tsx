@@ -1,6 +1,6 @@
-import React from 'react'
+import * as React from 'react'
 import { GatsbyImage, getImage } from 'gatsby-plugin-image'
-import { Link } from 'gatsby'
+import Link2 from './Link2'
 
 export default function WorkBlock({ post }): React.ReactElement {
     const image = getImage(post.frontmatter.featuredBlockImage)
@@ -10,39 +10,32 @@ export default function WorkBlock({ post }): React.ReactElement {
             <></>
         )
     } else {
+        let url: string
+        let internal: boolean
+
+        if (post.frontmatter.redirectToOfficialURL) {
+            url = post.frontmatter.officialURL
+            internal = false
+        } else {
+            url = post.fields.slug
+            internal = true
+        }
+
         return (
-            post.frontmatter.redirectToOfficialURL 
-            ? 
-            <div className="group">
-                <div className="relative h-96 sm:h-work-block transition-all overflow-hidden" style={{ maxHeight: '120rem' }}>
-                    <a className="absolute w-full h-full z-10 opacity-0 group-hover:opacity-75 bg-white transition-all" href={post.frontmatter.officialURL}>
-                        <span className="sr-only">{post.frontmatter.title}</span>
-                    </a>
-                    <GatsbyImage className="h-full" image={image} alt={post.frontmatter.featuredImageAlt} />
-                </div>
-                <a href={post.frontmatter.officialURL}>
-                    <h2 className="group-hover:text-blue dark:text-white mt-4 text-2xl font-header font-semibold transition-colors">
-                        {post.frontmatter.title}
-                    </h2>
-                </a>
-            </div>
-            :
-            <div className="group">
-                <div className="relative h-96 sm:h-work-block transition-all overflow-hidden" style={{ maxHeight: '120rem' }}>
-                    <Link className="absolute w-full h-full z-10 opacity-0 group-hover:opacity-75 bg-white transition-all" to={post.fields.slug}>
-                        <span className="sr-only">{post.frontmatter.title}</span>
-                    </Link>
-                    {
-                        post.frontmatter.featuredBlockImage && 
-                        <GatsbyImage className="h-full" image={image} alt={post.frontmatter.featuredImageAlt} />
-                    }
-                </div>
-                <Link to={post.fields.slug}>
-                    <h2 className="group-hover:text-blue dark:text-white mt-4 text-2xl font-header font-semibold transition-colors">
-                        {post.frontmatter.title}
-                    </h2>
-                </Link>
-            </div>
+            <section className="relative" style={{ aspectRatio: "1" }}>
+                <Link2 isInternal={internal} to={url} className="absolute inset-0 group w-full h-full">
+                    <span className="sr-only">{post.frontmatter.title}</span>
+                    <GatsbyImage className="w-full h-full" image={image} alt={post.frontmatter.featuredImageAlt} />
+                    <div className="absolute inset-0 p-8 md:p-16 bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <h2 className="font-display font-semibold text-4xl xl:text-6xl">
+                            {post.frontmatter.title}
+                        </h2>
+                        <p className="font-text text-gray-600 xl:text-xl max-w-prose mt-4">
+                            {post.frontmatter.description}
+                        </p>
+                    </div>
+                </Link2>
+            </section>
         )
     }
 }

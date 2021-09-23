@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 import { Link } from 'gatsby'
 
 type ButtonProps = {
@@ -11,23 +11,23 @@ const Button: React.FunctionComponent<ButtonProps> = ({ isInternal, to, style, c
     let bg: string
 
     if (style === 'onPrimary') {
-        bg = 'bg-white hover:bg-gray-200 '
+        bg = 'border-2 border-white text-white hover:bg-white hover:text-black'
     } else {
-        bg = 'bg-blue text-white hover:bg-blue-700 dark:text-black dark:hover:bg-blue-300 '
+        bg = 'border-2 border-gray-700 text-gray-700 hover:bg-gray-700 hover:text-white'
     }
 
-    const classes = 'transition-colors px-6 py-2 rounded inline-block font-header'
+    const classes = 'px-6 py-2 inline-block transition-all'
 
     return (
         <>
         {
             isInternal ?
             <Link to={to} className={`${bg} ${classes}`}>
-                {children} &rarr;
+                {children}
             </Link>
             :
             <a href={to} className={`${bg} ${classes}`}>
-                {children} &rarr;
+                {children}
             </a>
         }
         </>

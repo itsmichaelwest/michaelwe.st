@@ -1,19 +1,17 @@
-import React from "react"
+import * as React from "react"
 import SocialIcons from "./SocialIcons"
 
 export default function IndexHero(): React.ReactElement {
     return (
         <>
-            <div className="relative w-auto max-w-prose my-40">
-                <h1 className="text-8xl font-emoji font-bold max-w-max mb-6">
+            <div className="max-w-prose mt-32 mb-40">
+                <h1 className="text-7xl sm:text-8xl font-emoji max-w-max">
                     👋
                 </h1>
-                <h1 className="text-3xl font-header font-semibold leading-tight mb-4 dark:text-white">
-                    Designer and developer. Passionate about simple, magical experiences.
+                <h1 className="text-5xl sm:text-6xl font-display font-semibold my-8 sm:my-12 dark:text-white">
+                    Designer. Developer.
                 </h1>
-                <div className="sm:mt-8 mt-6">
-                    <SocialIcons/>
-                </div>
+                <SocialIcons/>
             </div>
         </>
     )     

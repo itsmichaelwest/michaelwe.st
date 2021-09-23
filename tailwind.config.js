@@ -6,13 +6,14 @@ module.exports = {
       center: true,
     },
     fontFamily: {
-      'header': ['proxima-nova', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'],
-      'body': ['Inter var', 'Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'Noto Sans', 'sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'],
+      'display': ['neue-haas-grotesk-display', 'sans-serif'],
+      'sans': ['neue-haas-grotesk-text', 'sans-serif'],
       'emoji': ['sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji']
     },
     extend: {
       backgroundColor: ['active'],
       boxShadow: ['active'],
+      scale: ['group-hover'],
       colors: {
         blue: {
           DEFAULT: '#3591f3',
@@ -98,9 +99,6 @@ module.exports = {
           },
         },
       }),
-      height: {
-        'work-block': '70vh',
-      }
     },
   },
   variants: {

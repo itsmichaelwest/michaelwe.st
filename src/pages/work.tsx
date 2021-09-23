@@ -1,13 +1,12 @@
-import React from 'react'
+import * as React from 'react'
 import SEO from '../components/Seo'
 import WorkLink from '../components/WorkBlock'
 import Layout from '../components/Layout'
 import { graphql } from 'gatsby'
-import PropTypes from 'prop-types'
 import ContactLowerBanner from '../components/ContactLowerBanner'
-import { motion } from 'framer-motion'
+import BlockGrid from '../components/BlockGrid'
 
-export default function WorkList({data: {allMdx: { edges }}}): React.ReactElement {
+export default function WorkList({data: {allMdx: { edges }}}: any): React.ReactElement {
     const Works = edges
         .filter(edge => !!edge.node.frontmatter.date)
         .map(edge => <WorkLink key={edge.node.id} post={edge.node} />)
@@ -15,23 +14,10 @@ export default function WorkList({data: {allMdx: { edges }}}): React.ReactElemen
     return (
         <Layout>
             <SEO title="Work"/>
-            <motion.div
-                initial={{ opacity :0 }}
-                animate={{ opacity :1 }}
-                transition={{ ease: 'circOut', delay: 0.2 }}>
-                <div className="lg:mb-24 mb-16">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-32 mb-16">
-                        {Works}
-                    </div>
-                </div>
-                <ContactLowerBanner/>
-            </motion.div>
+            <BlockGrid data={edges} className="lg:mb-24 mb-16"/>
+            <ContactLowerBanner/>
         </Layout>
     )
-}
-
-WorkList.propTypes = {
-    data: PropTypes.any
 }
 
 export const pageQuery = graphql`

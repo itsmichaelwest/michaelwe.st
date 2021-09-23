@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 
 const YouTubeVideo = (videoSrcUrl: string, videoTitle: string): React.ReactElement => (
     <div className="relative" style={{ paddingBottom: '56.5%' }}>
