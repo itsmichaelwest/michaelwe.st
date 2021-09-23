@@ -6,7 +6,7 @@ type NoMSFTDisclaimerProps = {
 
 const NoMSFTDisclaimer: React.FunctionComponent<NoMSFTDisclaimerProps> = ({ title }) => {
     return (
-        <div className="bg-gray-100 dark:bg-gray-800 px-8 pb-2 pt-1 mb-16">
+        <div className="bg-gray-100 px-8 pb-2 pt-1 mb-16">
             <div>
                 <h4 className="text-xl flex flex-row ">
                     <span className="inline-block w-6 h-6 mr-2 ">

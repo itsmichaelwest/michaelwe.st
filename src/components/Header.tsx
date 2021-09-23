@@ -39,8 +39,8 @@ const Header: React.FunctionComponent = () => {
                     <Link
                         key={link.link}
                         to={link.link}
-                        className="text-gray-600 dark:text-gray-500 hover:text-blue dark:hover:text-blue-300 hover:text-opacity-100 transition-all"
-                        activeClassName="font-bold text-gray-800 dark:text-gray-100 dark:text-opacity-100">
+                        className="text-gray-600 hover:text-black transition-colors"
+                        activeClassName="font-bold">
                         {link.name}
                     </Link>
                 ))}

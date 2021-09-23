@@ -3,6 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
 @media (prefers-color-scheme: light) {
     html, body {
         background-color: #fff;
@@ -14,3 +15,4 @@
         background-color: #000;
     }
 }
+ */

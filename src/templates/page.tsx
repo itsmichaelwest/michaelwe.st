@@ -40,7 +40,7 @@ export default function Template({ data }: any): React.ReactElement {
                         </p>
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
                             <div>
-                                <h1 className="text-6xl font-header font-bold mb-8 dark:text-white">
+                                <h1 className="text-6xl font-header font-bold mb-8">
                                     {post.frontmatter.title}
                                 </h1>
                                 {post.frontmatter.officialURL && 
@@ -59,7 +59,7 @@ export default function Template({ data }: any): React.ReactElement {
                         <GatsbyImage className="mt-32 lg:h-screen" style={{ maxHeight: '100rem' }} image={image} alt={post.frontmatter.featuredImageAlt}/>
                         }
                     </header>
-                    <section className="prose mx-auto font-body leading-loose my-24 dark:prose-dark">
+                    <section className="prose mx-auto font-body leading-loose my-24">
                         {post.frontmatter.noMSFT && 
                         <NoMSFTDisclaimer title={post.frontmatter.title}/>
                         }
