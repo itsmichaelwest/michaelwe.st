@@ -65,8 +65,20 @@ module.exports = {
               },
             },
             figure: {
+              margin: '6rem 0 6rem -30%',
+              width: '160%',
+              position: 'relative',
+              display: 'block',
+              '@media (max-width: 1536px)': {
+                margin: '6rem 0 6rem -20%',
+                width: '140%'
+              },
+              '@media (max-width: 1024px)': {
+                margin: '6rem 0 6rem 0',
+                width: '100%'
+              },
               figcaption: {
-                color: theme('colors.gray.600')
+                color: theme('colors.gray.500')
               }
             }
           },
@@ -92,6 +104,18 @@ module.exports = {
               color: theme('colors.gray.100')
             },
             figure: {
+              margin: '6rem 0 6rem -30%',
+              width: '160%',
+              position: 'relative',
+              display: 'block',
+              '@media (max-width: 1536px)': {
+                margin: '6rem 0 6rem -20%',
+                width: '140%'
+              },
+              '@media (max-width: 1024px)': {
+                margin: '6rem 0 6rem 0',
+                width: '100%'
+              },
               figcaption: {
                 color: theme('colors.gray.500')
               }

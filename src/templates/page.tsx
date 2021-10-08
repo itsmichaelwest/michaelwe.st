@@ -56,7 +56,7 @@ export default function Template({ data }: any): React.ReactElement {
                             }
                         </div>
                         {image &&
-                        <GatsbyImage className="mt-32 lg:h-screen" style={{ maxHeight: '100rem' }} image={image} alt={post.frontmatter.featuredImageAlt}/>
+                        <GatsbyImage className="mt-32" image={image} alt={post.frontmatter.featuredImageAlt}/>
                         }
                     </header>
                     <section className="prose mx-auto font-body leading-loose my-24">

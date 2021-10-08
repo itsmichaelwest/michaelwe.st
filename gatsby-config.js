@@ -53,7 +53,6 @@ module.exports = {
               maxWidth: 1200,
               linkImagesToOriginal: false,
               showCaptions: true,
-              wrapperStyle: 'margin-top: 4rem; margin-bottom: 4rem;',
               withWebp: true,
               withAvif: true,
               quality: 80,
