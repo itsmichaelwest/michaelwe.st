@@ -32,7 +32,7 @@ export default function AboutPage(): React.ReactElement {
                             Accessibility and inclusion sit at the center of my process — technology should empower everyone and nobody should be left with a subpar experience.
                         </p>
                         <p>
-                            I recently finished my BSc Computer Science degree, with my final result being First Class Honours. I am open for new work opportunities starting from August.
+                            I recently finished my BSc Computer Science degree, with my final result being First Class Honours.
                         </p>
                         <p>
                             I was previously a Design Intern at <a href="https://www.microsoft.com/">Microsoft</a> working on products such as <Link to="/work/surface-duo">Surface Duo</Link>, <Link to="/work/swiftkey-design-system">SwiftKey</Link>, <Link to="/work/fluent-icons">Fluent Icons</Link>, and more. Before that, I worked independently on critically acclaimed concepts both by myself and with folks around the world. Awarded 2018-19 <a href="https://mvp.microsoft.com/">Microsoft MVP</a> (Most Valuable Professional) for Windows Design.

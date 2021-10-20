@@ -2,7 +2,6 @@ import * as React from 'react'
 import SEO from '../components/Seo'
 import Layout from '../components/Layout'
 import { graphql } from 'gatsby'
-import ContactLowerBanner from '../components/ContactLowerBanner'
 import BlockGrid from '../components/BlockGrid'
 
 export default function WorkList({data: {allMdx: { edges }}}: any): React.ReactElement {
@@ -10,7 +9,6 @@ export default function WorkList({data: {allMdx: { edges }}}: any): React.ReactE
         <Layout>
             <SEO title="Work"/>
             <BlockGrid data={edges} className="lg:mb-24 mb-16"/>
-            <ContactLowerBanner/>
         </Layout>
     )
 }

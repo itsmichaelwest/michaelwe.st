@@ -1,7 +1,6 @@
 import * as React from 'react'
 import Layout from '../components/Layout'
 import IndexHero from '../components/IndexHero'
-import ContactLowerBanner from '../components/ContactLowerBanner'
 import { graphql } from 'gatsby'
 import SEO from '../components/Seo'
 import BlockGrid from '../components/BlockGrid'
@@ -17,7 +16,6 @@ export default function IndexPage({data: { allMdx: { edges }}}: any): React.Reac
                 </h2>
                 <BlockGrid data={edges}/>
             </div>
-            <ContactLowerBanner/>
         </Layout>
     )
 }
