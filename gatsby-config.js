@@ -54,7 +54,7 @@ module.exports = {
               linkImagesToOriginal: false,
               showCaptions: true,
               withWebp: true,
-              withAvif: true,
+              withAvif: false,
               quality: 80,
             },
           },
