@@ -23,7 +23,7 @@ export default function AboutPage(): React.ReactElement {
                     </Button>
                     <section className="prose mt-10">
                         <p>
-                            I&apos;m a self-taught designer (yep, that&apos;s a thing!) with a developer background, specializing in simple and effortless experiences for both the devices we use today and the ones we’ll use in the future. Crafting high-quality products that people love to use is my passion, and I work tirelessly to achieve that goal.
+                            I&apos;m a self-taught designer with an engineering background, specializing in simple and effortless experiences for both the devices we use today and the ones we’ll use in the future. Crafting high-quality products that people love to use is my passion, and I work tirelessly to achieve that goal.
                         </p>
                         <p>
                             Using the medium of motion and rapid prototyping I bring these experiences to life, visualizing the smallest interactions to entire user journeys. I strongly believe in open design, and encourage co-creation that can help deliver a better solution for users.
@@ -35,7 +35,10 @@ export default function AboutPage(): React.ReactElement {
                             I recently finished my BSc Computer Science degree, with my final result being First Class Honours.
                         </p>
                         <p>
-                            I was previously a Design Intern at <a href="https://www.microsoft.com/">Microsoft</a> working on products such as <Link to="/work/surface-duo">Surface Duo</Link>, <Link to="/work/swiftkey-design-system">SwiftKey</Link>, <Link to="/work/fluent-icons">Fluent Icons</Link>, and more. Before that, I worked independently on critically acclaimed concepts both by myself and with folks around the world. Awarded 2018-19 <a href="https://mvp.microsoft.com/">Microsoft MVP</a> (Most Valuable Professional) for Windows Design.
+                            Worked previously a Design Intern at <a href="https://www.microsoft.com/">Microsoft</a>, where I was involved with products used by millions of people around the world. Check them out: <Link to="/work/surface-duo">Surface Duo</Link>, <Link to="/work/swiftkey-design-system">SwiftKey</Link>, <Link to="/work/fluent-icons">Fluent Icons</Link>. Before that, I worked independently on critically acclaimed concepts both by myself and friends.
+                        </p>
+                        <p>
+                            Awarded 2018-19 <a href="https://mvp.microsoft.com/">Microsoft MVP</a> (Most Valuable Professional) for Windows Design.
                         </p>
                     </section>
                 </section>

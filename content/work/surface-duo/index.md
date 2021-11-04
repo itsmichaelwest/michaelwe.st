@@ -1,10 +1,6 @@
 ---
 title: 'Surface Duo'
-description: 'Do one better. There’s a new way to get things done.'
-descriptionProse: >
-    Surface Duo combines the absolute best of Microsoft with the absolute best of Android into one product.
-
-    It brings together the power of Microsoft 365 experiences and the full ecosystem of Android mobile apps into one device, with two screens that you can take anywhere.
+description: "Do one better. There's a new way to get things done."
 aliases: 
     - /surface-duo/
 category: 'Microsoft'
