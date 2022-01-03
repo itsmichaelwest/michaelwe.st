@@ -5,7 +5,7 @@ import { StaticImage } from 'gatsby-plugin-image'
 import Button from '../components/Button'
 import { Link } from 'gatsby'
 
-import Resume from '../files/mw-resume-july2021.pdf'
+import Resume from '../files/mw-resume-jan2022.pdf'
 
 export default function AboutPage(): React.ReactElement {
     return (
@@ -32,10 +32,13 @@ export default function AboutPage(): React.ReactElement {
                             Accessibility and inclusion sit at the center of my process — technology should empower everyone and nobody should be left with a subpar experience.
                         </p>
                         <p>
-                            I recently finished my BSc Computer Science degree, with my final result being First Class Honours.
+                            I recently rejoined <a href="https://www.microsoft.com/">Microsoft</a> as Designer 2, working on new products and other cross-company design initiatives.
                         </p>
                         <p>
-                            Worked previously a Design Intern at <a href="https://www.microsoft.com/">Microsoft</a>, where I was involved with products used by millions of people around the world. Check them out: <Link to="/work/surface-duo">Surface Duo</Link>, <Link to="/work/swiftkey-design-system">SwiftKey</Link>, <Link to="/work/fluent-icons">Fluent Icons</Link>. Before that, I worked independently on critically acclaimed concepts both by myself and friends.
+                            Previously a Design Intern at Microsoft, where I was involved with products used by millions of people around the world. Check them out: <Link to="/work/surface-duo">Surface Duo</Link>, <Link to="/work/swiftkey-design-system">SwiftKey</Link>, <Link to="/work/fluent-icons">Fluent Icons</Link>. Before that, I worked independently on critically acclaimed concepts both by myself and friends.
+                        </p>
+                        <p>
+                            BSc Computer Science graduate — First Class Honours.
                         </p>
                         <p>
                             Awarded 2018-19 <a href="https://mvp.microsoft.com/">Microsoft MVP</a> (Most Valuable Professional) for Windows Design.
