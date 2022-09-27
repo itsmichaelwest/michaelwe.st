@@ -20,14 +20,14 @@ const Work = ({ allPostsData }) => (
             <meta property="twitter:creator" content={siteMetadata.social.twitter} />
         </Head>
         <BlockGrid>
-            {allPostsData.map(({ id, title, description, featuredBlockImage, featuredBlockImageAlt, canonical }) => (
+            {allPostsData.map(({ id, title, description, featuredBlockImage, featuredImageAlt, canonical }) => (
                 <WorkBlock
                     key={id}
                     title={title}
                     url={canonical ? canonical : `/work/${id}`}
                     description={description}
                     image={`/images/${id}/${featuredBlockImage}`}
-                    imageAlt={featuredBlockImageAlt}
+                    imageAlt={featuredImageAlt}
                 />
             ))}
         </BlockGrid>

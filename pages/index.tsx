@@ -26,14 +26,14 @@ const Home = ({ allPostsData }) => (
                 Recent work
             </h2>
             <BlockGrid>
-                {allPostsData.slice(0, 4).map(({ id, title, description, featuredBlockImage, featuredBlockImageAlt, canonical }) => (
+                {allPostsData.slice(0, 4).map(({ id, title, description, featuredBlockImage, featuredImageAlt, canonical }) => (
                     <WorkBlock
                         key={id}
                         title={title}
                         url={canonical ? canonical : `/work/${id}`}
                         description={description}
                         image={`/images/${id}/${featuredBlockImage}`}
-                        imageAlt={featuredBlockImageAlt}
+                        imageAlt={featuredImageAlt}
                     />
                 ))}
             </BlockGrid>
