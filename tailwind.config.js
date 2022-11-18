@@ -46,6 +46,9 @@ module.exports = {
         twitter: {
           DEFAULT: '#1da1f2',
         },
+        mastodon: {
+          DEFAULT: '#595aff',
+        },
         linkedin: {
           DEFAULT: '#0073b1',
         },
