@@ -3,7 +3,6 @@ title: "Podcasts app concept"
 description: "Building a lightweight and modern podcast consumption app."
 aliases:
     - /podcasts-app-concept/
-    - /projects/2018/06/16/windows-setup-experience/
     - /projects/podcasts-app-concept/
 date: "2018-07-20"
 category: "Design Concept"
