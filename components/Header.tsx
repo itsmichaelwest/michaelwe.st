@@ -31,7 +31,7 @@ const Header = () => {
         <header className={!showMenu ? classes : `${classes} bg-white`}>
             <Link href="/" className="flex items-center text-xl font-semibold tracking-tight hover:text-gray-500 transition-colors">
                 <span className="flex-initial h-8 w-8 rounded-full mr-3 shadow-md overflow-hidden">
-                    <Image src={MichaelPic} alt="Photo of Michael West" width="32px" height="32px"  style={{ WebkitMaskImage: '-webkit-radial-gradient(white,black)' }} />
+                    <Image src={MichaelPic} alt="Photo of Michael West" width={32} height={32}  style={{ WebkitMaskImage: '-webkit-radial-gradient(white,black)' }} />
                 </span>
                 {process.env.NODE_ENV === 'development' ? (
                     'Michael.dev'
