@@ -19,10 +19,8 @@ const Button: React.FC<ButtonProps> = ({ to, style, children }) => {
     const classes = 'px-6 py-2 inline-block transition-all'
 
     return (
-        <Link href={to}>
-            <a className={`${bg} ${classes}`}>
-                {children}
-            </a>
+        <Link href={to} className={`${bg} ${classes}`}>
+            {children}
         </Link>
     )
 }

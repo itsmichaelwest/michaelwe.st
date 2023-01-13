@@ -14,8 +14,6 @@ officialURLText: "See at Microsoft"
 isHero: true
 ---
 
-{/* import YouTubeVideo from '../../components/YouTubeVideo' */}
-
 Surface Duo combines the absolute best of Microsoft with the absolute best of Android into one product.
 
 It brings together the power of Microsoft 365 experiences and the full ecosystem of Android mobile apps into one device, with two screens that you can take anywhere.
@@ -39,5 +37,3 @@ We spent a lot of time researching how people react to and use SwiftKey on this 
 ![SwiftKey on Surface Duo being used to reply to a message.](/images/surface-duo/duo-swiftkey-dp.jpg)
 
 I also had to opportunity to collaborate closely with the Surface design team themselves to craft tailor-made software experiences that work beautifully in any posture.
-
-{/* <YouTubeVideo videoSrcUrl="https://www.youtube.com/embed/CqRKOY4Cgvw?controls=0&disablekb=1" videoTitle="The new Surface Duo. Do one better." /> */}

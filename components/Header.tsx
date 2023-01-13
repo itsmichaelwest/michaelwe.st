@@ -29,25 +29,21 @@ const Header = () => {
 
     return (
         <header className={!showMenu ? classes : `${classes} bg-white`}>
-            <Link href="/">
-                <a className="flex items-center text-xl font-semibold tracking-tight hover:text-gray-500 transition-colors">
-                    <span className="flex-initial h-8 w-8 rounded-full mr-3 shadow-md overflow-hidden">
-                        <Image src={MichaelPic} alt="Photo of Michael West" width="32px" height="32px"  style={{ WebkitMaskImage: '-webkit-radial-gradient(white,black)' }} />
-                    </span>
-                    {process.env.NODE_ENV === 'development' ? (
-                        'Michael.dev'
-                    ) : (
-                        'Michael'
-                    )}
-                </a>
+            <Link href="/" className="flex items-center text-xl font-semibold tracking-tight hover:text-gray-500 transition-colors">
+                <span className="flex-initial h-8 w-8 rounded-full mr-3 shadow-md overflow-hidden">
+                    <Image src={MichaelPic} alt="Photo of Michael West" width="32px" height="32px"  style={{ WebkitMaskImage: '-webkit-radial-gradient(white,black)' }} />
+                </span>
+                {process.env.NODE_ENV === 'development' ? (
+                    'Michael.dev'
+                ) : (
+                    'Michael'
+                )}
             </Link>
             <div>
                 <nav className="hidden float-right lg:flex flex-row gap-8">
                     {siteMetadata.menuLinks.map(link => (
-                        <Link key={link.link} href={link.link}>
-                            <a className={`text-gray-600 hover:text-black transition-colors ${router.pathname == link.link && "font-bold"}`}>
-                                {link.name}
-                            </a>
+                        <Link key={link.link} href={link.link} className={`text-gray-600 hover:text-black transition-colors ${router.pathname == link.link && "font-bold"}`}>
+                            {link.name}
                         </Link>
                     ))}
                     </nav>
@@ -58,7 +54,7 @@ const Header = () => {
                         <div>
                             <span className="sr-only">Open menu</span>
                             <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
                             </svg>
                         </div>
                         :
@@ -76,10 +72,8 @@ const Header = () => {
                 <div className="absolute top-40 inset-0 h-screen bg-white z-20">
                     <nav>
                     {siteMetadata.menuLinks.map(link => (
-                        <Link key={link.link} href={link.link} >
-                            <a className={`block w-100 h-full px-8 py-4 hover:bg-gray-700 hover:text-white ${router.pathname == link.link && "font-bold bg-gray-400 hover:bg-gray-700"}`} onClick={restoreScroll}>
-                                {link.name}
-                            </a>
+                        <Link key={link.link} href={link.link} className={`block w-100 h-full px-8 py-4 hover:bg-gray-700 hover:text-white ${router.pathname == link.link && "font-bold bg-gray-400 hover:bg-gray-700"}`} onClick={restoreScroll}>
+                            {link.name}
                         </Link>
                     ))}
                     </nav>

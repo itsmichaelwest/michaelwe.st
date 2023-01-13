@@ -7,7 +7,6 @@ const YouTubeVideo = (videoSrcUrl: string, videoTitle: string) => (
                 title={videoTitle}
                 allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
-                frameBorder="0"
             />
         </div>
     </div>
