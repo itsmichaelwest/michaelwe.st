@@ -58,7 +58,7 @@ const Post = ({ postData, mdxSource }) => (
                 </div>
                 {postData.featuredImage &&
                 <div className="mt-32">
-                    <Image src={`/images/${postData.id}/${postData.featuredImage}`} alt={postData.featuredImageAlt} width={100} height={70} />
+                    <Image className="w-full" src={`/images/${postData.id}/${postData.featuredImage}`} alt={postData.featuredImageAlt} width={1000} height={700} />
                 </div>
                 }
             </header>
