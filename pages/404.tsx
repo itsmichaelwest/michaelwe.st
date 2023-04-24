@@ -2,6 +2,7 @@ import Head from 'next/head'
 import * as React from 'react'
 import Layout from '../components/Layout'
 import siteMetadata from '../siteMetadata'
+import Link from 'next/link'
 
 const NotFound = () => {
     const url = typeof window !== 'undefined' ? window.location.pathname : ''
@@ -33,7 +34,7 @@ const NotFound = () => {
                     {url}
                 </p>
                 <p className="my-2">
-                    Oh no, the page you were trying to look for couldn&apos;t be found.
+                    That page doesn&apos;t exist. Try going to the <Link href="/" className="text-blue-500 hover:text-blue-700">homepage</Link>.
                 </p>
                 <p className="text-sm text-gray-500">
                     HTTP 404

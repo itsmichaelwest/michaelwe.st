@@ -28,9 +28,14 @@ const About = () => (
                 <h1 className="font-display text-4xl md:text-6xl font-semibold mb-8">
                     Michael West
                 </h1>
-                <Button to="/files/mw-resume-jan2022.pdf">
-                    Download résumé
-                </Button>
+                <div className="flex gap-2">
+                    <Button to="/files/mw-resume-jan2022.pdf">
+                        Download résumé
+                    </Button>
+                    <Button to="/profile-links">
+                        Check social profiles
+                    </Button>
+                </div>
                 <section className="prose mt-10">
                     <p>
                         I&apos;m a self-taught designer with an engineering background, specializing in simple and effortless experiences for both the devices we use today and the ones we'll use in the future. Crafting high-quality products that people love to use is my passion, and I work tirelessly to achieve that goal.
@@ -42,7 +47,7 @@ const About = () => (
                         Accessibility and inclusion sit at the center of my process — technology should empower everyone and nobody should be left with a subpar experience.
                     </p>
                     <p>
-                        I recently rejoined <Link href="https://www.microsoft.com/">Microsoft</Link> as Designer 2, working on new products and other cross-company design initiatives.
+                        I'm currently a Designer 2 at <Link href="https://www.microsoft.com/">Microsoft</Link>, working on new products and other cross-company design initiatives.
                     </p>
                     <p>
                         Previously a Design Intern at Microsoft, where I was involved with products used by millions of people around the world. Check them out: <Link href="/work/surface-duo">Surface Duo</Link>, <Link href="/work/swiftkey-design-system">SwiftKey</Link>, <Link href="/work/fluent-icons">Fluent Icons</Link>. Before that, I worked independently on critically acclaimed concepts both by myself and friends.
