@@ -3,7 +3,17 @@ import Footer from './Footer'
 import Header from './Header'
 
 const Layout = ({ children }) => (
-    <div>
+    <>
+        <style jsx global>{`
+            body {
+                background-color: white;
+            }
+            @media (prefers-color-scheme: dark) {
+                body {
+                    background-color: black;
+                }
+            }
+        `}</style>
         <Head>
             <link rel="icon" href="/favicon.ico" />
             <link rel="me" href="https://mastodon.social/@michaelwest" />
@@ -14,7 +24,7 @@ const Layout = ({ children }) => (
             {children}
         </main>
         <Footer />
-    </div>
+    </>
 )
 
 export default Layout

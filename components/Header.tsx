@@ -28,8 +28,8 @@ const Header = () => {
     const router = useRouter()
 
     return (
-        <header className={!showMenu ? classes : `${classes} bg-white`}>
-            <Link href="/" className="flex items-center text-xl font-semibold tracking-tight hover:text-gray-500 transition-colors">
+        <header className={!showMenu ? classes : `${classes} bg-white dark:bg-black`}>
+            <Link href="/" className="flex items-center text-xl font-semibold tracking-tight text-gray-800 dark:text-gray-200 hover:text-gray-500 dark:hover-text-gray-600 transition-colors">
                 <span className="flex-initial h-8 w-8 rounded-full mr-3 shadow-md overflow-hidden">
                     <Image src={MichaelPic} alt="Photo of Michael West" width={32} height={32}  style={{ WebkitMaskImage: '-webkit-radial-gradient(white,black)' }} />
                 </span>
@@ -42,13 +42,13 @@ const Header = () => {
             <div>
                 <nav className="hidden float-right lg:flex flex-row gap-8">
                     {siteMetadata.menuLinks.map(link => (
-                        <Link key={link.link} href={link.link} className={`text-gray-600 hover:text-black transition-colors ${router.pathname == link.link && "font-bold"}`}>
+                        <Link key={link.link} href={link.link} className={`text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors ${router.pathname == link.link && "font-bold"}`}>
                             {link.name}
                         </Link>
                     ))}
                     </nav>
                     <div className="float-right -my-1 lg:hidden">
-                        <button type="button" className="border border-gray-200 p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-none transition-all" onClick={toggleMenu}>
+                        <button type="button" className="border border-gray-200 dark:border-gray-800 p-2 inline-flex items-center justify-center text-gray-400 dark:text-gray-600 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-none transition-all" onClick={toggleMenu}>
                         {!showMenu
                         ?
                         <div>
@@ -69,10 +69,10 @@ const Header = () => {
                     </div>
                 </div>
                 {showMenu &&
-                <div className="absolute top-40 inset-0 h-screen bg-white z-20">
+                <div className="absolute top-40 inset-0 h-screen bg-white dark:bg-black z-20">
                     <nav>
                     {siteMetadata.menuLinks.map(link => (
-                        <Link key={link.link} href={link.link} className={`block w-100 h-full px-8 py-4 hover:bg-gray-700 hover:text-white ${router.pathname == link.link && "font-bold bg-gray-400 hover:bg-gray-700"}`} onClick={restoreScroll}>
+                        <Link key={link.link} href={link.link} className={`block w-100 h-full px-8 py-4 text-gray-900 dark:text-gray-100 hover:bg-gray-700 ${router.pathname == link.link && "font-bold bg-gray-400 dark:bg-gray-600"}`} onClick={restoreScroll}>
                             {link.name}
                         </Link>
                     ))}

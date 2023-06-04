@@ -20,10 +20,10 @@ const ProfileLinks = () => (
             <meta property="twitter:creator" content={siteMetadata.social.twitter} />
         </Head>
         <section className="mb-32">
-            <h1 className="font-display text-4xl md:text-6xl font-semibold mb-8">
+            <h1 className="font-display text-4xl md:text-6xl font-semibold mb-8 text-gray-900 dark:text-gray-100">
                 Profile Links
             </h1>
-            <section className="prose mt-10">
+            <section className="prose dark:prose-dark mt-10">
                 <p>
                     This page serves to list my public-facing social profiles, so you can check that a profile you're viewing and interacting with actually belongs to me.
                 </p>

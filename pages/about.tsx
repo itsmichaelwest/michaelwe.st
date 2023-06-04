@@ -25,7 +25,7 @@ const About = () => (
         <article className="grid grid-cols-1 lg:grid-cols-2 lg:gap-16">
             <Image className="lg:h-full mb-10 md:mb-16 lg:mb-0" src={PortraitTall} alt="Photo of Michael" />
             <section>
-                <h1 className="font-display text-4xl md:text-6xl font-semibold mb-8">
+                <h1 className="font-display text-4xl md:text-6xl font-semibold mb-8 text-gray-900 dark:text-gray-100">
                     Michael West
                 </h1>
                 <div className="flex gap-2">
@@ -36,7 +36,7 @@ const About = () => (
                         Check social profiles
                     </Button>
                 </div>
-                <section className="prose mt-10">
+                <section className="prose dark:prose-dark mt-10">
                     <p>
                         I&apos;m a self-taught designer with an engineering background, specializing in simple and effortless experiences for both the devices we use today and the ones we'll use in the future. Crafting high-quality products that people love to use is my passion, and I work tirelessly to achieve that goal.
                     </p>

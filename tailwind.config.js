@@ -62,6 +62,7 @@ module.exports = {
       typography: (theme) => ({
         DEFAULT: {
           css: {
+            color: theme('colors.gray.900'),
             a: {
               color: theme('colors.blue.500'),
               textDecoration: 'none',
@@ -69,6 +70,12 @@ module.exports = {
                 color: theme('colors.blue.700'),
                 textDecoration: 'none',
               },
+            },
+            h2: {
+              color: theme('colors.gray.800')
+            },
+            h4: {
+              color: theme('colors.gray.800')
             },
             figure: {
               margin: '6rem 0 6rem -30%',
@@ -105,9 +112,6 @@ module.exports = {
             },
             h4: {
               color: theme('colors.gray.200')
-            },
-            strong: {
-              color: theme('colors.gray.100')
             },
             figure: {
               margin: '6rem 0 6rem -30%',
