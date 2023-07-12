@@ -29,13 +29,16 @@ const ProfileLinks = () => (
                 </p>
                 <ul>
                     <li>
-                        Twitter: <Link href="https://twitter.com/itsmichaelwest">@itsmichaelwest</Link> (currently protected)
+                        Twitter: <Link href="https://twitter.com/itsmichaelwest">@itsmichaelwest</Link>
                     </li>
                     <li>
                         Mastodon: <Link href="https://mastodon.social/@michaelwest">@michaelwest@mastodon.social</Link> (profile contains ownership-checked link to this website)
                     </li>
                     <li>
                         Bluesky: <Link href="https://bsky.app/profile/michaelwest.bsky.social">@michaelwest.bsky.social</Link>
+                    </li>
+                    <li>
+                        Threads: <Link href="https://www.threads.net/@itsmichaelwest">@itsmichaelwest</Link>
                     </li>
                     <li>
                         LinkedIn: <Link href="https://www.linkedin.com/in/itsmichaelwest/">Michael West</Link>
