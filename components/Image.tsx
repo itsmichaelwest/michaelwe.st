@@ -3,13 +3,12 @@
 
 import NextImage from 'next/image'
 
-const Image = ({ src, alt, height, width, layout="responsive" }) => {
+const Image = ({ src, alt, height, width }) => {
     const imageProps = {
         src,
         alt,
         height,
-        width,
-        layout
+        width
     }
 
     return (
