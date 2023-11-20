@@ -22,7 +22,7 @@ const Home = ({ allPostsData }) => (
         </Head>
         <IndexHero />
         <div className="lg:my-24 my-16">
-            <h2 className="font-display font-semibold text-4xl mb-16 text-gray-800 dark:text-gray-200">
+            <h2 className="font-display font-semibold tracking-tight text-4xl mb-16 text-gray-800 dark:text-gray-200">
                 Recent work
             </h2>
             <BlockGrid>

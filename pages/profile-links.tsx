@@ -29,7 +29,7 @@ const ProfileLinks = () => (
                 </p>
                 <ul>
                     <li>
-                        Twitter: <Link href="https://twitter.com/itsmichaelwest">@itsmichaelwest</Link>
+                        X / Twitter: <Link href="https://twitter.com/itsmichaelwest">@itsmichaelwest</Link>
                     </li>
                     <li>
                         Mastodon: <Link href="https://mastodon.social/@michaelwest">@michaelwest@mastodon.social</Link> (profile contains ownership-checked link to this website)

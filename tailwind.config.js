@@ -9,8 +9,8 @@ module.exports = {
       center: true,
     },
     fontFamily: {
-      'display': ['neue-haas-grotesk-display', 'sans-serif'],
-      'sans': ['neue-haas-grotesk-text', 'sans-serif'],
+      'display': ['Inter', 'sans-serif'],
+      'sans': ['Inter', 'sans-serif'],
       'emoji': ['sans-serif', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji']
     },
     extend: {

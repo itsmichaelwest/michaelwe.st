@@ -41,7 +41,7 @@ const Post = ({ postData, mdxSource }) => (
                 </p>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
                     <div>
-                        <h1 className="text-6xl font-header font-bold mb-8 text-gray-900 dark:text-gray-100">
+                        <h1 className="text-6xl font-display font-semibold tracking-tight mb-8 text-gray-900 dark:text-gray-100">
                             {postData.title}
                         </h1>
                         {postData.officialURL && 

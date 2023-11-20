@@ -25,7 +25,7 @@ const About = () => (
         <article className="grid grid-cols-1 lg:grid-cols-2 lg:gap-16">
             <Image className="lg:h-full mb-10 md:mb-16 lg:mb-0" src={PortraitTall} alt="Photo of Michael" />
             <section>
-                <h1 className="font-display text-4xl md:text-6xl font-semibold mb-8 text-gray-900 dark:text-gray-100">
+                <h1 className="font-display text-4xl md:text-6xl tracking-[-0.05em] font-semibold mb-8 text-gray-900 dark:text-gray-100">
                     Michael West
                 </h1>
                 <div className="flex gap-2">

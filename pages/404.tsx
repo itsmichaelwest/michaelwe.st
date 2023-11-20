@@ -24,7 +24,7 @@ const NotFound = () => (
                     😭
                 </span>
             </h1>
-            <h1 className="font-display text-4xl font-bold my-4 text-gray-900 dark:text-gray-100">
+            <h1 className="font-display font-semibold tracking-tight text-4xl my-4 text-gray-900 dark:text-gray-100">
                 Page not found
             </h1>
             <p className="my-2 text-gray-908 dark:text-gray-200">

@@ -6,7 +6,7 @@ const IndexHero = () => (
         <h1 className="text-7xl sm:text-8xl font-emoji max-w-max">
             👋
         </h1>
-        <h1 className="text-5xl sm:text-6xl font-display font-semibold my-8 sm:my-12 text-gray-900 dark:text-gray-100">
+        <h1 className="text-5xl sm:text-6xl font-display font-semibold tracking-tight my-8 sm:my-12 text-gray-900 dark:text-gray-100">
             Designer. Developer.
         </h1>
         <SocialIcons/>
