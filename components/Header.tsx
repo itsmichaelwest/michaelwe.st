@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import MichaelPic from "../public/images/michael-face.jpg";
 import siteMetadata from "../siteMetadata";
 import { useState } from "react";
 import { useRouter } from "next/router";
+import useWindowSize from "../lib/useWindowSize";
 
 const Header = () => {
     const [showMenu, setShowMenu] = useState(false);
@@ -27,6 +28,11 @@ const Header = () => {
     }
 
     const router = useRouter();
+
+    const { width } = useWindowSize();
+    useEffect(() => {
+        if (width > 640 && showMenu) restoreScroll();
+    }, [width]);
 
     return (
         <header
@@ -55,7 +61,7 @@ const Header = () => {
                     : "Michael"}
             </Link>
             <div>
-                <nav className="hidden float-right lg:flex flex-row gap-8">
+                <nav className="hidden float-right sm:flex flex-row gap-8">
                     {siteMetadata.menuLinks.map((link) => (
                         <Link
                             key={link.link}
@@ -66,7 +72,7 @@ const Header = () => {
                         </Link>
                     ))}
                 </nav>
-                <div className="float-right -my-1 lg:hidden">
+                <div className="float-right -my-1 sm:hidden">
                     <button
                         type="button"
                         className="border border-gray-200 dark:border-gray-800 p-2 inline-flex items-center justify-center text-gray-400 dark:text-gray-600 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-none transition-all"
@@ -121,7 +127,7 @@ const Header = () => {
                             <Link
                                 key={link.link}
                                 href={link.link}
-                                className={`block w-100 h-full px-8 py-4 text-gray-900 dark:text-gray-100 hover:bg-gray-700 ${router.pathname == link.link && "font-bold bg-gray-400 dark:bg-gray-600"}`}
+                                className={`block w-100 h-full px-8 py-4 text-gray-900 dark:text-gray-100 hover:bg-gray-700 hover:text-white ${router.pathname == link.link && "font-bold bg-gray-400 dark:bg-gray-600"}`}
                                 onClick={restoreScroll}
                             >
                                 {link.name}
