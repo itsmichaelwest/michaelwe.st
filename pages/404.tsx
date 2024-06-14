@@ -7,7 +7,7 @@ import Link from "next/link";
 const NotFound = () => (
     <Layout>
         <Head>
-            <title>Page not found - {siteMetadata.title}</title>
+            <title>{`Page not found - ${siteMetadata.title}`}</title>
             <meta name="description" content={siteMetadata.description} />
             <meta property="og:title" content={siteMetadata.title} />
             <meta

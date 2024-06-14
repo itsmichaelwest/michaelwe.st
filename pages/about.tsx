@@ -11,7 +11,7 @@ import siteMetadata from "../siteMetadata";
 const About = () => (
     <Layout>
         <Head>
-            <title>About - {siteMetadata.title}</title>
+            <title>{`About - ${siteMetadata.title}`}</title>
             <meta name="description" content={siteMetadata.description} />
             <meta property="og:title" content={siteMetadata.title} />
             <meta

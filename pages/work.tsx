@@ -8,7 +8,7 @@ import siteMetadata from "../siteMetadata";
 const Work = ({ allPostsData }) => (
     <Layout>
         <Head>
-            <title>Work - {siteMetadata.title}</title>
+            <title>{`Work - ${siteMetadata.title}`}</title>
             <meta name="description" content={siteMetadata.description} />
             <meta property="og:title" content={siteMetadata.title} />
             <meta

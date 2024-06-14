@@ -8,7 +8,7 @@ import siteMetadata from "../siteMetadata";
 const ProfileLinks = () => (
     <Layout>
         <Head>
-            <title>Profile Links - {siteMetadata.title}</title>
+            <title>{`Profile Links - ${siteMetadata.title}`}</title>
             <meta name="description" content={siteMetadata.description} />
             <meta property="og:title" content={siteMetadata.title} />
             <meta
