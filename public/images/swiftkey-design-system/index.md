@@ -1,12 +1,12 @@
 ---
-title: 'SwiftKey Design System'
-description: 'I helped lead an effort to clean up and modernize our internal Figma design systems.'
-aliases: 
+title: "SwiftKey Design System"
+description: "I helped lead an effort to clean up and modernize our internal Figma design systems."
+aliases:
     - /swiftkey-design-system
-category: 'Microsoft'
+category: "Microsoft"
 date: "2020-07-31"
 featuredBlockImage: hero-block.png
-featuredImageAlt: 'Various UI components from Microsoft SwiftKey.'
+featuredImageAlt: "Various UI components from Microsoft SwiftKey."
 hideFromList: false
 ---
 

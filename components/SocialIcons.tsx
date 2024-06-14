@@ -1,12 +1,13 @@
-import React from 'react'
-import Mastodon from '../public/vectors/mastodon.svg'
-import LinkedIn from '../public/vectors/linkedin.svg'
-import Link from 'next/link'
-import TwitterX from '../public/vectors/twitter-x.svg'
+import React from "react";
+import Mastodon from "../public/vectors/mastodon.svg";
+import LinkedIn from "../public/vectors/linkedin.svg";
+import Link from "next/link";
+import TwitterX from "../public/vectors/twitter-x.svg";
 
-const classes = 'h-10 w-10 mr-2 text-gray-900 dark:text-gray-100 hover:bg-white dark:hover:bg-black bg-gray-100 dark:bg-gray-900 border border-transparent hover:border-gray-100 dark:hover:border-gray-900 box-content rounded-full '
+const classes =
+    "h-10 w-10 mr-2 text-gray-900 dark:text-gray-100 hover:bg-white dark:hover:bg-black bg-gray-100 dark:bg-gray-900 border border-transparent hover:border-gray-100 dark:hover:border-gray-900 box-content rounded-full ";
 
-const svgClasses = 'relative mx-2 scale-90 -left-0.5 top-1.5 fill-current'
+const svgClasses = "relative mx-2 scale-90 -left-0.5 top-1.5 fill-current";
 
 const SocialIcons = () => (
     <div className="flex">
@@ -29,6 +30,6 @@ const SocialIcons = () => (
             </Link>
         </div>
     </div>
-)
+);
 
-export default SocialIcons
+export default SocialIcons;

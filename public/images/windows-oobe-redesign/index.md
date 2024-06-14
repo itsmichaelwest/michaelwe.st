@@ -11,12 +11,13 @@ category: "Design Concept"
 noMSFT: true
 featuredImage: hero.jpg
 featuredBlockImage: hero.jpg
-featuredImageAlt: "Two laptops display concepts of a setup experience." 
+featuredImageAlt: "Two laptops display concepts of a setup experience."
 ---
 
 This project focused on making the Windows Out Of Box Experience (OOBE) simpler and look more in line with the Fluent Design System that’s been making its way into Windows over the last year.
 
 ## Startup and welcome
+
 When the user switches on their PC for the first time, they are presented with a welcome screen that displays a variety of common languages on the left. Each language is displayed in its localized name—as you can see, Germany is written as _Deutschland_.
 
 ![](./welcome.jpg)

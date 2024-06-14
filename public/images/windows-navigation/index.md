@@ -1,7 +1,7 @@
 ---
 title: "Redesigning navigation for Windows 10"
 description: "Making in-app navigation fit in better with Windows Sets."
-category: 'Design Concept'
+category: "Design Concept"
 aliases:
     - /w10nav/
     - /projects/redesigning-navigation-for-windows-10/
@@ -19,6 +19,7 @@ In this exploration, I wanted to see if the NavigationView in Windows 10 apps co
 I also wanted to see how hamburger menus could be re-worked by bringing them in-app.
 
 Finally, I wanted to rework how users could open new applications in a Set, or start a Set quickly with applications they already have open.
+
 <!--more-->
 
 ## Overview
@@ -66,6 +67,7 @@ The hamburger menu features the top navigation items as well as more categories 
 ![The hamburger menu of the Store app. Again, it's very similar to the one I created for Photos.](./store-hamburger.jpg)
 
 ##### App case study
+
 ## Starbucks UWP
 
 ![The homepage of a Starbucks app mockup—showing a similar navigation style to the Photos and Microsoft Store apps, but styled to match Starbucks' brand.](./starbucks.jpg)

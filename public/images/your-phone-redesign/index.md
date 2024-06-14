@@ -2,7 +2,7 @@
 title: "Your Phone redesign"
 description: "A fresh lick of paint and an even fresher set of features."
 date: "2018-10-17"
-aliases: 
+aliases:
     - /your-phone-redesign/
     - /projects/2018/10/17/your-phone-redesign/
 category: "Design Concept"
@@ -13,6 +13,7 @@ featuredImageAlt: "Your Phone app concepts."
 ---
 
 The **Your Phone** app is launching with the Windows 10 October 2018 update as a new way to connect your Android phone to your PC and access messages and photos. I’ve had a chance to try it out for a while in preview builds, and have come up with a few ideas on how the messages function can be expanded and how calling features can be added to the app. This project focused on these two things.
+
 <!--more-->
 
 ## Messages

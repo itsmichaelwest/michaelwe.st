@@ -1,7 +1,7 @@
 ---
 title: "Project Meta"
 description: "Windows for Foldable Devices. Not affiliated with Microsoft."
-aliases: 
+aliases:
     - /project-meta/
 date: "2019-12-01"
 category: "Consultancy"

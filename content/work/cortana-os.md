@@ -1,14 +1,14 @@
 ---
-title: 'Cortana OS'
-description: 'A hypothetical take on Windows 10 designed around proactivity and assistance.'
-aliases: 
+title: "Cortana OS"
+description: "A hypothetical take on Windows 10 designed around proactivity and assistance."
+aliases:
     - /blog/2019/01/27/design-decisions-in-cortana-os/
-category: 'Concept Sprint'
+category: "Concept Sprint"
 date: "2019-01-27"
 featuredImage: hero.jpg
 featuredBlockImage: hero-block.jpg
 featuredImageAlt: "A tablet displays a screenshot of the Cortana OS Start menu."
-featuredImageTwitter: 'hero.jpg'
+featuredImageTwitter: "hero.jpg"
 noMSFT: true
 hideFromList: false
 ---

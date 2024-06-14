@@ -2,7 +2,7 @@
 title: "Your Phone redesign"
 description: "A fresh lick of paint and an even fresher set of features."
 date: "2018-10-17"
-aliases: 
+aliases:
     - /your-phone-redesign/
     - /projects/2018/10/17/your-phone-redesign/
 category: "Design Concept"

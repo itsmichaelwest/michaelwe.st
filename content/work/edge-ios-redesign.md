@@ -2,7 +2,7 @@
 title: "Microsoft Edge for iOS redesign"
 description: "A focus on one-handed usability and new cross-device experiences."
 date: "2019-06-12"
-aliases: 
+aliases:
     - /projects/2019/06/12/microsoft-edge-for-ios-redesign/
 category: "Design Concept"
 noMSFT: true

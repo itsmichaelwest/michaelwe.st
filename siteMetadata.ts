@@ -1,22 +1,22 @@
 const siteMetadata = {
-    title: 'Michael',
+    title: "Michael",
     menuLinks: [
         {
-            name: 'Work',
-            link: '/work'
+            name: "Work",
+            link: "/work",
         },
         {
-            name: 'About',
-            link: '/about'
-        }
+            name: "About",
+            link: "/about",
+        },
     ],
-    siteURL: 'https://www.michaelwe.st/',
-    description: 'Michael is designing things.',
+    siteURL: "https://www.michaelwe.st/",
+    description: "Michael is designing things.",
     copyright: `© ${new Date().getFullYear()}. Hello from the UK!`,
-    author: 'Michael West',
+    author: "Michael West",
     social: {
-        twitter: '@itsmichaelwest',
-    }
-}
+        twitter: "@itsmichaelwest",
+    },
+};
 
-export default siteMetadata
+export default siteMetadata;

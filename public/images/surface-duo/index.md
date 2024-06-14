@@ -1,13 +1,13 @@
 ---
-title: 'Surface Duo'
+title: "Surface Duo"
 description: "Do one better. There's a new way to get things done."
-aliases: 
+aliases:
     - /surface-duo/
-category: 'Microsoft'
+category: "Microsoft"
 date: "2020-08-12"
 hideFromList: false
 featuredImage: hero.jpg
-featuredImageAlt: 'Microsoft Surface Duo in its dual-screen configuration showing the home screen.'
+featuredImageAlt: "Microsoft Surface Duo in its dual-screen configuration showing the home screen."
 featuredBlockImage: hero.jpg
 officialURL: https://www.microsoft.com/en-us/surface/devices/surface-duo
 officialURLText: "See at Microsoft"

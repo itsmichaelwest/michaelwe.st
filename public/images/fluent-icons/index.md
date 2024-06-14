@@ -1,15 +1,15 @@
 ---
-title: 'Fluent Icons'
-description: 'A brand new monoline icon system for Microsoft.'
-aliases: 
+title: "Fluent Icons"
+description: "A brand new monoline icon system for Microsoft."
+aliases:
     - /fluent-icons
-category: 'Microsoft'
+category: "Microsoft"
 date: "2020-07-31"
 featuredImage: hero.png
-featuredImageAlt: 'A view of a collection of common Fluent Icons.'
+featuredImageAlt: "A view of a collection of common Fluent Icons."
 featuredBlockImage: hero-block.png
 officialURL: https://github.com/microsoft/fluentui-system-icons
-officialURLText: 'View icon repository'
+officialURLText: "View icon repository"
 hideFromList: false
 ---
 
