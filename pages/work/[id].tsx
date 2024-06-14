@@ -10,6 +10,8 @@ import rehypeImgSize from "rehype-img-size";
 import NoMSFTDisclaimer from "../../components/NoMSFTDisclaimer";
 import Button from "../../components/Button";
 import siteMetadata from "../../siteMetadata";
+import remarkUnwrapImages from "remark-unwrap-images";
+import { format, parseISO } from "date-fns";
 
 const components = {
     img: CustomImage,
@@ -18,9 +20,7 @@ const components = {
 const Post = ({ postData, mdxSource }) => (
     <Layout>
         <Head>
-            <title>
-                {postData.title} - {siteMetadata.title}
-            </title>
+            <title>{`${postData.title} - ${siteMetadata.title}`}</title>
             <meta name="description" content={postData.description} />
 
             <meta property="og:title" content={postData.title} />
@@ -54,7 +54,7 @@ const Post = ({ postData, mdxSource }) => (
         <article className="mb-16">
             <header className="mt-16">
                 <p className="font-body text-sm mb-4 text-gray-600 dark:text-gray-500">
-                    {postData.category} — <Date dateString={postData.date} />
+                    {postData.category} — {postData.date}
                 </p>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
                     <div>
@@ -105,11 +105,17 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params }) {
-    const postData = await getPostData(params.id);
+    const rawPostData = await getPostData(params.id);
 
-    const mdxSource = await serialize(postData.content, {
+    // Reformat the specified date to just the year
+    const postData = {
+        ...rawPostData,
+        date: format(parseISO(rawPostData.date), "yyyy"),
+    };
+
+    const mdxSource = await serialize(rawPostData.content, {
         mdxOptions: {
-            remarkPlugins: [],
+            remarkPlugins: [remarkUnwrapImages],
             rehypePlugins: [[rehypeImgSize, { dir: "public" }]],
         },
     });

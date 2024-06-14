@@ -69,6 +69,9 @@ module.exports = {
                 DEFAULT: {
                     css: {
                         color: theme("colors.gray.900"),
+                        strong: {
+                            color: theme("colors.gray.900"),
+                        },
                         a: {
                             color: theme("colors.blue.500"),
                             textDecoration: "none",
@@ -105,6 +108,9 @@ module.exports = {
                 dark: {
                     css: {
                         color: theme("colors.gray.100"),
+                        strong: {
+                            color: theme("colors.gray.100"),
+                        },
                         a: {
                             color: theme("colors.blue.500"),
                             textDecoration: "none",

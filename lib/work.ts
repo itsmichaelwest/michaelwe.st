@@ -50,7 +50,26 @@ export function getAllPostIds() {
     });
 }
 
-export async function getPostData(id) {
+export interface IPostData {
+    id: any;
+    content: string;
+    title?: string;
+    description?: string;
+    category?: string;
+    date?: string;
+    aliases?: string[];
+    featuredImage?: string;
+    featuredBlockImage?: string;
+    featuredImageAlt?: string;
+    featuredImageTwo?: string
+    officialURL?: string;
+    officialURLText?: string;
+    noMSFT?: boolean;
+    hideFromList?: boolean;
+    canonical?: string;
+}
+
+export const getPostData = (id): IPostData => {
     const fullPath = path.join(postsDirectory, `${id}.md`);
     const fileContents = fs.readFileSync(fullPath, "utf8");
 
