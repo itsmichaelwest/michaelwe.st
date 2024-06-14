@@ -1,6 +1,5 @@
 import Head from "next/head";
 import Layout from "../../components/Layout";
-import Date from "../../components/Date";
 import { getAllPostIds, getPostData } from "../../lib/work";
 import { serialize } from "next-mdx-remote/serialize";
 import { MDXRemote } from "next-mdx-remote";
