@@ -16,11 +16,6 @@ module.exports = {
     async redirects() {
         return [
             {
-                source: "/links",
-                destination: "https://links.michaelwe.st",
-                permanent: false,
-            },
-            {
                 source: "/blog/2019/01/27/design-decisions-in-cortana-os",
                 destination: "/work/cortana-os",
                 permanent: true,
