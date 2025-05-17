@@ -8,11 +8,8 @@ const withMDX = require("@next/mdx")({
     },
 });
 
-module.exports = withMDX({
+const nextConfig = {
     pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"],
-});
-
-module.exports = {
     async redirects() {
         return [
             {
@@ -125,3 +122,5 @@ module.exports = {
         return config;
     },
 };
+
+module.exports = withMDX(nextConfig);

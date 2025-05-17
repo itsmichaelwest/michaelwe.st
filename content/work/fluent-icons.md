@@ -13,7 +13,7 @@ officialURLText: "View icon repository"
 hideFromList: false
 ---
 
-The Fluent UI Icons are a set of monoline icons from Microsoft, designed originally for mobile apps but with the web and desktop in mind. These icons are based on metaphors established by the older "MDL2" set originally conceived and widely used by the Windows team. They compliment the new [Fluent Design System](https://www.microsoft.com/design/fluent/) and the additional full-color app icon work undertaken by Office, Windows, and countless other teams across Microsoft.
+The Fluent UI Icons are a set of monoline icons from Microsoft, designed originally for mobile apps but with the web and desktop in mind. These icons are based on metaphors established by the older "MDL2" set originally conceived and widely used by the Windows team. They complement the new [Fluent Design System](https://www.microsoft.com/design/fluent/) and the additional full-color app icon work undertaken by Office, Windows, and countless other teams across Microsoft.
 
 I was part of a team spanning designers from across the company that laid the groundwork for this icon system. We were able to quickly scale the system from a handful of icons to thousands over a few months. Using an agile approach we were able to release new icons every week, prioritizing icons for teams that needed them immediately.
 
