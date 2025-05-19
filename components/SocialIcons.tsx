@@ -9,7 +9,7 @@ const classes =
 
 const svgClasses = "relative mx-2 scale-90 -left-0.5 top-1.5 fill-current";
 
-const SocialIcons = () => (
+const SocialIcons: React.FC = () => (
     <div className="flex">
         <div className={classes + "hover:text-gray-500"}>
             <Link href="https://twitter.com/itsmichaelwest">

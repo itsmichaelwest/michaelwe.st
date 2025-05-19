@@ -1,6 +1,7 @@
 import Head from "next/head";
 import Layout from "../../components/Layout";
-import { getAllPostIds, getPostData } from "../../lib/work";
+import { getAllPostIds, getPostData, IPostData } from "../../lib/work";
+import type { GetStaticProps, GetStaticPaths } from "next";
 import { serialize } from "next-mdx-remote/serialize";
 import { MDXRemote } from "next-mdx-remote";
 import CustomImage from "../../components/Image";
@@ -16,7 +17,12 @@ const components = {
     img: CustomImage,
 };
 
-const Post = ({ postData, mdxSource }) => (
+interface PostProps {
+    postData: IPostData;
+    mdxSource: any;
+}
+
+const Post: React.FC<PostProps> = ({ postData, mdxSource }) => (
     <Layout>
         <Head>
             <title>{`${postData.title} - ${siteMetadata.title}`}</title>
@@ -94,16 +100,16 @@ const Post = ({ postData, mdxSource }) => (
 
 export default Post;
 
-export async function getStaticPaths() {
+export const getStaticPaths: GetStaticPaths = async () => {
     const paths = getAllPostIds();
 
     return {
         paths,
         fallback: false,
     };
-}
+};
 
-export async function getStaticProps({ params }) {
+export const getStaticProps: GetStaticProps<PostProps> = async ({ params }) => {
     const rawPostData = await getPostData(params.id);
 
     // Reformat the specified date to just the year
@@ -125,4 +131,4 @@ export async function getStaticProps({ params }) {
             mdxSource,
         },
     };
-}
+};

@@ -1,8 +1,13 @@
 import Head from "next/head";
 import Footer from "./Footer";
 import Header from "./Header";
+import type { FC, ReactNode } from "react";
 
-const Layout = ({ children }) => (
+interface LayoutProps {
+    children: ReactNode;
+}
+
+const Layout: FC<LayoutProps> = ({ children }) => (
     <>
         <Head>
             <link rel="icon" href="/favicon.ico" />

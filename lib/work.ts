@@ -4,11 +4,11 @@ import matter from "gray-matter";
 
 const postsDirectory = path.join(process.cwd(), "content/work");
 
-export function getSortedWorkData() {
+export function getSortedWorkData(): IPostData[] {
     // Get file names under /posts
     const fileNames = fs.readdirSync(postsDirectory);
 
-    const allPostsData = fileNames.map((fileName) => {
+    const allPostsData: IPostData[] = fileNames.map((fileName) => {
         const id = fileName.replace(/\.md$/, "");
 
         // Read markdown file as string
@@ -28,17 +28,13 @@ export function getSortedWorkData() {
 
     // Sort posts by date
     return allPostsData.sort((a, b) => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        if (a.date < b.date) {
-            return 1;
-        } else {
-            return -1;
-        }
+        const dateA = a.date ?? "";
+        const dateB = b.date ?? "";
+        return dateA < dateB ? 1 : -1;
     });
 }
 
-export function getAllPostIds() {
+export function getAllPostIds(): { params: { id: string } }[] {
     const fileNames = fs.readdirSync(postsDirectory);
 
     return fileNames.map((fileName) => {
@@ -51,7 +47,7 @@ export function getAllPostIds() {
 }
 
 export interface IPostData {
-    id: any;
+    id: string;
     content: string;
     title?: string;
     description?: string;
@@ -69,7 +65,7 @@ export interface IPostData {
     canonical?: string;
 }
 
-export const getPostData = (id): IPostData => {
+export const getPostData = (id: string): IPostData => {
     const fullPath = path.join(postsDirectory, `${id}.md`);
     const fileContents = fs.readFileSync(fullPath, "utf8");
 

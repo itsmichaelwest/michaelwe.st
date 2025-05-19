@@ -8,7 +8,7 @@ import Layout from "../components/Layout";
 import PortraitTall from "../public/images/michael-portrait-tall.jpg";
 import siteMetadata from "../siteMetadata";
 
-const About = () => (
+const About: React.FC = () => (
     <Layout>
         <Head>
             <title>{`About - ${siteMetadata.title}`}</title>
