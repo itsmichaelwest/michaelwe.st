@@ -1,4 +1,11 @@
-const YouTubeVideo = (videoSrcUrl: string, videoTitle: string) => (
+import type { FC } from "react";
+
+interface YouTubeVideoProps {
+    videoSrcUrl: string;
+    videoTitle: string;
+}
+
+const YouTubeVideo: FC<YouTubeVideoProps> = ({ videoSrcUrl, videoTitle }) => (
     <div className="relative" style={{ paddingBottom: "56.5%" }}>
         <div className="absolute inset-0 w-full h-full">
             <iframe

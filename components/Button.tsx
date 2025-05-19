@@ -3,8 +3,8 @@ import Link from "next/link";
 
 interface ButtonProps {
     to: string;
-    style?: string;
-    children: any;
+    style?: "onPrimary" | string;
+    children: React.ReactNode;
 }
 
 const Button: React.FC<ButtonProps> = ({ to, style, children }) => {
