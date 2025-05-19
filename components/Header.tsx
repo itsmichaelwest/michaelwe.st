@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import useWindowSize from "../lib/useWindowSize";
 
-const Header = () => {
+const Header: React.FC = () => {
     const [showMenu, setShowMenu] = useState(false);
     const classes =
         "flex px-8 md:px-16 my-16 z-10 font-text items-center justify-between h-8";

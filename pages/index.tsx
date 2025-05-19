@@ -1,12 +1,13 @@
 import Head from "next/head";
 import Layout from "../components/Layout";
-import { getSortedWorkData } from "../lib/work";
+import { getSortedWorkData, IPostData } from "../lib/work";
+import type { GetStaticProps } from "next";
 import WorkBlock from "../components/WorkBlock";
 import BlockGrid from "../components/BlockGrid";
 import IndexHero from "../components/IndexHero";
 import siteMetadata from "../siteMetadata";
 
-const Home = ({ allPostsData }) => (
+const Home = ({ allPostsData }: { allPostsData: IPostData[] }): JSX.Element => (
     <Layout>
         <Head>
             <title>{siteMetadata.title}</title>
@@ -66,7 +67,9 @@ const Home = ({ allPostsData }) => (
 
 export default Home;
 
-export async function getStaticProps() {
+export const getStaticProps: GetStaticProps<{
+    allPostsData: IPostData[];
+}> = async () => {
     const allPostsData = getSortedWorkData();
 
     return {
@@ -74,4 +77,4 @@ export async function getStaticProps() {
             allPostsData,
         },
     };
-}
+};

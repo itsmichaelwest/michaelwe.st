@@ -5,7 +5,7 @@ import Layout from "../components/Layout";
 
 import siteMetadata from "../siteMetadata";
 
-const ProfileLinks = () => (
+const ProfileLinks: React.FC = () => (
     <Layout>
         <Head>
             <title>{`Profile Links - ${siteMetadata.title}`}</title>

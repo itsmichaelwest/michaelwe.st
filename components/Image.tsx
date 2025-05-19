@@ -1,19 +1,17 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
-
 import NextImage from "next/image";
+import type { FC } from "react";
 
-const Image = ({ src, alt, height, width }) => {
-    const imageProps = {
-        src,
-        alt,
-        height,
-        width,
-    };
+interface ImageProps {
+    src: string;
+    alt: string;
+    height?: number;
+    width?: number;
+}
 
+const Image: FC<ImageProps> = ({ src, alt, height, width }) => {
     return (
         <figure>
-            <NextImage {...imageProps} />
+            <NextImage src={src} alt={alt} height={height} width={width} />
             <figcaption>{alt}</figcaption>
         </figure>
     );

@@ -1,7 +1,7 @@
 import React from "react";
 
 interface BlockGridProps {
-    children: any;
+    children: React.ReactNode;
     className?: string;
 }
 
