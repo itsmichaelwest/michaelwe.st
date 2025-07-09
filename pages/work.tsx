@@ -6,7 +6,7 @@ import WorkBlock from "../components/WorkBlock";
 import BlockGrid from "../components/BlockGrid";
 import siteMetadata from "../siteMetadata";
 
-const Work = ({ allPostsData }: { allPostsData: IPostData[] }): JSX.Element => (
+const Work = ({ allPostsData }: { allPostsData: IPostData[] }) => (
     <Layout>
         <Head>
             <title>{`Work - ${siteMetadata.title}`}</title>

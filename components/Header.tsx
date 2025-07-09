@@ -32,7 +32,7 @@ const Header: React.FC = () => {
     const { width } = useWindowSize();
     useEffect(() => {
         if (width > 640 && showMenu) restoreScroll();
-    }, [width]);
+    }, [width, showMenu]);
 
     return (
         <header

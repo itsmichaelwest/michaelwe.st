@@ -38,13 +38,13 @@ const ProfileLinks: React.FC = () => (
             <section className="prose dark:prose-dark mt-10">
                 <p>
                     This page serves to list my public-facing social profiles,
-                    so you can check that a profile you're viewing and
+                    so you can check that a profile you&apos;re viewing and
                     interacting with actually belongs to me.
                 </p>
                 <ul>
                     <li>
                         X / Twitter:{" "}
-                        <Link href="https://twitter.com/itsmichaelwest">
+                        <Link href="https://x.com/itsmichaelwest">
                             @itsmichaelwest
                         </Link>
                     </li>

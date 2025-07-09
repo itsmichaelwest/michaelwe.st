@@ -7,7 +7,7 @@ import BlockGrid from "../components/BlockGrid";
 import IndexHero from "../components/IndexHero";
 import siteMetadata from "../siteMetadata";
 
-const Home = ({ allPostsData }: { allPostsData: IPostData[] }): JSX.Element => (
+const Home = ({ allPostsData }: { allPostsData: IPostData[] }) => (
     <Layout>
         <Head>
             <title>{siteMetadata.title}</title>

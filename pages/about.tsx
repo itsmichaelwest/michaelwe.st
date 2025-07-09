@@ -55,7 +55,7 @@ const About: React.FC = () => (
                         I&apos;m a self-taught designer with an engineering
                         background, specializing in simple and effortless
                         experiences for both the devices we use today and the
-                        ones we'll use in the future. Crafting high-quality
+                        ones we&apos;ll use in the future. Crafting high-quality
                         products that people love to use is my passion, and I
                         work tirelessly to achieve that goal.
                     </p>
@@ -72,7 +72,7 @@ const About: React.FC = () => (
                         should be left with a subpar experience.
                     </p>
                     <p>
-                        I'm currently a Designer 2 at{" "}
+                        I&apos;m currently a Designer 2 at{" "}
                         <Link href="https://www.microsoft.com/">Microsoft</Link>
                         , working on new products and other cross-company design
                         initiatives.
