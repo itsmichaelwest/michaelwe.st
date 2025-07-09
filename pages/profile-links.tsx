@@ -1,11 +1,10 @@
 import Head from "next/head";
 import Link from "next/link";
-import * as React from "react";
 import Layout from "../components/Layout";
 
 import siteMetadata from "../siteMetadata";
 
-const ProfileLinks: React.FC = () => (
+const ProfileLinks = () => (
     <Layout>
         <Head>
             <title>{`Profile Links - ${siteMetadata.title}`}</title>

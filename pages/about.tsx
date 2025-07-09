@@ -1,14 +1,13 @@
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
-import * as React from "react";
 import Button from "../components/Button";
 import Layout from "../components/Layout";
 
 import PortraitTall from "../public/images/michael-portrait-tall.jpg";
 import siteMetadata from "../siteMetadata";
 
-const About: React.FC = () => (
+const About = () => (
     <Layout>
         <Head>
             <title>{`About - ${siteMetadata.title}`}</title>

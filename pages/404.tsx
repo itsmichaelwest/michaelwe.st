@@ -1,10 +1,9 @@
 import Head from "next/head";
-import * as React from "react";
 import Layout from "../components/Layout";
 import siteMetadata from "../siteMetadata";
 import Link from "next/link";
 
-const NotFound: React.FC = () => (
+const NotFound = () => (
     <Layout>
         <Head>
             <title>{`Page not found - ${siteMetadata.title}`}</title>
