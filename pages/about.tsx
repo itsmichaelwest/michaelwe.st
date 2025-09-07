@@ -71,10 +71,9 @@ const About = () => (
                         should be left with a subpar experience.
                     </p>
                     <p>
-                        I&apos;m currently a Designer 2 at{" "}
+                        I&apos;m currently a Senior Designer at{" "}
                         <Link href="https://www.microsoft.com/">Microsoft</Link>
-                        , working on new products and other cross-company design
-                        initiatives.
+                        , where I currently work on Windows AI.
                     </p>
                     <p>
                         Previously a Design Intern at Microsoft, where I was
