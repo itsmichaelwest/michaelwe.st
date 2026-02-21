@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useCallback, useRef } from "react";
 import {
     motion,
     useMotionValue,
@@ -23,10 +23,12 @@ const ITEMS = [
 ];
 
 // ── Layout constants ──────────────────────────────────────────
+const MAX_RAIL_H = Math.max(...ITEMS.map((item) => item.railH));
 const GALLERY_H = 0.6; // gallery item height as fraction of vh
 const GALLERY_PAD = 32; // px padding each side in gallery mode
 const RAIL_PAD = 32; // px padding each side
 const RAIL_GAP = 12; // px between items
+const RAIL_BOTTOM = 48; // px inset from viewport bottom
 
 // ── Spring configs ───────────────────────────────────────────
 const MAIN_SPRING = { stiffness: 300, damping: 35 };
@@ -64,13 +66,13 @@ function railLeftOf(i: number, vh: number) {
     return x;
 }
 
-function maxRailScroll(vw: number, vh: number) {
+function maxRailScroll(vh: number, containerWidth: number) {
     let total = RAIL_PAD * 2;
     for (let i = 0; i < ITEMS.length; i++) {
         total += railItemW(i, vh);
         if (i < ITEMS.length - 1) total += RAIL_GAP;
     }
-    return Math.max(0, total - vw);
+    return Math.max(0, total - containerWidth);
 }
 
 // ── Hooks ─────────────────────────────────────────────────────
@@ -113,6 +115,16 @@ export default function NewDesignTest() {
     const lastPointerRef = useRef({ x: 0, y: 0, t: 0 });
     const velocityRef = useRef({ x: 0, y: 0 });
     const dragOnImageRef = useRef(false);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const containerRectRef = useRef({ left: 0, bottom: 0, width: 0 });
+
+    // Measure container position on mount + resize
+    useLayoutEffect(() => {
+        if (containerRef.current) {
+            const r = containerRef.current.getBoundingClientRect();
+            containerRectRef.current = { left: r.left, bottom: r.bottom, width: r.width };
+        }
+    }, [vw, vh]);
 
     const openGallery = useCallback(
         (i: number) => {
@@ -134,9 +146,10 @@ export default function NewDesignTest() {
             if (vw <= 0 || vh <= 0) return;
             const w = railItemW(idx, vh);
             const center = railLeftOf(idx, vh) + w / 2;
-            const max = maxRailScroll(vw, vh);
+            const max = maxRailScroll(vh, containerRectRef.current.width);
+            const vpCenter = vw / 2 - containerRectRef.current.left;
             railOffset.jump(
-                Math.max(-max, Math.min(0, vw / 2 - center)),
+                Math.max(-max, Math.min(0, vpCenter - center)),
             );
         },
         [railOffset, vw, vh],
@@ -188,7 +201,7 @@ export default function NewDesignTest() {
             galleryDragX.jump(0);
             galleryScrollY.jump(0);
         } else {
-            const max = maxRailScroll(vw, vh);
+            const max = maxRailScroll(vh, containerRectRef.current.width);
             const cur = railOffset.get();
             if (cur < -max) railOffset.jump(-max);
             if (cur > 0) railOffset.jump(0);
@@ -202,7 +215,7 @@ export default function NewDesignTest() {
                 v *= DRAG_DECAY;
                 if (Math.abs(v) < 0.5) {
                     momentumRef.current = null;
-                    const max = maxRailScroll(vw, vh);
+                    const max = maxRailScroll(vh, containerRectRef.current.width);
                     const cur = railOffset.get();
                     if (cur > 0)
                         animate(railOffset, 0, { type: "spring", ...MAIN_SPRING });
@@ -211,7 +224,7 @@ export default function NewDesignTest() {
                     return;
                 }
                 railOffset.set(railOffset.get() + v);
-                const max = maxRailScroll(vw, vh);
+                const max = maxRailScroll(vh, containerRectRef.current.width);
                 const cur = railOffset.get();
                 if (cur > 0 || cur < -max) v *= 1 - RUBBER_BAND_K;
                 momentumRef.current = requestAnimationFrame(tick);
@@ -301,7 +314,7 @@ export default function NewDesignTest() {
                 }
             } else {
                 if (dragAxisRef.current === "x") {
-                    const max = maxRailScroll(vw, vh);
+                    const max = maxRailScroll(vh, containerRectRef.current.width);
                     const cur = railOffset.get();
                     let delta = e.movementX || 0;
                     if ((cur >= 0 && delta > 0) || (cur <= -max && delta < 0))
@@ -319,11 +332,15 @@ export default function NewDesignTest() {
     );
 
     function findTappedItem(screenX: number, screenY: number, scrollOff: number) {
+        const rect = containerRef.current?.getBoundingClientRect();
+        if (!rect) return -1;
+        const localX = screenX - rect.left;
+        const localY = screenY - rect.top;
         for (let i = 0; i < ITEMS.length; i++) {
             const left = railLeftOf(i, vh) + scrollOff;
             const w = railItemW(i, vh);
-            const top = vh - ITEMS[i].railH * vh;
-            if (screenX >= left && screenX <= left + w && screenY >= top) return i;
+            const itemTop = rect.height - ITEMS[i].railH * vh;
+            if (localX >= left && localX <= left + w && localY >= itemTop) return i;
         }
         return -1;
     }
@@ -412,78 +429,123 @@ export default function NewDesignTest() {
 
             <div
                 style={{
-                    position: "fixed",
-                    inset: 0,
-                    overflow: "hidden",
+                    display: "flex",
+                    flexDirection: "column",
+                    height: "100vh",
+                    overflowY: "clip",
                     background: "#f5f5f5",
-                    touchAction: "none",
-                }}
-                onPointerDownCapture={() => { dragOnImageRef.current = false; }}
-                onPointerDown={onPointerDown}
-                onPointerMove={onPointerMove}
-                onPointerUp={onPointerUp}
-                onWheel={(e) => {
-                    if (!openRef.current) return;
-                    const max = scrollMaxRef.current;
-                    const next = Math.max(
-                        0,
-                        Math.min(max, galleryScrollY.get() + e.deltaY),
-                    );
-                    galleryScrollY.jump(next);
                 }}
             >
-                {ITEMS.map((item, i) => (
-                    <GalleryItem
-                        key={i}
-                        index={i}
-                        current={current}
-                        color={item.color}
-                        label={item.label}
-                        title={item.title}
-                        subtitle={item.subtitle}
-                        aspect={item.aspect}
-                        paras={item.paras}
-                        open={open}
-                        vw={vw}
-                        vh={vh}
-                        openSpring={openSpring}
-                        railScroll={railOffset}
-                        galleryPageX={galleryPageX}
-                        galleryDragX={galleryDragX}
-                        galleryDragY={galleryDragY}
-                        galleryScrollY={galleryScrollY}
-                        scrollMaxRef={scrollMaxRef}
-                        dragOnImageRef={dragOnImageRef}
-                    />
-                ))}
-
-                {/* Back button — fades in/out with gallery */}
-                <motion.button
+                {/* Max-width content area — fills space above rail */}
+                <div
                     style={{
-                        position: "absolute",
-                        top: 24,
-                        left: 24,
-                        zIndex: 10,
-                        width: 40,
-                        height: 40,
-                        borderRadius: "50%",
-                        background: "rgba(0,0,0,0.06)",
-                        border: "none",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        padding: 0,
-                        opacity: openSpring,
-                        pointerEvents: open ? "auto" : "none",
+                        flex: 1,
+                        maxWidth: 1200,
+                        width: "100%",
+                        margin: "0 auto",
+                        padding: "4rem 2rem",
                     }}
-                    onPointerDown={(e) => e.stopPropagation()}
-                    onClick={closeGallery}
+                />
+
+                {/* Rail / Gallery container */}
+                <div
+                    ref={containerRef}
+                    style={{
+                        position: "relative",
+                        height: MAX_RAIL_H * vh,
+                        marginBottom: RAIL_BOTTOM,
+                        overflow: "visible",
+                        touchAction: "none",
+                        zIndex: open ? 51 : "auto",
+                    }}
+                    onPointerDownCapture={() => { dragOnImageRef.current = false; }}
+                    onPointerDown={onPointerDown}
+                    onPointerMove={onPointerMove}
+                    onPointerUp={onPointerUp}
+                    onWheel={(e) => {
+                        if (openRef.current) {
+                            // Gallery: scroll text content
+                            const max = scrollMaxRef.current;
+                            const next = Math.max(
+                                0,
+                                Math.min(max, galleryScrollY.get() + e.deltaY),
+                            );
+                            galleryScrollY.jump(next);
+                        } else {
+                            // Rail: horizontal scroll (trackpad deltaX or mousewheel deltaY)
+                            const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+                            const max = maxRailScroll(vh, containerRectRef.current.width);
+                            const cur = railOffset.get();
+                            railOffset.jump(Math.max(-max, Math.min(0, cur - delta)));
+                        }
+                    }}
                 >
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                        <path d="M11 3L5 9L11 15" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                </motion.button>
+                    {/* Gallery backdrop — fixed overlay inside container for events + bg */}
+                    <motion.div
+                        style={{
+                            position: "fixed",
+                            inset: 0,
+                            background: "#f5f5f5",
+                            opacity: openSpring,
+                            pointerEvents: open ? "auto" : "none",
+                            zIndex: 0,
+                        }}
+                    />
+
+                    {ITEMS.map((item, i) => (
+                        <GalleryItem
+                            key={i}
+                            index={i}
+                            current={current}
+                            color={item.color}
+                            label={item.label}
+                            title={item.title}
+                            subtitle={item.subtitle}
+                            aspect={item.aspect}
+                            paras={item.paras}
+                            open={open}
+                            vw={vw}
+                            vh={vh}
+                            openSpring={openSpring}
+                            railScroll={railOffset}
+                            galleryPageX={galleryPageX}
+                            galleryDragX={galleryDragX}
+                            galleryDragY={galleryDragY}
+                            galleryScrollY={galleryScrollY}
+                            scrollMaxRef={scrollMaxRef}
+                            dragOnImageRef={dragOnImageRef}
+                            containerRectRef={containerRectRef}
+                        />
+                    ))}
+
+                    {/* Back button — fades in/out with gallery */}
+                    <motion.button
+                        style={{
+                            position: "fixed",
+                            top: 24,
+                            left: 24,
+                            zIndex: 10,
+                            width: 40,
+                            height: 40,
+                            borderRadius: "50%",
+                            background: "rgba(0,0,0,0.06)",
+                            border: "none",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            padding: 0,
+                            opacity: openSpring,
+                            pointerEvents: open ? "auto" : "none",
+                        }}
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={closeGallery}
+                    >
+                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                            <path d="M11 3L5 9L11 15" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                    </motion.button>
+                </div>
             </div>
 
             <style jsx global>{`
@@ -491,6 +553,7 @@ export default function NewDesignTest() {
                 body {
                     margin: 0;
                     overflow: hidden;
+                    background: #f5f5f5;
                 }
             `}</style>
         </>
@@ -521,6 +584,7 @@ function GalleryItem({
     galleryScrollY,
     scrollMaxRef,
     dragOnImageRef,
+    containerRectRef,
 }: {
     index: number;
     current: number;
@@ -541,6 +605,7 @@ function GalleryItem({
     galleryScrollY: ReturnType<typeof useMotionValue>;
     scrollMaxRef: React.MutableRefObject<number>;
     dragOnImageRef: React.MutableRefObject<boolean>;
+    containerRectRef: React.RefObject<{ left: number; bottom: number }>;
 }) {
     const naturalW = itemFullW(index, vh);
     const galScale = itemGalleryScale(index, vw, vh);
@@ -553,15 +618,17 @@ function GalleryItem({
     const transform = useTransform(
         transformInputs as any, // eslint-disable-line @typescript-eslint/no-explicit-any
         ([progress, rail, galPageX, galDragX, galDragY, sY]: number[]) => {
+            const rect = containerRectRef.current;
             const railX = myRailLeft - originOff + rail;
+            // Gallery X: center in viewport, compensating for container offset
             const galX =
-                index * vw + (vw - naturalW) / 2 + galPageX + galDragX;
+                index * vw + (vw - naturalW) / 2 - rect.left + galPageX + galDragX;
 
             const x = railX + progress * (galX - railX);
             const scale = sRail + progress * (galScale - sRail);
-            // Center the image vertically in the visible area above the text
+            // Center vertically: measured from container bottom to viewport center
             const visualH = GALLERY_H * vh * scale;
-            const nudge = (vh - visualH) / 2;
+            const nudge = rect.bottom - (vh + visualH) / 2;
             const y = galDragY * progress - sY * progress - progress * nudge;
             const radius = 12 * (1 - progress);
             return { x, y, scale, radius };
@@ -594,7 +661,7 @@ function GalleryItem({
     );
 
     // Measure text panel height using offsetHeight (immune to ancestor transforms)
-    const galNudge = (vh - GALLERY_H * vh * galScale) / 2;
+    const galNudge = containerRectRef.current.bottom - (vh + GALLERY_H * vh * galScale) / 2;
     const textMeasureRef = useCallback(
         (node: HTMLDivElement | null) => {
             if (!node) { scrollMaxRef.current = 0; return; }
