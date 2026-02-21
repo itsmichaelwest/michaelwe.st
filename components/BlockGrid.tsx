@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import React from "react";
 
 interface BlockGridProps {
@@ -7,7 +8,10 @@ interface BlockGridProps {
 
 const BlockGrid: React.FC<BlockGridProps> = ({ children, className }) => (
     <section
-        className={`grid grid-cols-1 md:grid-cols-2 ${className ? ` ${className}` : ``}`}
+        className={clsx(
+            "grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16",
+            className && className,
+        )}
     >
         {children}
     </section>

@@ -1,7 +1,6 @@
-import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 
 interface WorkBlockProps {
     title: string;
@@ -18,43 +17,24 @@ const WorkBlock: React.FC<WorkBlockProps> = ({
     image,
     imageAlt,
 }) => {
-    const [hover, setHover] = useState(false);
-
     return (
-        <div
-            className="relative"
-            style={{ aspectRatio: "1" }}
-            onMouseEnter={() => setHover(true)}
-            onMouseLeave={() => setHover(false)}
-        >
-            <Link href={url} className="absolute inset-0 w-full h-full">
-                <span className="sr-only">{title}</span>
+        <div className="flex flex-col gap-4 select-none">
+            <Link href={url}>
                 <Image
                     src={image}
                     alt={imageAlt}
                     width={1500}
                     height={1500}
-                    className="w-full h-full object-cover"
+                    sizes="(min-width: 768px) 50vw, 100vw"
+                    className="aspect-[3/2] object-cover rounded-2xl shadow-xs ring ring-black/5"
                 />
-                <AnimatePresence>
-                    {hover && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.1 }}
-                            className="absolute inset-0 p-8 md:p-16 z-10 bg-gray-100/80 dark:bg-gray-900/80 backdrop-blur"
-                        >
-                            <h2 className="font-display font-semibold tracking-tight text-gray-900 dark:text-gray-100 text-4xl xl:text-6xl">
-                                {title}
-                            </h2>
-                            <p className="font-text text-gray-600 dark:text-gray-500 xl:text-xl max-w-prose mt-4">
-                                {description}
-                            </p>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
             </Link>
+            <div className="flex flex-col gap-1">
+                <Link className="w-fit" href={url}>
+                    <h2 className="text-xl font-semibold">{title}</h2>
+                </Link>
+                <p className="text-muted">{description}</p>
+            </div>
         </div>
     );
 };

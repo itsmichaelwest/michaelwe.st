@@ -2,8 +2,8 @@ import React from "react";
 import siteMetadata from "../siteMetadata";
 
 const Footer: React.FC = () => (
-    <footer className="max-w-screen-2xl w-auto px-8 md:px-16 mx-auto my-16">
-        <p className="text-xs text-center sm:text-left text-gray-600 dark:text-gray-500">
+    <footer className="py-8">
+        <p className="text-xs text-center sm:text-left text-muted">
             {siteMetadata.copyright}
             <svg
                 className="inline w-4 h-4 mb-1 ml-2 fill-current"

@@ -1,18 +1,13 @@
-const withMDX = require("@next/mdx")({
-    extension: /\.mdx?$/,
-    options: {
-        remarkPlugins: [],
-        rehypePlugins: [],
-        // If you use `MDXProvider`, uncomment the following line.
-        providerImportSource: "@mdx-js/react",
-    },
-});
-
-module.exports = withMDX({
-    pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"],
-});
-
 module.exports = {
+    reactStrictMode: true,
+    turbopack: {
+        rules: {
+            "*.svg": {
+                loaders: ["@svgr/webpack"],
+                as: "*.js",
+            },
+        },
+    },
     async redirects() {
         return [
             {

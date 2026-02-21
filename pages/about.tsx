@@ -1,55 +1,27 @@
-import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import Button from "../components/Button";
 import Layout from "../components/Layout";
+import SEO from "../components/SEO";
 
 import PortraitTall from "../public/images/michael-portrait-tall.jpg";
 import siteMetadata from "../siteMetadata";
 
 const About = () => (
     <Layout>
-        <Head>
-            <title>{`About - ${siteMetadata.title}`}</title>
-            <meta name="description" content={siteMetadata.description} />
-            <meta property="og:title" content={siteMetadata.title} />
-            <meta
-                property="og:description"
-                content={siteMetadata.description}
-            />
-            <meta property="og:site_name" content={siteMetadata.title} />
-            <meta property="twitter:card" content="summary" />
-            <meta
-                property="twitter:site"
-                content={siteMetadata.social.twitter}
-            />
-            <meta property="twitter:title" content={siteMetadata.title} />
-            <meta
-                property="twitter:description"
-                content={siteMetadata.description}
-            />
-            <meta
-                property="twitter:creator"
-                content={siteMetadata.social.twitter}
-            />
-        </Head>
+        <SEO
+            title={`About - ${siteMetadata.title}`}
+            description={siteMetadata.description}
+            canonical="/about"
+        />
         <article className="grid grid-cols-1 lg:grid-cols-2 lg:gap-16">
             <Image
-                className="lg:h-full mb-10 md:mb-16 lg:mb-0"
+                className="mb-10 md:mb-16 lg:mb-0 rounded-3xl shadow-xs ring ring-black/5 dark:ring-white/5"
                 src={PortraitTall}
                 alt="Photo of Michael"
             />
-            <section>
-                <h1 className="font-display text-4xl md:text-6xl tracking-[-0.05em] font-semibold mb-8 text-gray-900 dark:text-gray-100">
-                    Michael West
-                </h1>
-                <div className="flex gap-2">
-                    <Button to="/files/mw-resume-jan2022.pdf">
-                        Download résumé
-                    </Button>
-                    <Button to="/profile-links">Check social profiles</Button>
-                </div>
-                <section className="prose dark:prose-dark mt-10">
+            <section className="space-y-8">
+                <section className="text-gray-800 dark:text-gray-200 leading-loose space-y-8">
                     <p>
                         I&apos;m a self-taught designer with an engineering
                         background, specializing in simple and effortless
@@ -79,23 +51,44 @@ const About = () => (
                         Previously a Design Intern at Microsoft, where I was
                         involved with products used by millions of people around
                         the world. Check them out:{" "}
-                        <Link href="/work/surface-duo">Surface Duo</Link>,{" "}
-                        <Link href="/work/swiftkey-design-system">
+                        <Link
+                            href="/work/surface-duo"
+                            className="font-medium text-blue-600 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-200"
+                        >
+                            Surface Duo
+                        </Link>
+                        ,{" "}
+                        <Link
+                            href="/work/swiftkey-design-system"
+                            className="font-medium text-blue-600 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-200"
+                        >
                             SwiftKey
                         </Link>
-                        , <Link href="/work/fluent-icons">Fluent Icons</Link>.
-                        Before that, I worked independently on critically
+                        ,{" "}
+                        <Link
+                            href="/work/fluent-icons"
+                            className="font-medium text-blue-600 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-200"
+                        >
+                            Fluent Icons
+                        </Link>
+                        . Before that, I worked independently on critically
                         acclaimed concepts both by myself and friends.
                     </p>
                     <p>BSc Computer Science graduate — First Class Honours.</p>
                     <p>
                         Awarded 2018-19{" "}
-                        <Link href="https://mvp.microsoft.com/">
+                        <Link
+                            href="https://mvp.microsoft.com/"
+                            className="font-medium text-blue-600 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-200"
+                        >
                             Microsoft MVP
                         </Link>{" "}
                         (Most Valuable Professional) for Windows Design.
                     </p>
                 </section>
+                <Button to="/files/mw-resume-jan2022.pdf">
+                    Download résumé
+                </Button>
             </section>
         </article>
     </Layout>

@@ -1,34 +1,15 @@
-import Head from "next/head";
 import Layout from "../components/Layout";
 import siteMetadata from "../siteMetadata";
 import Link from "next/link";
+import SEO from "../components/SEO";
 
 const NotFound = () => (
     <Layout>
-        <Head>
-            <title>{`Page not found - ${siteMetadata.title}`}</title>
-            <meta name="description" content={siteMetadata.description} />
-            <meta property="og:title" content={siteMetadata.title} />
-            <meta
-                property="og:description"
-                content={siteMetadata.description}
-            />
-            <meta property="og:site_name" content={siteMetadata.title} />
-            <meta property="twitter:card" content="summary" />
-            <meta
-                property="twitter:site"
-                content={siteMetadata.social.twitter}
-            />
-            <meta property="twitter:title" content={siteMetadata.title} />
-            <meta
-                property="twitter:description"
-                content={siteMetadata.description}
-            />
-            <meta
-                property="twitter:creator"
-                content={siteMetadata.social.twitter}
-            />
-        </Head>
+        <SEO
+            title={`Page not found - ${siteMetadata.title}`}
+            description={siteMetadata.description}
+            noIndex
+        />
         <div
             style={{
                 textAlign: "center",
@@ -42,17 +23,17 @@ const NotFound = () => (
                     😭
                 </span>
             </h1>
-            <h1 className="font-display font-semibold tracking-tight text-4xl my-4 text-gray-900 dark:text-gray-100">
+            <h1 className="font-display font-semibold tracking-tight text-4xl my-4 text-heading">
                 Page not found
             </h1>
-            <p className="my-2 text-gray-908 dark:text-gray-200">
+            <p className="my-2 text-primary">
                 That page doesn&apos;t exist. Try going to the{" "}
                 <Link href="/" className="text-blue-500 hover:text-blue-700">
                     homepage
                 </Link>
                 .
             </p>
-            <p className="text-sm text-gray-500">HTTP 404</p>
+            <p className="text-sm text-muted">HTTP 404</p>
         </div>
     </Layout>
 );

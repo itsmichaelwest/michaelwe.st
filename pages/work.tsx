@@ -1,37 +1,14 @@
-import Head from "next/head";
 import Layout from "../components/Layout";
 import { getSortedWorkData, IPostData } from "../lib/work";
 import type { GetStaticProps } from "next";
 import WorkBlock from "../components/WorkBlock";
 import BlockGrid from "../components/BlockGrid";
 import siteMetadata from "../siteMetadata";
+import SEO from "../components/SEO";
 
 const Work = ({ allPostsData }: { allPostsData: IPostData[] }) => (
     <Layout>
-        <Head>
-            <title>{`Work - ${siteMetadata.title}`}</title>
-            <meta name="description" content={siteMetadata.description} />
-            <meta property="og:title" content={siteMetadata.title} />
-            <meta
-                property="og:description"
-                content={siteMetadata.description}
-            />
-            <meta property="og:site_name" content={siteMetadata.title} />
-            <meta property="twitter:card" content="summary" />
-            <meta
-                property="twitter:site"
-                content={siteMetadata.social.twitter}
-            />
-            <meta property="twitter:title" content={siteMetadata.title} />
-            <meta
-                property="twitter:description"
-                content={siteMetadata.description}
-            />
-            <meta
-                property="twitter:creator"
-                content={siteMetadata.social.twitter}
-            />
-        </Head>
+        <SEO title={`Work - ${siteMetadata.title}`} description={siteMetadata.description} canonical="/work" />
         <BlockGrid>
             {allPostsData.map(
                 ({

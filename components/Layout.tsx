@@ -19,9 +19,7 @@ const Layout: FC<LayoutProps> = ({ children }) => (
             <meta name="view-transition" content="same-origin" />
         </Head>
         <Header />
-        <main className="max-w-screen-2xl w-auto px-8 md:px-16 mx-auto overflow-hidden">
-            {children}
-        </main>
+        <main>{children}</main>
         <Footer />
     </>
 );
