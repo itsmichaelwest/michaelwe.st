@@ -24,7 +24,7 @@ const ITEMS = [
         color: "#e74c3c",
         label: "1",
         aspect: 1.75,
-        railH: 0.12,
+        railH: 0.6,
         title: "Item One",
         subtitle: "Lorem ipsum dolor sit amet",
         paras: 5,
@@ -33,7 +33,7 @@ const ITEMS = [
         color: "#3498db",
         label: "2",
         aspect: 0.56,
-        railH: 0.2,
+        railH: 1.0,
         title: "Item Two",
         subtitle: "Consectetur adipiscing elit",
         paras: 1,
@@ -42,7 +42,7 @@ const ITEMS = [
         color: "#2ecc71",
         label: "3",
         aspect: 1.0,
-        railH: 0.16,
+        railH: 0.8,
         title: "Item Three",
         subtitle: "Sed do eiusmod tempor",
         paras: 3,
@@ -51,7 +51,7 @@ const ITEMS = [
         color: "#f39c12",
         label: "4",
         aspect: 1.33,
-        railH: 0.14,
+        railH: 0.7,
         title: "Item Four",
         subtitle: "Ut enim ad minim veniam",
         paras: 2,
@@ -60,7 +60,7 @@ const ITEMS = [
         color: "#9b59b6",
         label: "5",
         aspect: 0.56,
-        railH: 0.19,
+        railH: 0.95,
         title: "Item Five",
         subtitle: "Quis nostrud exercitation",
         paras: 6,
@@ -69,7 +69,7 @@ const ITEMS = [
         color: "#1abc9c",
         label: "6",
         aspect: 1.5,
-        railH: 0.13,
+        railH: 0.65,
         title: "Item Six",
         subtitle: "Duis aute irure dolor",
         paras: 1,
@@ -78,7 +78,7 @@ const ITEMS = [
         color: "#e67e22",
         label: "7",
         aspect: 1.28,
-        railH: 0.15,
+        railH: 0.75,
         title: "Item Seven",
         subtitle: "Excepteur sint occaecat",
         paras: 4,
@@ -87,7 +87,7 @@ const ITEMS = [
         color: "#2c3e50",
         label: "8",
         aspect: 0.75,
-        railH: 0.18,
+        railH: 0.9,
         title: "Item Eight",
         subtitle: "Sunt in culpa qui officia",
         paras: 2,
@@ -96,7 +96,7 @@ const ITEMS = [
         color: "#c0392b",
         label: "9",
         aspect: 1.6,
-        railH: 0.11,
+        railH: 0.55,
         title: "Item Nine",
         subtitle: "Mollit anim id est laborum",
         paras: 7,
@@ -105,7 +105,7 @@ const ITEMS = [
         color: "#16a085",
         label: "10",
         aspect: 1.0,
-        railH: 0.17,
+        railH: 0.85,
         title: "Item Ten",
         subtitle: "Nemo enim ipsam voluptatem",
         paras: 1,
@@ -113,12 +113,10 @@ const ITEMS = [
 ];
 
 // ── Layout constants ──────────────────────────────────────────
-const MAX_RAIL_H = Math.max(...ITEMS.map((item) => item.railH));
 const GALLERY_H = 0.6; // gallery item height as fraction of vh
 const GALLERY_PAD = 32; // px padding each side in gallery mode
 const RAIL_PAD = 0; // px padding each side
-const RAIL_GAP = 12; // px between items
-const RAIL_BOTTOM = 0; // px inset from viewport bottom
+const RAIL_GAP = 24; // px between items
 
 // ── Spring configs ───────────────────────────────────────────
 const MAIN_SPRING = { stiffness: 300, damping: 35 };
@@ -142,27 +140,27 @@ function itemGalleryScale(i: number, vw: number, vh: number) {
     return Math.min(1, (vw - GALLERY_PAD * 2) / itemFullW(i, vh));
 }
 
-function itemRailScale(i: number) {
-    return ITEMS[i].railH / GALLERY_H;
+function itemRailScale(i: number, containerH: number, vh: number) {
+    return (ITEMS[i].railH * containerH) / (GALLERY_H * vh);
 }
 
-function railItemW(i: number, vh: number) {
-    return ITEMS[i].aspect * ITEMS[i].railH * vh;
+function railItemW(i: number, containerH: number) {
+    return ITEMS[i].aspect * ITEMS[i].railH * containerH;
 }
 
-function railLeftOf(i: number, vh: number) {
+function railLeftOf(i: number, containerH: number) {
     let x = RAIL_PAD;
-    for (let j = 0; j < i; j++) x += railItemW(j, vh) + RAIL_GAP;
+    for (let j = 0; j < i; j++) x += railItemW(j, containerH) + RAIL_GAP;
     return x;
 }
 
-function maxRailScroll(vh: number, containerWidth: number) {
+function maxRailScroll(containerH: number, containerW: number) {
     let total = RAIL_PAD * 2;
     for (let i = 0; i < ITEMS.length; i++) {
-        total += railItemW(i, vh);
+        total += railItemW(i, containerH);
         if (i < ITEMS.length - 1) total += RAIL_GAP;
     }
-    return Math.max(0, total - containerWidth);
+    return Math.max(0, total - containerW);
 }
 
 // ── Hooks ─────────────────────────────────────────────────────
@@ -206,17 +204,34 @@ export default function NewDesignTest() {
     const velocityRef = useRef({ x: 0, y: 0 });
     const dragOnImageRef = useRef(false);
     const containerRef = useRef<HTMLDivElement>(null);
-    const containerRectRef = useRef({ left: 0, bottom: 0, width: 0 });
+    const containerRectRef = useRef({
+        left: 0,
+        bottom: 0,
+        width: 0,
+        height: 0,
+    });
+    const [, setRectVersion] = useState(0);
 
-    // Measure container rect every render — stays fresh regardless of layout
+    // Measure container rect every render. Triggers re-render on change
+    // so layout-dependent values (sRail, railItemW, etc.) pick up the real dims.
     useLayoutEffect(() => {
         if (containerRef.current) {
             const r = containerRef.current.getBoundingClientRect();
+            const prev = containerRectRef.current;
             containerRectRef.current = {
                 left: r.left,
                 bottom: r.bottom,
                 width: r.width,
+                height: r.height,
             };
+            if (
+                prev.height !== r.height ||
+                prev.width !== r.width ||
+                prev.left !== r.left ||
+                prev.bottom !== r.bottom
+            ) {
+                setRectVersion((v) => v + 1);
+            }
         }
     });
 
@@ -245,9 +260,10 @@ export default function NewDesignTest() {
     const centerRailOn = useCallback(
         (idx: number) => {
             if (vw <= 0 || vh <= 0) return;
-            const w = railItemW(idx, vh);
-            const center = railLeftOf(idx, vh) + w / 2;
-            const max = maxRailScroll(vh, containerRectRef.current.width);
+            const cH = containerRectRef.current.height;
+            const w = railItemW(idx, cH);
+            const center = railLeftOf(idx, cH) + w / 2;
+            const max = maxRailScroll(cH, containerRectRef.current.width);
             const vpCenter = vw / 2 - containerRectRef.current.left;
             railOffset.jump(Math.max(-max, Math.min(0, vpCenter - center)));
         },
@@ -306,7 +322,10 @@ export default function NewDesignTest() {
             galleryDragX.jump(0);
             galleryScrollY.jump(0);
         } else {
-            const max = maxRailScroll(vh, containerRectRef.current.width);
+            const max = maxRailScroll(
+                containerRectRef.current.height,
+                containerRectRef.current.width,
+            );
             const cur = railOffset.get();
             if (cur < -max) railOffset.jump(-max);
             if (cur > 0) railOffset.jump(0);
@@ -321,7 +340,7 @@ export default function NewDesignTest() {
                 if (Math.abs(v) < 0.5) {
                     momentumRef.current = null;
                     const max = maxRailScroll(
-                        vh,
+                        containerRectRef.current.height,
                         containerRectRef.current.width,
                     );
                     const cur = railOffset.get();
@@ -338,7 +357,10 @@ export default function NewDesignTest() {
                     return;
                 }
                 railOffset.set(railOffset.get() + v);
-                const max = maxRailScroll(vh, containerRectRef.current.width);
+                const max = maxRailScroll(
+                    containerRectRef.current.height,
+                    containerRectRef.current.width,
+                );
                 const cur = railOffset.get();
                 if (cur > 0 || cur < -max) v *= 1 - RUBBER_BAND_K;
                 momentumRef.current = requestAnimationFrame(tick);
@@ -433,7 +455,7 @@ export default function NewDesignTest() {
             } else {
                 if (dragAxisRef.current === "x") {
                     const max = maxRailScroll(
-                        vh,
+                        containerRectRef.current.height,
                         containerRectRef.current.width,
                     );
                     const cur = railOffset.get();
@@ -468,9 +490,9 @@ export default function NewDesignTest() {
         const localX = screenX - rect.left;
         const localY = screenY - rect.top;
         for (let i = 0; i < ITEMS.length; i++) {
-            const left = railLeftOf(i, vh) + scrollOff;
-            const w = railItemW(i, vh);
-            const itemTop = rect.height - ITEMS[i].railH * vh;
+            const left = railLeftOf(i, rect.height) + scrollOff;
+            const w = railItemW(i, rect.height);
+            const itemTop = rect.height * (1 - ITEMS[i].railH);
             if (localX >= left && localX <= left + w && localY >= itemTop)
                 return i;
         }
@@ -570,7 +592,7 @@ export default function NewDesignTest() {
                 <title>Design Test</title>
             </Head>
 
-            <div className="relative max-w-[80ch] w-full h-[50vh] mx-auto px-4 flex flex-col">
+            <div className="relative max-w-[80ch] w-full h-[60vh] mx-auto px-4 flex flex-col">
                 {/* Max-width content area — fills space above rail */}
                 <div
                     className={clsx(
@@ -600,13 +622,9 @@ export default function NewDesignTest() {
                 <div
                     ref={containerRef}
                     className={clsx(
-                        "absolute bottom-0 overflow-visible touch-none",
+                        "absolute bottom-0 inset-x-0 h-8/12 overflow-visible touch-none",
                         open ? "z-51" : "z-auto",
                     )}
-                    style={{
-                        height: MAX_RAIL_H * vh,
-                        marginBottom: RAIL_BOTTOM,
-                    }}
                     onPointerDownCapture={() => {
                         dragOnImageRef.current = false;
                     }}
@@ -758,13 +776,18 @@ function GalleryItem({
     galleryScrollY: ReturnType<typeof useMotionValue>;
     scrollMaxRef: React.MutableRefObject<number>;
     dragOnImageRef: React.MutableRefObject<boolean>;
-    containerRectRef: React.RefObject<{ left: number; bottom: number }>;
+    containerRectRef: React.RefObject<{
+        left: number;
+        bottom: number;
+        height: number;
+    }>;
 }) {
+    const cH = containerRectRef.current.height;
     const naturalW = itemFullW(index, vh);
     const galScale = itemGalleryScale(index, vw, vh);
-    const sRail = itemRailScale(index);
+    const sRail = itemRailScale(index, cH, vh);
     const originOff = (naturalW * (1 - sRail)) / 2;
-    const myRailLeft = railLeftOf(index, vh);
+    const myRailLeft = railLeftOf(index, cH);
     const isActive = open && index === current;
 
     const transformInputs = [
@@ -827,9 +850,8 @@ function GalleryItem({
         },
     );
 
-    // Measure text panel height using offsetHeight (immune to ancestor transforms)
-    const galNudge =
-        containerRectRef.current.bottom - (vh + GALLERY_H * vh * galScale) / 2;
+    // Space below centered image to viewport bottom (text overflows container via overflow:visible)
+    const galNudge = (vh - GALLERY_H * vh * galScale) / 2;
     const textMeasureRef = useCallback(
         (node: HTMLDivElement | null) => {
             if (!node) {
