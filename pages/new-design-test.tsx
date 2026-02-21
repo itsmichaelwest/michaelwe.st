@@ -1,4 +1,10 @@
-import { useState, useEffect, useLayoutEffect, useCallback, useRef } from "react";
+import {
+    useState,
+    useEffect,
+    useLayoutEffect,
+    useCallback,
+    useRef,
+} from "react";
 import {
     motion,
     useMotionValue,
@@ -7,28 +13,112 @@ import {
     animate,
 } from "motion/react";
 import Head from "next/head";
+import Image from "next/image";
+
+import Face from "../public/images/michael-face.jpg";
+import clsx from "clsx";
 
 // ── Data ──────────────────────────────────────────────────────
 const ITEMS = [
-    { color: "#e74c3c", label: "1", aspect: 1.75, railH: 0.12, title: "Item One", subtitle: "Lorem ipsum dolor sit amet", paras: 5 },
-    { color: "#3498db", label: "2", aspect: 0.56, railH: 0.20, title: "Item Two", subtitle: "Consectetur adipiscing elit", paras: 1 },
-    { color: "#2ecc71", label: "3", aspect: 1.0, railH: 0.16, title: "Item Three", subtitle: "Sed do eiusmod tempor", paras: 3 },
-    { color: "#f39c12", label: "4", aspect: 1.33, railH: 0.14, title: "Item Four", subtitle: "Ut enim ad minim veniam", paras: 2 },
-    { color: "#9b59b6", label: "5", aspect: 0.56, railH: 0.19, title: "Item Five", subtitle: "Quis nostrud exercitation", paras: 6 },
-    { color: "#1abc9c", label: "6", aspect: 1.5, railH: 0.13, title: "Item Six", subtitle: "Duis aute irure dolor", paras: 1 },
-    { color: "#e67e22", label: "7", aspect: 1.28, railH: 0.15, title: "Item Seven", subtitle: "Excepteur sint occaecat", paras: 4 },
-    { color: "#2c3e50", label: "8", aspect: 0.75, railH: 0.18, title: "Item Eight", subtitle: "Sunt in culpa qui officia", paras: 2 },
-    { color: "#c0392b", label: "9", aspect: 1.6, railH: 0.11, title: "Item Nine", subtitle: "Mollit anim id est laborum", paras: 7 },
-    { color: "#16a085", label: "10", aspect: 1.0, railH: 0.17, title: "Item Ten", subtitle: "Nemo enim ipsam voluptatem", paras: 1 },
+    {
+        color: "#e74c3c",
+        label: "1",
+        aspect: 1.75,
+        railH: 0.12,
+        title: "Item One",
+        subtitle: "Lorem ipsum dolor sit amet",
+        paras: 5,
+    },
+    {
+        color: "#3498db",
+        label: "2",
+        aspect: 0.56,
+        railH: 0.2,
+        title: "Item Two",
+        subtitle: "Consectetur adipiscing elit",
+        paras: 1,
+    },
+    {
+        color: "#2ecc71",
+        label: "3",
+        aspect: 1.0,
+        railH: 0.16,
+        title: "Item Three",
+        subtitle: "Sed do eiusmod tempor",
+        paras: 3,
+    },
+    {
+        color: "#f39c12",
+        label: "4",
+        aspect: 1.33,
+        railH: 0.14,
+        title: "Item Four",
+        subtitle: "Ut enim ad minim veniam",
+        paras: 2,
+    },
+    {
+        color: "#9b59b6",
+        label: "5",
+        aspect: 0.56,
+        railH: 0.19,
+        title: "Item Five",
+        subtitle: "Quis nostrud exercitation",
+        paras: 6,
+    },
+    {
+        color: "#1abc9c",
+        label: "6",
+        aspect: 1.5,
+        railH: 0.13,
+        title: "Item Six",
+        subtitle: "Duis aute irure dolor",
+        paras: 1,
+    },
+    {
+        color: "#e67e22",
+        label: "7",
+        aspect: 1.28,
+        railH: 0.15,
+        title: "Item Seven",
+        subtitle: "Excepteur sint occaecat",
+        paras: 4,
+    },
+    {
+        color: "#2c3e50",
+        label: "8",
+        aspect: 0.75,
+        railH: 0.18,
+        title: "Item Eight",
+        subtitle: "Sunt in culpa qui officia",
+        paras: 2,
+    },
+    {
+        color: "#c0392b",
+        label: "9",
+        aspect: 1.6,
+        railH: 0.11,
+        title: "Item Nine",
+        subtitle: "Mollit anim id est laborum",
+        paras: 7,
+    },
+    {
+        color: "#16a085",
+        label: "10",
+        aspect: 1.0,
+        railH: 0.17,
+        title: "Item Ten",
+        subtitle: "Nemo enim ipsam voluptatem",
+        paras: 1,
+    },
 ];
 
 // ── Layout constants ──────────────────────────────────────────
 const MAX_RAIL_H = Math.max(...ITEMS.map((item) => item.railH));
 const GALLERY_H = 0.6; // gallery item height as fraction of vh
 const GALLERY_PAD = 32; // px padding each side in gallery mode
-const RAIL_PAD = 32; // px padding each side
+const RAIL_PAD = 0; // px padding each side
 const RAIL_GAP = 12; // px between items
-const RAIL_BOTTOM = 48; // px inset from viewport bottom
+const RAIL_BOTTOM = 0; // px inset from viewport bottom
 
 // ── Spring configs ───────────────────────────────────────────
 const MAIN_SPRING = { stiffness: 300, damping: 35 };
@@ -118,13 +208,17 @@ export default function NewDesignTest() {
     const containerRef = useRef<HTMLDivElement>(null);
     const containerRectRef = useRef({ left: 0, bottom: 0, width: 0 });
 
-    // Measure container position on mount + resize
+    // Measure container rect every render — stays fresh regardless of layout
     useLayoutEffect(() => {
         if (containerRef.current) {
             const r = containerRef.current.getBoundingClientRect();
-            containerRectRef.current = { left: r.left, bottom: r.bottom, width: r.width };
+            containerRectRef.current = {
+                left: r.left,
+                bottom: r.bottom,
+                width: r.width,
+            };
         }
-    }, [vw, vh]);
+    });
 
     const openGallery = useCallback(
         (i: number) => {
@@ -138,7 +232,14 @@ export default function NewDesignTest() {
             galleryDragY.jump(0);
             galleryScrollY.jump(0);
         },
-        [openProgress, galleryPageX, galleryDragX, galleryDragY, galleryScrollY, vw],
+        [
+            openProgress,
+            galleryPageX,
+            galleryDragX,
+            galleryDragY,
+            galleryScrollY,
+            vw,
+        ],
     );
 
     const centerRailOn = useCallback(
@@ -148,9 +249,7 @@ export default function NewDesignTest() {
             const center = railLeftOf(idx, vh) + w / 2;
             const max = maxRailScroll(vh, containerRectRef.current.width);
             const vpCenter = vw / 2 - containerRectRef.current.left;
-            railOffset.jump(
-                Math.max(-max, Math.min(0, vpCenter - center)),
-            );
+            railOffset.jump(Math.max(-max, Math.min(0, vpCenter - center)));
         },
         [railOffset, vw, vh],
     );
@@ -163,7 +262,13 @@ export default function NewDesignTest() {
         animate(galleryDragY, 0, { type: "spring", ...MAIN_SPRING });
         galleryScrollY.jump(0);
         centerRailOn(currentRef.current);
-    }, [openProgress, galleryDragX, galleryDragY, galleryScrollY, centerRailOn]);
+    }, [
+        openProgress,
+        galleryDragX,
+        galleryDragY,
+        galleryScrollY,
+        centerRailOn,
+    ]);
 
     const goToPage = useCallback(
         (i: number) => {
@@ -215,12 +320,21 @@ export default function NewDesignTest() {
                 v *= DRAG_DECAY;
                 if (Math.abs(v) < 0.5) {
                     momentumRef.current = null;
-                    const max = maxRailScroll(vh, containerRectRef.current.width);
+                    const max = maxRailScroll(
+                        vh,
+                        containerRectRef.current.width,
+                    );
                     const cur = railOffset.get();
                     if (cur > 0)
-                        animate(railOffset, 0, { type: "spring", ...MAIN_SPRING });
+                        animate(railOffset, 0, {
+                            type: "spring",
+                            ...MAIN_SPRING,
+                        });
                     else if (cur < -max)
-                        animate(railOffset, -max, { type: "spring", ...MAIN_SPRING });
+                        animate(railOffset, -max, {
+                            type: "spring",
+                            ...MAIN_SPRING,
+                        });
                     return;
                 }
                 railOffset.set(railOffset.get() + v);
@@ -302,19 +416,26 @@ export default function NewDesignTest() {
                     if (dragOnImageRef.current && dy > 0) {
                         // Drag down on image → dismiss gesture
                         galleryDragY.jump(dy);
-                        openProgress.jump(
-                            1 - Math.min(dy / (vh * 0.3), 1),
-                        );
+                        openProgress.jump(1 - Math.min(dy / (vh * 0.3), 1));
                     } else if (!dragOnImageRef.current) {
                         // Drag on text area → scroll content
                         const max = scrollMaxRef.current;
-                        const next = Math.max(0, Math.min(max, galleryScrollY.get() - (e.movementY || 0)));
+                        const next = Math.max(
+                            0,
+                            Math.min(
+                                max,
+                                galleryScrollY.get() - (e.movementY || 0),
+                            ),
+                        );
                         galleryScrollY.jump(next);
                     }
                 }
             } else {
                 if (dragAxisRef.current === "x") {
-                    const max = maxRailScroll(vh, containerRectRef.current.width);
+                    const max = maxRailScroll(
+                        vh,
+                        containerRectRef.current.width,
+                    );
                     const cur = railOffset.get();
                     let delta = e.movementX || 0;
                     if ((cur >= 0 && delta > 0) || (cur <= -max && delta < 0))
@@ -322,16 +443,26 @@ export default function NewDesignTest() {
                     railOffset.jump(cur + delta);
                 }
                 if (dragAxisRef.current === "y" && dy < 0) {
-                    openProgress.jump(
-                        Math.min(Math.abs(dy) / (vh * 0.3), 1),
-                    );
+                    openProgress.jump(Math.min(Math.abs(dy) / (vh * 0.3), 1));
                 }
             }
         },
-        [galleryDragX, galleryDragY, openProgress, railOffset, vw, vh, centerRailOn],
+        [
+            galleryDragX,
+            galleryDragY,
+            openProgress,
+            railOffset,
+            vw,
+            vh,
+            centerRailOn,
+        ],
     );
 
-    function findTappedItem(screenX: number, screenY: number, scrollOff: number) {
+    function findTappedItem(
+        screenX: number,
+        screenY: number,
+        scrollOff: number,
+    ) {
         const rect = containerRef.current?.getBoundingClientRect();
         if (!rect) return -1;
         const localX = screenX - rect.left;
@@ -340,7 +471,8 @@ export default function NewDesignTest() {
             const left = railLeftOf(i, vh) + scrollOff;
             const w = railItemW(i, vh);
             const itemTop = rect.height - ITEMS[i].railH * vh;
-            if (localX >= left && localX <= left + w && localY >= itemTop) return i;
+            if (localX >= left && localX <= left + w && localY >= itemTop)
+                return i;
         }
         return -1;
     }
@@ -358,7 +490,11 @@ export default function NewDesignTest() {
                 if (openRef.current) {
                     // do nothing — use back button or drag-to-dismiss
                 } else {
-                    const tapped = findTappedItem(e.clientX, e.clientY, railOffset.get());
+                    const tapped = findTappedItem(
+                        e.clientX,
+                        e.clientY,
+                        railOffset.get(),
+                    );
                     if (tapped >= 0) openGallery(tapped);
                 }
             } else if (openRef.current) {
@@ -413,9 +549,16 @@ export default function NewDesignTest() {
             dragAxisRef.current = null;
         },
         [
-            vw, vh, goToPage, closeGallery, openGallery,
-            openProgress, galleryDragX, galleryDragY,
-            startMomentum, railOffset,
+            vw,
+            vh,
+            goToPage,
+            closeGallery,
+            openGallery,
+            openProgress,
+            galleryDragX,
+            galleryDragY,
+            startMomentum,
+            railOffset,
         ],
     );
 
@@ -427,38 +570,46 @@ export default function NewDesignTest() {
                 <title>Design Test</title>
             </Head>
 
-            <div
-                style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    height: "100vh",
-                    overflowY: "clip",
-                    background: "#f5f5f5",
-                }}
-            >
+            <div className="relative max-w-[80ch] w-full h-[50vh] mx-auto px-4 flex flex-col">
                 {/* Max-width content area — fills space above rail */}
                 <div
-                    style={{
-                        flex: 1,
-                        maxWidth: 1200,
-                        width: "100%",
-                        margin: "0 auto",
-                        padding: "4rem 2rem",
-                    }}
-                />
+                    className={clsx(
+                        "flex flex-col gap-4 transition-opacity duration-200",
+                        !open
+                            ? "opacity-100 pointer-events-auto"
+                            : "opacity-0 pointer-events-none",
+                    )}
+                >
+                    <div className="flex gap-4 items-center">
+                        <Image
+                            className="w-10 rounded-full shadow ring ring-black/10 dark:ring-white/5"
+                            src={Face}
+                            alt="Photo of Michael"
+                        />
+                        <div className="-space-y-1">
+                            <h1 className="font-semibold">Michael</h1>
+                            <p className="font-medium text-muted">
+                                Senior Designer at Microsoft
+                            </p>
+                        </div>
+                    </div>
+                    <p>Hello</p>
+                </div>
 
                 {/* Rail / Gallery container */}
                 <div
                     ref={containerRef}
+                    className={clsx(
+                        "absolute bottom-0 overflow-visible touch-none",
+                        open ? "z-51" : "z-auto",
+                    )}
                     style={{
-                        position: "relative",
                         height: MAX_RAIL_H * vh,
                         marginBottom: RAIL_BOTTOM,
-                        overflow: "visible",
-                        touchAction: "none",
-                        zIndex: open ? 51 : "auto",
                     }}
-                    onPointerDownCapture={() => { dragOnImageRef.current = false; }}
+                    onPointerDownCapture={() => {
+                        dragOnImageRef.current = false;
+                    }}
                     onPointerDown={onPointerDown}
                     onPointerMove={onPointerMove}
                     onPointerUp={onPointerUp}
@@ -473,25 +624,21 @@ export default function NewDesignTest() {
                             galleryScrollY.jump(next);
                         } else {
                             // Rail: horizontal scroll (trackpad deltaX or mousewheel deltaY)
-                            const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-                            const max = maxRailScroll(vh, containerRectRef.current.width);
+                            const delta =
+                                Math.abs(e.deltaX) > Math.abs(e.deltaY)
+                                    ? e.deltaX
+                                    : e.deltaY;
+                            const max = maxRailScroll(
+                                vh,
+                                containerRectRef.current.width,
+                            );
                             const cur = railOffset.get();
-                            railOffset.jump(Math.max(-max, Math.min(0, cur - delta)));
+                            railOffset.jump(
+                                Math.max(-max, Math.min(0, cur - delta)),
+                            );
                         }
                     }}
                 >
-                    {/* Gallery backdrop — fixed overlay inside container for events + bg */}
-                    <motion.div
-                        style={{
-                            position: "fixed",
-                            inset: 0,
-                            background: "#f5f5f5",
-                            opacity: openSpring,
-                            pointerEvents: open ? "auto" : "none",
-                            zIndex: 0,
-                        }}
-                    />
-
                     {ITEMS.map((item, i) => (
                         <GalleryItem
                             key={i}
@@ -520,42 +667,48 @@ export default function NewDesignTest() {
 
                     {/* Back button — fades in/out with gallery */}
                     <motion.button
+                        className={clsx(
+                            "fixed top-6 left-6 z-10 size-10 flex items-center justify-center p-0 rounded-full bg-black/6 backdrop-blur-2xl border-none cursor-pointer",
+                            open
+                                ? "pointer-events-auto"
+                                : "pointer-events-none",
+                        )}
                         style={{
-                            position: "fixed",
-                            top: 24,
-                            left: 24,
-                            zIndex: 10,
-                            width: 40,
-                            height: 40,
-                            borderRadius: "50%",
-                            background: "rgba(0,0,0,0.06)",
-                            border: "none",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            padding: 0,
                             opacity: openSpring,
-                            pointerEvents: open ? "auto" : "none",
                         }}
                         onPointerDown={(e) => e.stopPropagation()}
                         onClick={closeGallery}
                     >
-                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                            <path d="M11 3L5 9L11 15" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 18 18"
+                            fill="none"
+                        >
+                            <path
+                                d="M11 3L5 9L11 15"
+                                stroke="#333"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
                         </svg>
                     </motion.button>
+
+                    {/* Gallery backdrop — fixed overlay inside container for events + bg */}
+                    <motion.div
+                        className={clsx(
+                            "fixed inset-0 z-0",
+                            open
+                                ? "pointer-events-auto"
+                                : "pointer-events-none",
+                        )}
+                        style={{
+                            opacity: openSpring,
+                        }}
+                    />
                 </div>
             </div>
-
-            <style jsx global>{`
-                html,
-                body {
-                    margin: 0;
-                    overflow: hidden;
-                    background: #f5f5f5;
-                }
-            `}</style>
         </>
     );
 }
@@ -610,11 +763,18 @@ function GalleryItem({
     const naturalW = itemFullW(index, vh);
     const galScale = itemGalleryScale(index, vw, vh);
     const sRail = itemRailScale(index);
-    const originOff = naturalW * (1 - sRail) / 2;
+    const originOff = (naturalW * (1 - sRail)) / 2;
     const myRailLeft = railLeftOf(index, vh);
     const isActive = open && index === current;
 
-    const transformInputs = [openSpring, railScroll, galleryPageX, galleryDragX, galleryDragY, galleryScrollY];
+    const transformInputs = [
+        openSpring,
+        railScroll,
+        galleryPageX,
+        galleryDragX,
+        galleryDragY,
+        galleryScrollY,
+    ];
     const transform = useTransform(
         transformInputs as any, // eslint-disable-line @typescript-eslint/no-explicit-any
         ([progress, rail, galPageX, galDragX, galDragY, sY]: number[]) => {
@@ -622,7 +782,11 @@ function GalleryItem({
             const railX = myRailLeft - originOff + rail;
             // Gallery X: center in viewport, compensating for container offset
             const galX =
-                index * vw + (vw - naturalW) / 2 - rect.left + galPageX + galDragX;
+                index * vw +
+                (vw - naturalW) / 2 -
+                rect.left +
+                galPageX +
+                galDragX;
 
             const x = railX + progress * (galX - railX);
             const scale = sRail + progress * (galScale - sRail);
@@ -637,7 +801,10 @@ function GalleryItem({
 
     const transformStr = useTransform(transform, (t) => {
         const { x, y, scale } = t as {
-            x: number; y: number; scale: number; radius: number;
+            x: number;
+            y: number;
+            scale: number;
+            radius: number;
         };
         return `translate3d(${x}px, ${y}px, 0px) scale(${scale})`;
     });
@@ -661,10 +828,14 @@ function GalleryItem({
     );
 
     // Measure text panel height using offsetHeight (immune to ancestor transforms)
-    const galNudge = containerRectRef.current.bottom - (vh + GALLERY_H * vh * galScale) / 2;
+    const galNudge =
+        containerRectRef.current.bottom - (vh + GALLERY_H * vh * galScale) / 2;
     const textMeasureRef = useCallback(
         (node: HTMLDivElement | null) => {
-            if (!node) { scrollMaxRef.current = 0; return; }
+            if (!node) {
+                scrollMaxRef.current = 0;
+                return;
+            }
             scrollMaxRef.current = Math.max(0, node.offsetHeight - galNudge);
         },
         [scrollMaxRef, galNudge],
@@ -672,89 +843,52 @@ function GalleryItem({
 
     return (
         <motion.div
+            className={clsx(
+                "absolute bottom-0 left-0 overflow-visible will-change-transform",
+                isActive ? "z-2" : "z-1",
+            )}
             style={{
-                position: "absolute",
-                bottom: 0,
-                left: 0,
                 width: naturalW,
                 height: GALLERY_H * vh,
                 transformOrigin: "center bottom",
-                overflow: "visible",
-                zIndex: isActive ? 2 : 1,
-                willChange: "transform",
                 transform: transformStr,
             }}
         >
             {/* Colored box */}
             <motion.div
-                onPointerDown={() => { dragOnImageRef.current = true; }}
+                className="absolute inset-0 overflow-hidden cursor-pointer"
+                onPointerDown={() => {
+                    dragOnImageRef.current = true;
+                }}
                 style={{
-                    position: "absolute",
-                    inset: 0,
                     background: color,
-                    overflow: "hidden",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
                     borderRadius,
                 }}
             >
-                <span
-                    style={{
-                        font: "bold 6rem/1 system-ui",
-                        color: "white",
-                        userSelect: "none",
-                        pointerEvents: "none",
-                    }}
-                >
+                <span className="text-8xl text-white select-none pointer-events-none">
                     {label}
                 </span>
             </motion.div>
 
             {/* Text panel — opacity from open spring × proximity to center */}
             <motion.div
+                className="absolute top-full left-1/2 w-screen pointer-events-none"
                 style={{
-                    position: "absolute",
-                    top: "100%",
-                    left: "50%",
                     transform: `translateX(-50%) scale(${textScale})`,
                     transformOrigin: "top center",
-                    width: "100vw",
-                    pointerEvents: "none",
                     opacity: textOpacity,
                 }}
             >
                 <div
                     ref={index === current ? textMeasureRef : undefined}
-                    style={{
-                        maxWidth: "80ch",
-                        margin: "0 auto",
-                        padding: "3rem 2rem 6rem",
-                    }}
+                    className="max-w-[80ch] mx-auto px-6 pt-12 pb-8 space-y-6"
                 >
-                    <h2
-                        style={{
-                            margin: "0 0 0.25rem",
-                            font: "bold 1.75rem/1.3 system-ui",
-                            color: "#111",
-                        }}
-                    >
-                        {title}
-                    </h2>
-                    <p
-                        style={{
-                            margin: "0 0 1.5rem",
-                            font: "1rem/1.4 system-ui",
-                            color: "#888",
-                        }}
-                    >
-                        {subtitle}
-                    </p>
+                    <div className="space-y-2">
+                        <h2 className="font-bold text-2xl">{title}</h2>
+                        <p className="text-muted">{subtitle}</p>
+                    </div>
                     {Array.from({ length: paras }, (_, j) => (
-                        <p key={j} style={{ margin: j < paras - 1 ? "0 0 1rem" : "0", font: "1rem/1.7 system-ui", color: "#444" }}>
-                            {LOREM}
-                        </p>
+                        <p key={j}>{LOREM}</p>
                     ))}
                 </div>
             </motion.div>
