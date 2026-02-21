@@ -668,7 +668,6 @@ export default function NewDesignTest() {
                             title={item.title}
                             subtitle={item.subtitle}
                             img={item?.img}
-                            aspect={item.aspect}
                             paras={item.paras}
                             open={open}
                             vw={vw}
@@ -745,7 +744,6 @@ function GalleryItem({
     title,
     subtitle,
     img,
-    aspect,
     paras,
     open,
     vw,
@@ -767,7 +765,6 @@ function GalleryItem({
     title: string;
     subtitle: string;
     img?: string;
-    aspect: number;
     paras: number;
     open: boolean;
     vw: number;
@@ -836,17 +833,13 @@ function GalleryItem({
         return `translate3d(${x}px, ${y}px, 0px) scale(${scale})`;
     });
 
-    const borderRadius = useTransform(transform, (t) => {
-        return `${(t as { radius: number }).radius}px`;
-    });
-
     // Static counter-scale: compensates for galScale so text is 1:1 at full gallery,
     // but scales naturally with the wrapper during open/close/dismiss transitions
     const textScale = 1 / galScale;
 
     // Text opacity: fades with open spring AND proximity to center (for page swipes)
     const textOpacity = useTransform(
-        [galleryPageX, galleryDragX, openSpring],
+        [galleryPageX, galleryDragX, openSpring] as any, // eslint-disable-line @typescript-eslint/no-explicit-any
         ([pageX, dragX, progress]: number[]) => {
             const dist = Math.abs(pageX + dragX + index * vw);
             const proximity = Math.max(0, 1 - dist / (vw * 0.5));
