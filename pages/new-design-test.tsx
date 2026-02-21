@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
     motion,
-    AnimatePresence,
     useMotionValue,
     useSpring,
     useTransform,
@@ -11,23 +10,20 @@ import Head from "next/head";
 
 // ── Data ──────────────────────────────────────────────────────
 const ITEMS = [
-    { color: "#e74c3c", label: "1", aspect: 1.75, title: "Item One", subtitle: "Lorem ipsum dolor sit amet", paras: 5 },
-    { color: "#3498db", label: "2", aspect: 0.56, title: "Item Two", subtitle: "Consectetur adipiscing elit", paras: 1 },
-    { color: "#2ecc71", label: "3", aspect: 1.0, title: "Item Three", subtitle: "Sed do eiusmod tempor", paras: 3 },
-    { color: "#f39c12", label: "4", aspect: 1.33, title: "Item Four", subtitle: "Ut enim ad minim veniam", paras: 2 },
-    { color: "#9b59b6", label: "5", aspect: 0.56, title: "Item Five", subtitle: "Quis nostrud exercitation", paras: 6 },
-    { color: "#1abc9c", label: "6", aspect: 1.5, title: "Item Six", subtitle: "Duis aute irure dolor", paras: 1 },
-    { color: "#e67e22", label: "7", aspect: 1.28, title: "Item Seven", subtitle: "Excepteur sint occaecat", paras: 4 },
-    { color: "#2c3e50", label: "8", aspect: 0.75, title: "Item Eight", subtitle: "Sunt in culpa qui officia", paras: 2 },
-    { color: "#c0392b", label: "9", aspect: 1.6, title: "Item Nine", subtitle: "Mollit anim id est laborum", paras: 7 },
-    { color: "#16a085", label: "10", aspect: 1.0, title: "Item Ten", subtitle: "Nemo enim ipsam voluptatem", paras: 1 },
+    { color: "#e74c3c", label: "1", aspect: 1.75, railH: 0.12, title: "Item One", subtitle: "Lorem ipsum dolor sit amet", paras: 5 },
+    { color: "#3498db", label: "2", aspect: 0.56, railH: 0.20, title: "Item Two", subtitle: "Consectetur adipiscing elit", paras: 1 },
+    { color: "#2ecc71", label: "3", aspect: 1.0, railH: 0.16, title: "Item Three", subtitle: "Sed do eiusmod tempor", paras: 3 },
+    { color: "#f39c12", label: "4", aspect: 1.33, railH: 0.14, title: "Item Four", subtitle: "Ut enim ad minim veniam", paras: 2 },
+    { color: "#9b59b6", label: "5", aspect: 0.56, railH: 0.19, title: "Item Five", subtitle: "Quis nostrud exercitation", paras: 6 },
+    { color: "#1abc9c", label: "6", aspect: 1.5, railH: 0.13, title: "Item Six", subtitle: "Duis aute irure dolor", paras: 1 },
+    { color: "#e67e22", label: "7", aspect: 1.28, railH: 0.15, title: "Item Seven", subtitle: "Excepteur sint occaecat", paras: 4 },
+    { color: "#2c3e50", label: "8", aspect: 0.75, railH: 0.18, title: "Item Eight", subtitle: "Sunt in culpa qui officia", paras: 2 },
+    { color: "#c0392b", label: "9", aspect: 1.6, railH: 0.11, title: "Item Nine", subtitle: "Mollit anim id est laborum", paras: 7 },
+    { color: "#16a085", label: "10", aspect: 1.0, railH: 0.17, title: "Item Ten", subtitle: "Nemo enim ipsam voluptatem", paras: 1 },
 ];
 
 // ── Layout constants ──────────────────────────────────────────
-const S_RAIL = 0.15; // visual rail fraction of viewport (what the user sees)
 const GALLERY_H = 0.6; // gallery item height as fraction of vh
-const GALLERY_NUDGE = 0.2; // fraction of vh to push gallery item up (reveals text)
-const S = S_RAIL / GALLERY_H; // uniform scale factor for rail
 const GALLERY_PAD = 32; // px padding each side in gallery mode
 const RAIL_PAD = 32; // px padding each side
 const RAIL_GAP = 12; // px between items
@@ -54,8 +50,12 @@ function itemGalleryScale(i: number, vw: number, vh: number) {
     return Math.min(1, (vw - GALLERY_PAD * 2) / itemFullW(i, vh));
 }
 
+function itemRailScale(i: number) {
+    return ITEMS[i].railH / GALLERY_H;
+}
+
 function railItemW(i: number, vh: number) {
-    return ITEMS[i].aspect * S_RAIL * vh;
+    return ITEMS[i].aspect * ITEMS[i].railH * vh;
 }
 
 function railLeftOf(i: number, vh: number) {
@@ -319,12 +319,11 @@ export default function NewDesignTest() {
     );
 
     function findTappedItem(screenX: number, screenY: number, scrollOff: number) {
-        const railTop = vh * (1 - S_RAIL);
-        if (screenY < railTop) return -1;
         for (let i = 0; i < ITEMS.length; i++) {
             const left = railLeftOf(i, vh) + scrollOff;
             const w = railItemW(i, vh);
-            if (screenX >= left && screenX <= left + w) return i;
+            const top = vh - ITEMS[i].railH * vh;
+            if (screenX >= left && screenX <= left + w && screenY >= top) return i;
         }
         return -1;
     }
@@ -545,7 +544,8 @@ function GalleryItem({
 }) {
     const naturalW = itemFullW(index, vh);
     const galScale = itemGalleryScale(index, vw, vh);
-    const originOff = naturalW * (1 - S) / 2;
+    const sRail = itemRailScale(index);
+    const originOff = naturalW * (1 - sRail) / 2;
     const myRailLeft = railLeftOf(index, vh);
     const isActive = open && index === current;
 
@@ -558,7 +558,7 @@ function GalleryItem({
                 index * vw + (vw - naturalW) / 2 + galPageX + galDragX;
 
             const x = railX + progress * (galX - railX);
-            const scale = S + progress * (galScale - S);
+            const scale = sRail + progress * (galScale - sRail);
             // Center the image vertically in the visible area above the text
             const visualH = GALLERY_H * vh * scale;
             const nudge = (vh - visualH) / 2;
@@ -579,10 +579,19 @@ function GalleryItem({
         return `${(t as { radius: number }).radius}px`;
     });
 
-    const textTransform = useTransform(transform, (t) => {
-        const { scale } = t as { x: number; y: number; scale: number; radius: number };
-        return `translateX(-50%) scale(${1 / scale})`;
-    });
+    // Static counter-scale: compensates for galScale so text is 1:1 at full gallery,
+    // but scales naturally with the wrapper during open/close/dismiss transitions
+    const textScale = 1 / galScale;
+
+    // Text opacity: fades with open spring AND proximity to center (for page swipes)
+    const textOpacity = useTransform(
+        [galleryPageX, galleryDragX, openSpring],
+        ([pageX, dragX, progress]: number[]) => {
+            const dist = Math.abs(pageX + dragX + index * vw);
+            const proximity = Math.max(0, 1 - dist / (vw * 0.5));
+            return proximity * progress;
+        },
+    );
 
     // Measure text panel height using offsetHeight (immune to ancestor transforms)
     const galNudge = (vh - GALLERY_H * vh * galScale) / 2;
@@ -636,60 +645,52 @@ function GalleryItem({
                 </span>
             </motion.div>
 
-            {/* Text panel — fades in/out on page change */}
-            <AnimatePresence>
-            {isActive && (
-                <motion.div
-                    key={`text-${index}`}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.25 }}
+            {/* Text panel — opacity from open spring × proximity to center */}
+            <motion.div
+                style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: "50%",
+                    transform: `translateX(-50%) scale(${textScale})`,
+                    transformOrigin: "top center",
+                    width: "100vw",
+                    pointerEvents: "none",
+                    opacity: textOpacity,
+                }}
+            >
+                <div
+                    ref={index === current ? textMeasureRef : undefined}
                     style={{
-                        position: "absolute",
-                        top: "100%",
-                        left: "50%",
-                        transform: textTransform,
-                        transformOrigin: "top center",
-                        width: "100vw",
-                        pointerEvents: "none",
+                        maxWidth: "80ch",
+                        margin: "0 auto",
+                        padding: "3rem 2rem 6rem",
                     }}
                 >
-                    <div
-                        ref={textMeasureRef}
+                    <h2
                         style={{
-                            maxWidth: "80ch",
-                            margin: "0 auto",
-                            padding: "3rem 2rem 6rem",
+                            margin: "0 0 0.25rem",
+                            font: "bold 1.75rem/1.3 system-ui",
+                            color: "#111",
                         }}
                     >
-                        <h2
-                            style={{
-                                margin: "0 0 0.25rem",
-                                font: "bold 1.75rem/1.3 system-ui",
-                                color: "#111",
-                            }}
-                        >
-                            {title}
-                        </h2>
-                        <p
-                            style={{
-                                margin: "0 0 1.5rem",
-                                font: "1rem/1.4 system-ui",
-                                color: "#888",
-                            }}
-                        >
-                            {subtitle}
+                        {title}
+                    </h2>
+                    <p
+                        style={{
+                            margin: "0 0 1.5rem",
+                            font: "1rem/1.4 system-ui",
+                            color: "#888",
+                        }}
+                    >
+                        {subtitle}
+                    </p>
+                    {Array.from({ length: paras }, (_, j) => (
+                        <p key={j} style={{ margin: j < paras - 1 ? "0 0 1rem" : "0", font: "1rem/1.7 system-ui", color: "#444" }}>
+                            {LOREM}
                         </p>
-                        {Array.from({ length: paras }, (_, j) => (
-                            <p key={j} style={{ margin: j < paras - 1 ? "0 0 1rem" : "0", font: "1rem/1.7 system-ui", color: "#444" }}>
-                                {LOREM}
-                            </p>
-                        ))}
-                    </div>
-                </motion.div>
-            )}
-            </AnimatePresence>
+                    ))}
+                </div>
+            </motion.div>
         </motion.div>
     );
 }
