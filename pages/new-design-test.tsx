@@ -23,10 +23,11 @@ const ITEMS = [
     {
         color: "#e74c3c",
         label: "1",
-        aspect: 1.75,
-        railH: 0.6,
+        aspect: 1680 / 1279,
+        railH: 0.8,
         title: "Item One",
         subtitle: "Lorem ipsum dolor sit amet",
+        img: "/images-new/duo.png",
         paras: 5,
     },
     {
@@ -115,8 +116,8 @@ const ITEMS = [
 // ── Layout constants ──────────────────────────────────────────
 const GALLERY_H = 0.6; // gallery item height as fraction of vh
 const GALLERY_PAD = 32; // px padding each side in gallery mode
-const RAIL_PAD = 0; // px padding each side
-const RAIL_GAP = 24; // px between items
+const RAIL_PAD = 16; // px padding each side (matches parent's px-4)
+const RAIL_GAP = 64; // px between items
 
 // ── Spring configs ───────────────────────────────────────────
 const MAIN_SPRING = { stiffness: 300, damping: 35 };
@@ -666,6 +667,7 @@ export default function NewDesignTest() {
                             label={item.label}
                             title={item.title}
                             subtitle={item.subtitle}
+                            img={item?.img}
                             aspect={item.aspect}
                             paras={item.paras}
                             open={open}
@@ -686,7 +688,7 @@ export default function NewDesignTest() {
                     {/* Back button — fades in/out with gallery */}
                     <motion.button
                         className={clsx(
-                            "fixed top-6 left-6 z-10 size-10 flex items-center justify-center p-0 rounded-full bg-black/6 backdrop-blur-2xl border-none cursor-pointer",
+                            "fixed top-4 left-4 z-10 size-10 flex items-center justify-center p-0 rounded-full bg-black/6 backdrop-blur-2xl border-none cursor-pointer",
                             open
                                 ? "pointer-events-auto"
                                 : "pointer-events-none",
@@ -742,6 +744,7 @@ function GalleryItem({
     label,
     title,
     subtitle,
+    img,
     aspect,
     paras,
     open,
@@ -763,6 +766,7 @@ function GalleryItem({
     label: string;
     title: string;
     subtitle: string;
+    img?: string;
     aspect: number;
     paras: number;
     open: boolean;
@@ -878,18 +882,27 @@ function GalleryItem({
         >
             {/* Colored box */}
             <motion.div
-                className="absolute inset-0 overflow-hidden cursor-pointer"
+                className="absolute inset-0 cursor-pointer"
                 onPointerDown={() => {
                     dragOnImageRef.current = true;
                 }}
                 style={{
-                    background: color,
-                    borderRadius,
+                    background: !img && color,
+                    // borderRadius,
                 }}
             >
-                <span className="text-8xl text-white select-none pointer-events-none">
-                    {label}
-                </span>
+                {img ? (
+                    <Image
+                        src={img}
+                        alt=""
+                        fill
+                        className="absolute inset-0 object-cover select-none pointer-events-none"
+                    />
+                ) : (
+                    <span className="text-8xl text-white select-none pointer-events-none">
+                        {label}
+                    </span>
+                )}
             </motion.div>
 
             {/* Text panel — opacity from open spring × proximity to center */}
@@ -903,7 +916,7 @@ function GalleryItem({
             >
                 <div
                     ref={index === current ? textMeasureRef : undefined}
-                    className="max-w-[80ch] mx-auto px-6 pt-12 pb-8 space-y-6"
+                    className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6"
                 >
                     <div className="space-y-2">
                         <h2 className="font-bold text-2xl">{title}</h2>

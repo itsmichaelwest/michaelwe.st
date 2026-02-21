@@ -13,7 +13,7 @@ const inter = Inter({
 const App = ({ Component, pageProps }: AppProps) => {
     return (
         <div
-            className={`${inter.className} ${inter.variable} font-sans max-w-[80ch] px-8 mx-auto`}
+            className={`w-screen h-screen flex items-center justify-center bg-white overflow-hidden ${inter.className} ${inter.variable} font-sans`}
         >
             <Component {...pageProps} />
             <Analytics />
