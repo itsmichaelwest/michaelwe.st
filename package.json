@@ -6,11 +6,10 @@
   },
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "build:turbopack": "next build --turbopack"
+    "lint": "next lint"
   },
   "dependencies": {
     "@vercel/analytics": "^1.3.1",
@@ -19,10 +18,10 @@
     "date-fns": "^4.1.0",
     "gray-matter": "^4.0.3",
     "motion": "^12.23.12",
-    "next": "15.4.11",
+    "next": "16.1.6",
     "next-mdx-remote-client": "^2.1.3",
-    "react": "19.1.1",
-    "react-dom": "19.1.1",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
     "rehype-img-size": "^1.0.1",
     "rehype-unwrap-images": "^1.0.0"
   },
@@ -30,13 +29,17 @@
     "@svgr/webpack": "^8.1.0",
     "@tailwindcss/postcss": "^4.1.11",
     "@types/node": "^24.2.1",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
     "eslint": "^9.33.0",
-    "eslint-config-next": "15.4.11",
+    "eslint-config-next": "16.1.6",
     "postcss": "^8.4.25",
     "prettier": "3.6.2",
     "tailwindcss": "^4.1.11",
     "typescript": "5.8.3"
+  },
+  "overrides": {
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3"
   }
 }
