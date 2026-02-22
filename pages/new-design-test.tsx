@@ -168,13 +168,21 @@ export default function NewDesignTest({
 }: {
     items: ItemData[];
 }) {
-    const [open, setOpen] = useState(false);
+    const isDirectNav = typeof window !== "undefined" &&
+        /^(?:\/en)?\/work\/.+$/.test(window.location.pathname);
+    const [open, setOpen] = useState(isDirectNav);
     const [current, setCurrent] = useState(0);
     const { w: vw, h: vh } = useWindowSize();
     const items = useMemo(
         () => [...realItems, ...SAMPLE_ITEMS],
         [realItems],
     );
+
+    const idToIndex = useMemo(() => {
+        const map = new Map<string, number>();
+        items.forEach((item, i) => map.set(item.id, i));
+        return map;
+    }, [items]);
 
     const railOffset = useMotionValue(0);
     const galleryPageX = useMotionValue(0);
@@ -185,7 +193,8 @@ export default function NewDesignTest({
     const openSpring = useSpring(openProgress, MAIN_SPRING);
 
     const currentRef = useRef(0);
-    const openRef = useRef(false);
+    const openRef = useRef(isDirectNav);
+    const directNavRef = useRef(isDirectNav);
 
     const dragAxisRef = useRef<"x" | "y" | null>(null);
     const dragStartRef = useRef({ x: 0, y: 0 });
@@ -227,6 +236,27 @@ export default function NewDesignTest({
         }
     });
 
+    // Direct navigation detection — wait for vw so positions are correct before first paint
+    const directNavChecked = useRef(false);
+    useLayoutEffect(() => {
+        if (vw <= 0 || directNavChecked.current) return;
+        directNavChecked.current = true;
+        const match = window.location.pathname.match(/^(?:\/en)?\/work\/(.+)$/);
+        if (!match) return;
+        const idx = idToIndex.get(match[1]);
+        if (idx == null) return;
+        directNavRef.current = true;
+        setCurrent(idx);
+        currentRef.current = idx;
+        setOpen(true);
+        openRef.current = true;
+        openProgress.jump(1);
+        openSpring.jump(1);
+        galleryPageX.jump(-idx * vw);
+        galleryDragX.jump(0);
+        galleryDragY.jump(0);
+    }, [vw]); // eslint-disable-line react-hooks/exhaustive-deps -- runs once when vw first available
+
     const openGallery = useCallback(
         (i: number) => {
             setCurrent(i);
@@ -237,6 +267,10 @@ export default function NewDesignTest({
             galleryPageX.jump(-i * vw);
             galleryDragX.jump(0);
             galleryDragY.jump(0);
+            const id = items[i].id;
+            if (!/^s\d+$/.test(id) && window.location.pathname !== `/work/${id}`) {
+                history.pushState({ gallery: id }, "", `/work/${id}`);
+            }
         },
         [
             openProgress,
@@ -244,6 +278,7 @@ export default function NewDesignTest({
             galleryDragX,
             galleryDragY,
             vw,
+            items,
         ],
     );
 
@@ -274,6 +309,12 @@ export default function NewDesignTest({
         openProgress.set(0);
         galleryDragX.jump(0);
         centerRailOn(currentRef.current, true);
+        if (directNavRef.current) {
+            directNavRef.current = false;
+            history.replaceState(null, "", "/new-design-test");
+        } else {
+            history.back();
+        }
     }, [openProgress, galleryDragX, centerRailOn]);
 
     const goToPage = useCallback(
@@ -288,8 +329,14 @@ export default function NewDesignTest({
                 type: "spring",
                 ...PAGE_SPRING,
             });
+            if (openRef.current) {
+                const id = items[clamped].id;
+                if (!/^s\d+$/.test(id)) {
+                    history.replaceState({ gallery: id }, "", `/work/${id}`);
+                }
+            }
         },
-        [galleryPageX, galleryDragX, vw, items.length],
+        [galleryPageX, galleryDragX, vw, items],
     );
 
     useEffect(() => {
@@ -302,6 +349,26 @@ export default function NewDesignTest({
         window.addEventListener("keydown", onKey);
         return () => window.removeEventListener("keydown", onKey);
     }, [closeGallery, goToPage]);
+
+    // Popstate — sync gallery state when browser back/forward fires
+    useEffect(() => {
+        const onPopState = () => {
+            const match = window.location.pathname.match(/^(?:\/en)?\/work\/(.+)$/);
+            if (match) {
+                const idx = idToIndex.get(match[1]);
+                if (idx != null && !openRef.current) openGallery(idx);
+            } else if (openRef.current) {
+                // Close without another history.back()
+                setOpen(false);
+                openRef.current = false;
+                openProgress.set(0);
+                galleryDragX.jump(0);
+                centerRailOn(currentRef.current, true);
+            }
+        };
+        window.addEventListener("popstate", onPopState);
+        return () => window.removeEventListener("popstate", onPopState);
+    }, [idToIndex, openGallery, openProgress, galleryDragX, centerRailOn]);
 
     // Recalculate positions on resize
     useEffect(() => {
@@ -690,13 +757,17 @@ export default function NewDesignTest({
 
             <div className="relative max-w-[80ch] w-full h-[60vh] mx-auto px-4 flex flex-col">
                 {/* Max-width content area — fills space above rail */}
-                <div
+                <motion.div
                     className={clsx(
                         "flex flex-col gap-4 transition-opacity duration-200",
                         !open
-                            ? "opacity-100 pointer-events-auto"
-                            : "opacity-0 pointer-events-none",
+                            ? "pointer-events-auto"
+                            : "pointer-events-none",
                     )}
+                    animate={{
+                        opacity: open ? 0 : 1,
+                        filter: open ? "blur(4px)" : "blur(0px)",
+                    }}
                 >
                     <div className="flex gap-4 items-center">
                         <Image
@@ -712,7 +783,7 @@ export default function NewDesignTest({
                         </div>
                     </div>
                     <p>Hello</p>
-                </div>
+                </motion.div>
 
                 {/* Back button — outside gallery container for z-index above portal */}
                 <motion.button
