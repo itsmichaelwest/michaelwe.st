@@ -9,12 +9,7 @@ import {
     useMemo,
     type ReactNode,
 } from "react";
-import {
-    motion,
-    useMotionValue,
-    useSpring,
-    animate,
-} from "motion/react";
+import { motion, useMotionValue, useSpring, animate } from "motion/react";
 import clsx from "clsx";
 import { useWindowSize } from "../../hooks/useWindowSize";
 import { GalleryContext } from "./GalleryContext";
@@ -31,28 +26,32 @@ import {
     RUBBER_BAND_K,
     DRAG_DECAY,
 } from "./constants";
-import {
-    railItemW,
-    railLeftOf,
-    maxRailScroll,
-} from "./utils";
+import { railItemW, railLeftOf, maxRailScroll } from "./utils";
 import { GalleryItem } from "./GalleryItem";
 import { AboutModal } from "../AboutModal";
 
-export function GalleryShell({ items: realItems, children }: { items: ItemData[]; children?: ReactNode }) {
-    const isDirectNav = typeof window !== "undefined" &&
+export function GalleryShell({
+    items: realItems,
+    children,
+}: {
+    items: ItemData[];
+    children?: ReactNode;
+}) {
+    const isDirectNav =
+        typeof window !== "undefined" &&
         /^\/work\/.+$/.test(window.location.pathname);
-    const isAboutDirectNav = typeof window !== "undefined" &&
-        window.location.pathname === "/about";
+    const isAboutDirectNav =
+        typeof window !== "undefined" && window.location.pathname === "/about";
     const [open, setOpen] = useState(isDirectNav);
     const [aboutOpen, setAboutOpen] = useState(isAboutDirectNav);
     const aboutDirectNavRef = useRef(isAboutDirectNav);
     const [current, setCurrent] = useState(0);
     const { w: vw, h: vh } = useWindowSize();
     const items = useMemo(
-        () => process.env.NODE_ENV === "production"
-            ? realItems
-            : [...realItems, ...SAMPLE_ITEMS],
+        () =>
+            process.env.NODE_ENV === "production"
+                ? realItems
+                : [...realItems, ...SAMPLE_ITEMS],
         [realItems],
     );
 
@@ -144,7 +143,10 @@ export function GalleryShell({ items: realItems, children }: { items: ItemData[]
             galleryDragX.jump(0);
             galleryDragY.jump(0);
             const id = items[i].id;
-            if (!/^s\d+$/.test(id) && window.location.pathname !== `/work/${id}`) {
+            if (
+                !/^s\d+$/.test(id) &&
+                window.location.pathname !== `/work/${id}`
+            ) {
                 history.pushState({ gallery: id }, "", `/work/${id}`);
             }
         },
@@ -157,7 +159,11 @@ export function GalleryShell({ items: realItems, children }: { items: ItemData[]
             const cH = containerRectRef.current.height;
             const w = railItemW(items, idx, cH);
             const center = railLeftOf(items, idx, cH) + w / 2;
-            const max = maxRailScroll(items, cH, containerRectRef.current.width);
+            const max = maxRailScroll(
+                items,
+                cH,
+                containerRectRef.current.width,
+            );
             const vpCenter = vw / 2 - containerRectRef.current.left;
             const target = Math.max(-max, Math.min(0, vpCenter - center));
             if (smooth) {
@@ -305,9 +311,10 @@ export function GalleryShell({ items: realItems, children }: { items: ItemData[]
                 hActive = false;
                 hAccum = 0;
                 navigated = false;
-                const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY)
-                    ? e.deltaX
-                    : e.deltaY;
+                const delta =
+                    Math.abs(e.deltaX) > Math.abs(e.deltaY)
+                        ? e.deltaX
+                        : e.deltaY;
                 if (Math.abs(delta) < 1) return;
                 const max = maxRailScroll(
                     items,
@@ -315,9 +322,7 @@ export function GalleryShell({ items: realItems, children }: { items: ItemData[]
                     containerRectRef.current.width,
                 );
                 const cur = railOffset.get();
-                railOffset.jump(
-                    Math.max(-max, Math.min(0, cur - delta)),
-                );
+                railOffset.jump(Math.max(-max, Math.min(0, cur - delta)));
                 return;
             }
 
@@ -650,7 +655,9 @@ export function GalleryShell({ items: realItems, children }: { items: ItemData[]
     if (!vw) return <div />;
 
     return (
-        <GalleryContext.Provider value={{ open, openSpring, aboutOpen, openAbout, closeAbout }}>
+        <GalleryContext.Provider
+            value={{ open, openSpring, aboutOpen, openAbout, closeAbout }}
+        >
             <div className="relative max-w-[80ch] w-full h-[80vh] md:h-[60vh] mx-auto px-4 flex flex-col">
                 {children}
 
@@ -658,9 +665,7 @@ export function GalleryShell({ items: realItems, children }: { items: ItemData[]
                 <motion.button
                     className={clsx(
                         "fixed top-4 left-4 z-[53] size-10 flex items-center justify-center p-0 rounded-full bg-[#EEE]/80 backdrop-blur-2xl border-none cursor-pointer",
-                        open
-                            ? "pointer-events-auto"
-                            : "pointer-events-none",
+                        open ? "pointer-events-auto" : "pointer-events-none",
                     )}
                     style={{ opacity: openSpring }}
                     onPointerDown={(e) => e.stopPropagation()}
@@ -675,6 +680,66 @@ export function GalleryShell({ items: realItems, children }: { items: ItemData[]
                             strokeLinejoin="round"
                         />
                     </svg>
+                </motion.button>
+
+                {/* Left nav */}
+                <motion.button
+                    className={clsx(
+                        "group fixed top-1/2 -translate-y-1/2 left-4 z-[53] size-10 flex items-center justify-center p-0 border-none cursor-pointer",
+                        open && current > 0
+                            ? "pointer-events-auto"
+                            : "pointer-events-none",
+                    )}
+                    style={{ opacity: openSpring }}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={() => goToPage(current - 1)}
+                >
+                    <span className="size-10 rounded-full bg-[#EEE]/80 backdrop-blur-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 18 18"
+                            fill="none"
+                        >
+                            <path
+                                d="M11 3L5 9L11 15"
+                                stroke="#333"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
+                        </svg>
+                    </span>
+                </motion.button>
+
+                {/* Right nav */}
+                <motion.button
+                    className={clsx(
+                        "group fixed top-1/2 -translate-y-1/2 right-4 z-[53] size-10 flex items-center justify-center p-0 border-none cursor-pointer",
+                        open && current < items.length - 1
+                            ? "pointer-events-auto"
+                            : "pointer-events-none",
+                    )}
+                    style={{ opacity: openSpring }}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={() => goToPage(current + 1)}
+                >
+                    <span className="size-10 rounded-full bg-[#EEE]/80 backdrop-blur-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 18 18"
+                            fill="none"
+                        >
+                            <path
+                                d="M7 3L13 9L7 15"
+                                stroke="#333"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
+                        </svg>
+                    </span>
                 </motion.button>
 
                 {/* Rail / Gallery container */}
@@ -736,9 +801,12 @@ export function GalleryShell({ items: realItems, children }: { items: ItemData[]
                         }}
                     />
                 </div>
-                <AboutModal open={aboutOpen} onClose={closeAbout} directNav={isAboutDirectNav} />
+                <AboutModal
+                    open={aboutOpen}
+                    onClose={closeAbout}
+                    directNav={isAboutDirectNav}
+                />
             </div>
         </GalleryContext.Provider>
-
     );
 }

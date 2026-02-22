@@ -2,7 +2,7 @@
 export const GALLERY_H = 0.6;
 export const GALLERY_PAD = 32;
 export const RAIL_PAD = 16;
-export const RAIL_GAP = 64;
+export const RAIL_GAP = 24;
 
 // Spring configs
 export const MAIN_SPRING = { stiffness: 300, damping: 35 };

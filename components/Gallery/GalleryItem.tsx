@@ -430,22 +430,26 @@ export function GalleryItem({
                     opacity: textOpacity,
                 }}
             >
-                <div className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6">
-                    <div className="space-y-2">
-                        {year && <p className="text-sm text-muted">{year}</p>}
-                        <h2 className="font-bold text-2xl">{title}</h2>
-                        <p className="text-muted">{subtitle}</p>
+                {open && (
+                    <div className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6">
+                        <div className="space-y-2">
+                            {year && (
+                                <p className="text-sm text-muted">{year}</p>
+                            )}
+                            <h2 className="font-bold text-2xl">{title}</h2>
+                            <p className="text-muted">{subtitle}</p>
+                        </div>
+                        {noMSFT && <NoMSFTDisclaimer title={title} />}
+                        {mdxSource && !("error" in mdxSource) ? (
+                            <MDXClient {...mdxSource} components={components} />
+                        ) : (
+                            Array.from({ length: paras ?? 1 }, (_, j) => (
+                                <p key={j}>{LOREM}</p>
+                            ))
+                        )}
+                        <Footer />
                     </div>
-                    {noMSFT && <NoMSFTDisclaimer title={title} />}
-                    {mdxSource && !("error" in mdxSource) ? (
-                        <MDXClient {...mdxSource} components={components} />
-                    ) : (
-                        Array.from({ length: paras ?? 1 }, (_, j) => (
-                            <p key={j}>{LOREM}</p>
-                        ))
-                    )}
-                    <Footer />
-                </div>
+                )}
             </motion.div>
 
             {/* Transparent portal scroll track */}
