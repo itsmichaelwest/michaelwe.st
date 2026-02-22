@@ -36,7 +36,7 @@ const Post: React.FC<PostProps> = ({ postData, mdxSource }) => {
             <SEO
                 title={`${postData.title} - ${siteMetadata.title}`}
                 description={postData.description}
-                image={`images/${postData.id}/${postData.featuredImage}`}
+                image={`images/${postData.id}/${postData.heroImage}`}
                 type="article"
                 canonical={`/work/${postData.id}`}
             />
@@ -62,11 +62,11 @@ const Post: React.FC<PostProps> = ({ postData, mdxSource }) => {
                             </p>
                         )}
                     </div>
-                    {postData.featuredImage && (
+                    {postData.heroImage && (
                         <Image
                             className="w-full rounded-3xl shadow-xs ring ring-black/5 dark:ring-white/5"
-                            src={`/images/${postData.id}/${postData.featuredImage}`}
-                            alt={postData.featuredImageAlt}
+                            src={`/images/${postData.id}/${postData.heroImage}`}
+                            alt={postData.heroImageAlt}
                             width={1000}
                             height={700}
                             sizes="100vw"

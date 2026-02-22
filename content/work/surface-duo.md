@@ -6,9 +6,9 @@ aliases:
 category: "Microsoft"
 date: "2020-08-12"
 hideFromList: false
-featuredImage: hero.jpg
-featuredImageAlt: "Microsoft Surface Duo in its dual-screen configuration showing the home screen."
-featuredBlockImage: hero.jpg
+heroImage: hero.jpg
+heroAspectRatio: 1.333
+heroImageAlt: "Microsoft Surface Duo in its dual-screen configuration showing the home screen."
 officialURL: https://www.microsoft.com/en-us/surface/devices/surface-duo
 officialURLText: "See at Microsoft"
 isHero: true

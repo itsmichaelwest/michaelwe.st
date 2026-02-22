@@ -9,9 +9,9 @@ aliases:
 date: "2018-05-29"
 desType: "Design Concept"
 noMSFT: true
-featuredImage: hero.jpg
-featuredBlockImage: hero.jpg
-featuredImageAlt: "A top-down view of a laptop shows a Microsoft Store concept."
+heroImage: hero.jpg
+heroAspectRatio: 1.5
+heroImageAlt: "A top-down view of a laptop shows a Microsoft Store concept."
 ---
 
 In this exploration, I wanted to see if the NavigationView in Windows 10 apps could be adapted to fit in better with "Sets".

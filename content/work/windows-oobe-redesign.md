@@ -9,9 +9,9 @@ date: "2018-06-16"
 hideFromList: true
 category: "Design Concept"
 noMSFT: true
-featuredImage: hero.jpg
-featuredBlockImage: hero.jpg
-featuredImageAlt: "Two laptops display concepts of a setup experience."
+heroImage: hero.jpg
+heroAspectRatio: 1.778
+heroImageAlt: "Two laptops display concepts of a setup experience."
 ---
 
 This project focused on making the Windows Out Of Box Experience (OOBE) simpler and look more in line with the Fluent Design System that’s been making its way into Windows over the last year.

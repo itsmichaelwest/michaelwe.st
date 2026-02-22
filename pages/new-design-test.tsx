@@ -39,6 +39,7 @@ interface ItemData {
     aspect: number;
     railH: number;
     img?: string;
+    canonical?: string;
     color?: string;
     label?: string;
     paras?: number;
@@ -150,11 +151,12 @@ export const getStaticProps: GetStaticProps = async () => {
                 id: p.id,
                 title: p.title ?? p.id,
                 subtitle: p.description ?? p.category ?? "",
-                aspect: 1.0,
+                aspect: p.heroAspectRatio ?? 1.0,
                 railH: 0.8,
-                img: p.featuredBlockImage
-                    ? `/images/${p.id}/${p.featuredBlockImage}`
+                img: p.heroImage
+                    ? `/images/${p.id}/${p.heroImage}`
                     : undefined,
+                canonical: p.canonical ?? null,
                 mdxSource,
             };
         }),
@@ -674,7 +676,14 @@ export default function NewDesignTest({
                         e.clientY,
                         railOffset.get(),
                     );
-                    if (tapped >= 0) openGallery(tapped);
+                    if (tapped >= 0) {
+                        const canonical = items[tapped].canonical;
+                        if (canonical) {
+                            window.open(canonical, "_blank", "noopener");
+                        } else {
+                            openGallery(tapped);
+                        }
+                    }
                 }
             } else if (openRef.current) {
                 if (dragAxisRef.current === "x" && dragOnImageRef.current) {
@@ -717,7 +726,15 @@ export default function NewDesignTest({
                             dragStartRef.current.y,
                             railOffset.get(),
                         );
-                        if (nearest >= 0) openGallery(nearest);
+                        if (nearest >= 0) {
+                            const canonical = items[nearest].canonical;
+                            if (canonical) {
+                                openProgress.set(0);
+                                window.open(canonical, "_blank", "noopener");
+                            } else {
+                                openGallery(nearest);
+                            }
+                        }
                     } else {
                         openProgress.set(0);
                     }

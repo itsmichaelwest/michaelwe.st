@@ -6,9 +6,9 @@ aliases:
     - /projects/2019/06/12/microsoft-edge-for-ios-redesign/
 category: "Design Concept"
 noMSFT: true
-featuredImage: hero.jpg
-featuredBlockImage: hero.jpg
-featuredImageAlt: "iPhones display screenshots of a redesigned Microsoft Edge for mobile."
+heroImage: hero.jpg
+heroAspectRatio: 1.5
+heroImageAlt: "iPhones display screenshots of a redesigned Microsoft Edge for mobile."
 ---
 
 Designing mobile browsers is hard. Fitting the web in the palm of your hand has been a challenge that has been solved to varying degrees of success over the years.

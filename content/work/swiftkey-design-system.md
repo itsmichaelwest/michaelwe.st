@@ -5,8 +5,9 @@ aliases:
     - /swiftkey-design-system
 category: "Microsoft"
 date: "2020-07-31"
-featuredBlockImage: hero-block.png
-featuredImageAlt: "Various UI components from Microsoft SwiftKey."
+heroImage: hero-block.png
+heroAspectRatio: 1.0
+heroImageAlt: "Various UI components from Microsoft SwiftKey."
 hideFromList: false
 ---
 

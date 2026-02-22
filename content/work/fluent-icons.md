@@ -5,9 +5,9 @@ aliases:
     - /fluent-icons
 category: "Microsoft"
 date: "2020-07-31"
-featuredImage: hero.png
-featuredImageAlt: "A view of a collection of common Fluent Icons."
-featuredBlockImage: hero-block.png
+heroImage: hero.png
+heroAspectRatio: 1.778
+heroImageAlt: "A view of a collection of common Fluent Icons."
 officialURL: https://github.com/microsoft/fluentui-system-icons
 officialURLText: "View icon repository"
 hideFromList: false

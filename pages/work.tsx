@@ -15,8 +15,8 @@ const Work = ({ allPostsData }: { allPostsData: IPostData[] }) => (
                     id,
                     title,
                     description,
-                    featuredBlockImage,
-                    featuredImageAlt,
+                    heroImage,
+                    heroImageAlt,
                     canonical,
                 }) => (
                     <WorkBlock
@@ -24,8 +24,8 @@ const Work = ({ allPostsData }: { allPostsData: IPostData[] }) => (
                         title={title}
                         url={canonical ? canonical : `/work/${id}`}
                         description={description}
-                        image={`/images/${id}/${featuredBlockImage}`}
-                        imageAlt={featuredImageAlt}
+                        image={`/images/${id}/${heroImage}`}
+                        imageAlt={heroImageAlt}
                     />
                 ),
             )}

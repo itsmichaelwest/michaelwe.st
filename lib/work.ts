@@ -54,10 +54,9 @@ export interface IPostData {
     category?: string;
     date?: string;
     aliases?: string[];
-    featuredImage?: string;
-    featuredBlockImage?: string;
-    featuredImageAlt?: string;
-    featuredImageTwo?: string
+    heroImage?: string;
+    heroAspectRatio?: number;
+    heroImageAlt?: string;
     officialURL?: string;
     officialURLText?: string;
     noMSFT?: boolean;

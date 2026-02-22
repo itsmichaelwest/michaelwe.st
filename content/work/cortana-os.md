@@ -5,10 +5,9 @@ aliases:
     - /blog/2019/01/27/design-decisions-in-cortana-os/
 category: "Concept Sprint"
 date: "2019-01-27"
-featuredImage: hero.jpg
-featuredBlockImage: hero-block.jpg
-featuredImageAlt: "A tablet displays a screenshot of the Cortana OS Start menu."
-featuredImageTwitter: "hero.jpg"
+heroImage: hero.jpg
+heroAspectRatio: 1.5
+heroImageAlt: "A tablet displays a screenshot of the Cortana OS Start menu."
 noMSFT: true
 hideFromList: false
 ---

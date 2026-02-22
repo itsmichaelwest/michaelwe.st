@@ -7,9 +7,9 @@ aliases:
 date: "2018-07-20"
 category: "Design Concept"
 noMSFT: true
-featuredImage: hero.jpg
-featuredBlockImage: hero.jpg
-featuredImageAlt: "A Surface Pro shows a podcast app concept, with a pair of Surface Headphones in front of it."
+heroImage: hero.jpg
+heroAspectRatio: 1.5
+heroImageAlt: "A Surface Pro shows a podcast app concept, with a pair of Surface Headphones in front of it."
 ---
 
 This project focused on building a lightweight and modern podcast consumption app. While there are many great third-party podcasting apps on Windows, there’s no solution built into the OS—this app aims to fill that void.

@@ -7,9 +7,9 @@ aliases:
 date: "2018-03-30"
 category: "Design Concept"
 noMSFT: true
-featuredImage: hero.jpg
-featuredBlockImage: hero-block.jpg
-featuredImageAlt: "Two people sit using Surface Books. One is typing into a chat field, while the other is hovering a pen over the screen."
+heroImage: hero.jpg
+heroAspectRatio: 1.5
+heroImageAlt: "Two people sit using Surface Books. One is typing into a chat field, while the other is hovering a pen over the screen."
 officialURL: https://uxdesign.cc/designing-a-new-windows-shell-introducing-fluid-desktop-83a01beade91
 officialURLText: "Original article on UX Collective"
 ---

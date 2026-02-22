@@ -5,9 +5,9 @@ aliases:
     - /projects/2018/11/06/microsoft-store-editorial-content/
 date: "2018-11-06"
 category: "Freelance Project"
-featuredImage: hero.jpg
-featuredBlockImage: hero-block.jpg
-featuredImageAlt: "A tablet displaying a Microsoft Store concept."
+heroImage: hero.jpg
+heroAspectRatio: 1.5
+heroImageAlt: "A tablet displaying a Microsoft Store concept."
 twitter:
     image: hero.jpg
 officialURL: https://medium.com/user-camp/lessons-from-the-dark-side-6f8b6e2db5f7
