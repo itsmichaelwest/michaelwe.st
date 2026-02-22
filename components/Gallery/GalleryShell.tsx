@@ -638,7 +638,7 @@ export function GalleryShell({ items: realItems, children }: { items: ItemData[]
 
     return (
         <GalleryContext.Provider value={{ open, openSpring, aboutOpen, openAbout, closeAbout }}>
-            <div className="relative max-w-[80ch] w-full h-[60vh] mx-auto px-4 flex flex-col">
+            <div className="relative max-w-[80ch] w-full h-[80vh] md:h-[60vh] mx-auto px-4 flex flex-col">
                 {children}
 
                 {/* Back button */}
