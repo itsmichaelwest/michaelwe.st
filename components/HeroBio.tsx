@@ -5,7 +5,7 @@ import Face from "../public/images/michael-face.jpg";
 import { useGallery } from "./Gallery/GalleryContext";
 
 export function HeroBio() {
-    const { open } = useGallery();
+    const { open, openAbout } = useGallery();
 
     return (
         <motion.div
@@ -33,7 +33,15 @@ export function HeroBio() {
                     </p>
                 </div>
             </div>
-            <p>Hello</p>
+            <p>
+                Hello.{" "}
+                <button
+                    className="underline cursor-pointer bg-transparent border-none p-0 font-inherit text-inherit"
+                    onClick={() => openAbout()}
+                >
+                    About me
+                </button>
+            </p>
         </motion.div>
     );
 }

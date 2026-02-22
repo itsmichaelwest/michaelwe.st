@@ -35,11 +35,16 @@ import {
     maxRailScroll,
 } from "./utils";
 import { GalleryItem } from "./GalleryItem";
+import { AboutModal } from "../AboutModal";
 
 export function GalleryShell({ items: realItems, children }: { items: ItemData[]; children?: ReactNode }) {
     const isDirectNav = typeof window !== "undefined" &&
         /^(?:\/en)?\/work\/.+$/.test(window.location.pathname);
+    const isAboutDirectNav = typeof window !== "undefined" &&
+        window.location.pathname === "/about";
     const [open, setOpen] = useState(isDirectNav);
+    const [aboutOpen, setAboutOpen] = useState(isAboutDirectNav);
+    const aboutDirectNavRef = useRef(isAboutDirectNav);
     const [current, setCurrent] = useState(0);
     const { w: vw, h: vh } = useWindowSize();
     const items = useMemo(
@@ -179,6 +184,23 @@ export function GalleryShell({ items: realItems, children }: { items: ItemData[]
         }
     }, [openProgress, galleryDragX, centerRailOn]);
 
+    const openAbout = useCallback(() => {
+        setAboutOpen(true);
+        if (window.location.pathname !== "/about") {
+            history.pushState({ about: true }, "", "/about");
+        }
+    }, []);
+
+    const closeAbout = useCallback(() => {
+        setAboutOpen(false);
+        if (aboutDirectNavRef.current) {
+            aboutDirectNavRef.current = false;
+            history.replaceState(null, "", "/");
+        } else {
+            history.back();
+        }
+    }, []);
+
     const goToPage = useCallback(
         (i: number) => {
             const clamped = Math.max(0, Math.min(i, items.length - 1));
@@ -210,11 +232,17 @@ export function GalleryShell({ items: realItems, children }: { items: ItemData[]
         };
         window.addEventListener("keydown", onKey);
         return () => window.removeEventListener("keydown", onKey);
-    }, [closeGallery, goToPage]);
+    }, [closeGallery, goToPage, closeAbout]);
 
     // Popstate
     useEffect(() => {
         const onPopState = () => {
+            if (window.location.pathname === "/about") {
+                setAboutOpen(true);
+                return;
+            }
+            setAboutOpen(false);
+
             const match = window.location.pathname.match(/^(?:\/en)?\/work\/(.+)$/);
             if (match) {
                 const idx = idToIndex.get(match[1]);
@@ -609,8 +637,9 @@ export function GalleryShell({ items: realItems, children }: { items: ItemData[]
     if (!vw) return <div />;
 
     return (
-        <GalleryContext.Provider value={{ open, openSpring }}>
-            <div className="relative max-w-[80ch] w-full h-[60vh] mx-auto px-4 flex flex-col">
+                    <div className="relative max-w-[80ch] w-full h-[60vh] mx-auto px-4 flex flex-col">
+
+        <GalleryContext.Provider value={{ open, openSpring, aboutOpen, openAbout, closeAbout }}>
                 {children}
 
                 {/* Back button */}
@@ -695,7 +724,9 @@ export function GalleryShell({ items: realItems, children }: { items: ItemData[]
                         }}
                     />
                 </div>
-            </div>
+            <AboutModal open={aboutOpen} onClose={closeAbout} directNav={isAboutDirectNav} />
         </GalleryContext.Provider>
+                    </div>
+
     );
 }
