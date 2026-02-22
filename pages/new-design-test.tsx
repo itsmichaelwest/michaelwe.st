@@ -11,9 +11,11 @@ import {
     useSpring,
     useTransform,
     animate,
+    type MotionValue,
 } from "motion/react";
 import Head from "next/head";
 import Image from "next/image";
+import { createPortal } from "react-dom";
 
 import Face from "../public/images/michael-face.jpg";
 import clsx from "clsx";
@@ -194,7 +196,6 @@ export default function NewDesignTest() {
 
     const currentRef = useRef(0);
     const openRef = useRef(false);
-    const scrollMaxRef = useRef(0);
 
     const dragAxisRef = useRef<"x" | "y" | null>(null);
     const dragStartRef = useRef({ x: 0, y: 0 });
@@ -259,14 +260,22 @@ export default function NewDesignTest() {
     );
 
     const centerRailOn = useCallback(
-        (idx: number) => {
+        (idx: number, smooth = false) => {
             if (vw <= 0 || vh <= 0) return;
             const cH = containerRectRef.current.height;
             const w = railItemW(idx, cH);
             const center = railLeftOf(idx, cH) + w / 2;
             const max = maxRailScroll(cH, containerRectRef.current.width);
             const vpCenter = vw / 2 - containerRectRef.current.left;
-            railOffset.jump(Math.max(-max, Math.min(0, vpCenter - center)));
+            const target = Math.max(-max, Math.min(0, vpCenter - center));
+            if (smooth) {
+                animate(railOffset, target, {
+                    type: "spring",
+                    ...MAIN_SPRING,
+                });
+            } else {
+                railOffset.jump(target);
+            }
         },
         [railOffset, vw, vh],
     );
@@ -276,16 +285,10 @@ export default function NewDesignTest() {
         openRef.current = false;
         openProgress.set(0);
         galleryDragX.jump(0);
-        animate(galleryDragY, 0, { type: "spring", ...MAIN_SPRING });
-        galleryScrollY.jump(0);
-        centerRailOn(currentRef.current);
-    }, [
-        openProgress,
-        galleryDragX,
-        galleryDragY,
-        galleryScrollY,
-        centerRailOn,
-    ]);
+        // Don't animate galleryDragY — galDragY * progress fades naturally.
+        // Don't center rail — item returns to its original rail position
+        // without snap or sideways drift from competing springs.
+    }, [openProgress, galleryDragX]);
 
     const goToPage = useCallback(
         (i: number) => {
@@ -295,7 +298,7 @@ export default function NewDesignTest() {
             const drag = galleryDragX.get();
             galleryPageX.jump(galleryPageX.get() + drag);
             galleryDragX.jump(0);
-            animate(galleryScrollY, 0, { type: "spring", ...PAGE_SPRING });
+            galleryScrollY.jump(0);
             animate(galleryPageX, -clamped * vw, {
                 type: "spring",
                 ...PAGE_SPRING,
@@ -440,17 +443,6 @@ export default function NewDesignTest() {
                         // Drag down on image → dismiss gesture
                         galleryDragY.jump(dy);
                         openProgress.jump(1 - Math.min(dy / (vh * 0.3), 1));
-                    } else if (!dragOnImageRef.current) {
-                        // Drag on text area → scroll content
-                        const max = scrollMaxRef.current;
-                        const next = Math.max(
-                            0,
-                            Math.min(
-                                max,
-                                galleryScrollY.get() - (e.movementY || 0),
-                            ),
-                        );
-                        galleryScrollY.jump(next);
                     }
                 }
             } else {
@@ -619,6 +611,29 @@ export default function NewDesignTest() {
                     <p>Hello</p>
                 </div>
 
+                {/* Back button — outside gallery container for z-index above portal */}
+                <motion.button
+                    className={clsx(
+                        "fixed top-4 left-4 z-[53] size-10 flex items-center justify-center p-0 rounded-full bg-black/6 backdrop-blur-2xl border-none cursor-pointer",
+                        open
+                            ? "pointer-events-auto"
+                            : "pointer-events-none",
+                    )}
+                    style={{ opacity: openSpring }}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={closeGallery}
+                >
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                        <path
+                            d="M11 3L5 9L11 15"
+                            stroke="#333"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        />
+                    </svg>
+                </motion.button>
+
                 {/* Rail / Gallery container */}
                 <div
                     ref={containerRef}
@@ -633,29 +648,20 @@ export default function NewDesignTest() {
                     onPointerMove={onPointerMove}
                     onPointerUp={onPointerUp}
                     onWheel={(e) => {
-                        if (openRef.current) {
-                            // Gallery: scroll text content
-                            const max = scrollMaxRef.current;
-                            const next = Math.max(
-                                0,
-                                Math.min(max, galleryScrollY.get() + e.deltaY),
-                            );
-                            galleryScrollY.jump(next);
-                        } else {
-                            // Rail: horizontal scroll (trackpad deltaX or mousewheel deltaY)
-                            const delta =
-                                Math.abs(e.deltaX) > Math.abs(e.deltaY)
-                                    ? e.deltaX
-                                    : e.deltaY;
-                            const max = maxRailScroll(
-                                vh,
-                                containerRectRef.current.width,
-                            );
-                            const cur = railOffset.get();
-                            railOffset.jump(
-                                Math.max(-max, Math.min(0, cur - delta)),
-                            );
-                        }
+                        if (openRef.current) return; // text scroll is native now
+                        // Rail: horizontal scroll (trackpad deltaX or mousewheel deltaY)
+                        const delta =
+                            Math.abs(e.deltaX) > Math.abs(e.deltaY)
+                                ? e.deltaX
+                                : e.deltaY;
+                        const max = maxRailScroll(
+                            vh,
+                            containerRectRef.current.width,
+                        );
+                        const cur = railOffset.get();
+                        railOffset.jump(
+                            Math.max(-max, Math.min(0, cur - delta)),
+                        );
                     }}
                 >
                     {ITEMS.map((item, i) => (
@@ -678,41 +684,12 @@ export default function NewDesignTest() {
                             galleryDragX={galleryDragX}
                             galleryDragY={galleryDragY}
                             galleryScrollY={galleryScrollY}
-                            scrollMaxRef={scrollMaxRef}
+                            closeGallery={closeGallery}
+                            openProgressRaw={openProgress}
                             dragOnImageRef={dragOnImageRef}
                             containerRectRef={containerRectRef}
                         />
                     ))}
-
-                    {/* Back button — fades in/out with gallery */}
-                    <motion.button
-                        className={clsx(
-                            "fixed top-4 left-4 z-10 size-10 flex items-center justify-center p-0 rounded-full bg-black/6 backdrop-blur-2xl border-none cursor-pointer",
-                            open
-                                ? "pointer-events-auto"
-                                : "pointer-events-none",
-                        )}
-                        style={{
-                            opacity: openSpring,
-                        }}
-                        onPointerDown={(e) => e.stopPropagation()}
-                        onClick={closeGallery}
-                    >
-                        <svg
-                            width="18"
-                            height="18"
-                            viewBox="0 0 18 18"
-                            fill="none"
-                        >
-                            <path
-                                d="M11 3L5 9L11 15"
-                                stroke="#333"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            />
-                        </svg>
-                    </motion.button>
 
                     {/* Gallery backdrop — fixed overlay inside container for events + bg */}
                     <motion.div
@@ -754,7 +731,8 @@ function GalleryItem({
     galleryDragX,
     galleryDragY,
     galleryScrollY,
-    scrollMaxRef,
+    closeGallery,
+    openProgressRaw,
     dragOnImageRef,
     containerRectRef,
 }: {
@@ -773,9 +751,10 @@ function GalleryItem({
     railScroll: ReturnType<typeof useMotionValue>;
     galleryPageX: ReturnType<typeof useMotionValue>;
     galleryDragX: ReturnType<typeof useMotionValue>;
-    galleryDragY: ReturnType<typeof useMotionValue>;
-    galleryScrollY: ReturnType<typeof useMotionValue>;
-    scrollMaxRef: React.MutableRefObject<number>;
+    galleryDragY: MotionValue<number>;
+    galleryScrollY: MotionValue<number>;
+    closeGallery: () => void;
+    openProgressRaw: MotionValue<number>;
     dragOnImageRef: React.MutableRefObject<boolean>;
     containerRectRef: React.RefObject<{
         left: number;
@@ -847,18 +826,118 @@ function GalleryItem({
         },
     );
 
-    // Space below centered image to viewport bottom (text overflows container via overflow:visible)
-    const galNudge = (vh - GALLERY_H * vh * galScale) / 2;
-    const textMeasureRef = useCallback(
-        (node: HTMLDivElement | null) => {
-            if (!node) {
-                scrollMaxRef.current = 0;
+    // Portal scroll container for native scroll
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+    // Static spacer: image bottom when fully open
+    const imageBottom = (vh + GALLERY_H * vh * galScale) / 2;
+
+    // Portal text scale: shrinks with image during dismiss
+    const portalTextScale = useTransform(openSpring, (progress) => {
+        const currentScale = sRail + progress * (galScale - sRail);
+        return currentScale / galScale;
+    });
+
+    // Portal text opacity: fades with open spring AND immediately with overscroll drag
+    const portalTextOpacity = useTransform(
+        [openSpring, galleryDragY] as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        ([progress, dragY]: number[]) => {
+            const overscrollFade = Math.max(0, 1 - dragY / (vh * 0.15));
+            return progress * overscrollFade;
+        },
+    );
+
+    // Overscroll-to-dismiss: non-passive wheel listener on portal element
+    useEffect(() => {
+        if (!isActive) return;
+        const el = scrollContainerRef.current;
+        if (!el) return;
+
+        let accum = 0;
+        let inOverscroll = false;
+        let closing = false;
+        let idleTimer: ReturnType<typeof setTimeout> | null = null;
+
+        const resetIdle = () => {
+            if (idleTimer) clearTimeout(idleTimer);
+            idleTimer = setTimeout(() => {
+                if (!inOverscroll || closing) return;
+                inOverscroll = false;
+                accum = 0;
+                openProgressRaw.set(1);
+                animate(galleryDragY, 0, {
+                    type: "spring",
+                    ...MAIN_SPRING,
+                });
+            }, 150);
+        };
+
+        const onWheel = (e: WheelEvent) => {
+            if (closing) {
+                e.preventDefault();
                 return;
             }
-            scrollMaxRef.current = Math.max(0, node.offsetHeight - galNudge);
-        },
-        [scrollMaxRef, galNudge],
-    );
+
+            if (inOverscroll) {
+                e.preventDefault();
+                if (e.deltaY > 2) {
+                    inOverscroll = false;
+                    accum = 0;
+                    openProgressRaw.set(1);
+                    animate(galleryDragY, 0, {
+                        type: "spring",
+                        ...MAIN_SPRING,
+                    });
+                    return;
+                }
+                accum = Math.max(0, accum - e.deltaY);
+                galleryDragY.jump(accum);
+                openProgressRaw.jump(
+                    Math.max(0, 1 - accum / (vh * 0.3)),
+                );
+                if (accum > vh * 0.2) {
+                    closing = true;
+                    inOverscroll = false;
+                    closeGallery();
+                    return;
+                }
+                resetIdle();
+                return;
+            }
+
+            // At top + scrolling up → enter overscroll
+            if (el.scrollTop <= 0 && e.deltaY < 0) {
+                e.preventDefault();
+                inOverscroll = true;
+                accum = -e.deltaY;
+                galleryDragY.jump(accum);
+                openProgressRaw.jump(
+                    Math.max(0, 1 - accum / (vh * 0.3)),
+                );
+                resetIdle();
+                return;
+            }
+            // Otherwise: native scroll handles it
+        };
+
+        el.addEventListener("wheel", onWheel, { passive: false });
+        return () => {
+            el.removeEventListener("wheel", onWheel);
+            if (idleTimer) clearTimeout(idleTimer);
+        };
+    }, [isActive, vh, closeGallery, openProgressRaw, galleryDragY]);
+
+    // Sync native scroll position → galleryScrollY so image moves with text
+    useEffect(() => {
+        if (!isActive) return;
+        const el = scrollContainerRef.current;
+        if (!el) return;
+        const onScroll = () => {
+            galleryScrollY.jump(el.scrollTop);
+        };
+        el.addEventListener("scroll", onScroll, { passive: true });
+        return () => el.removeEventListener("scroll", onScroll);
+    }, [isActive, galleryScrollY]);
 
     return (
         <motion.div
@@ -898,28 +977,64 @@ function GalleryItem({
                 )}
             </motion.div>
 
-            {/* Text panel — opacity from open spring × proximity to center */}
-            <motion.div
-                className="absolute top-full left-1/2 w-screen pointer-events-none"
-                style={{
-                    transform: `translateX(-50%) scale(${textScale})`,
-                    transformOrigin: "top center",
-                    opacity: textOpacity,
-                }}
-            >
-                <div
-                    ref={index === current ? textMeasureRef : undefined}
-                    className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6"
+            {/* Non-active: absolute text for page-swipe fades */}
+            {!isActive && (
+                <motion.div
+                    className="absolute top-full left-1/2 w-screen pointer-events-none"
+                    style={{
+                        transform: `translateX(-50%) scale(${textScale})`,
+                        transformOrigin: "top center",
+                        opacity: textOpacity,
+                    }}
                 >
-                    <div className="space-y-2">
-                        <h2 className="font-bold text-2xl">{title}</h2>
-                        <p className="text-muted">{subtitle}</p>
+                    <div className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6">
+                        <div className="space-y-2">
+                            <h2 className="font-bold text-2xl">{title}</h2>
+                            <p className="text-muted">{subtitle}</p>
+                        </div>
+                        {Array.from({ length: paras }, (_, j) => (
+                            <p key={j}>{LOREM}</p>
+                        ))}
                     </div>
-                    {Array.from({ length: paras }, (_, j) => (
-                        <p key={j}>{LOREM}</p>
-                    ))}
-                </div>
-            </motion.div>
+                </motion.div>
+            )}
+
+            {/* Active: portal with native scroll */}
+            {isActive &&
+                typeof document !== "undefined" &&
+                createPortal(
+                    <div
+                        ref={scrollContainerRef}
+                        className="fixed inset-0 overflow-y-auto z-[52]"
+                        style={{ overscrollBehavior: "none" }}
+                        onPointerDown={(e) => e.stopPropagation()}
+                    >
+                        {/* Spacer: pushes text below the centered image */}
+                        <div
+                            style={{ height: imageBottom }}
+                            className="pointer-events-none"
+                        />
+                        <motion.div
+                            style={{
+                                opacity: portalTextOpacity,
+                                scale: portalTextScale,
+                                transformOrigin: "top center",
+                            }}
+                            className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6"
+                        >
+                            <div className="space-y-2">
+                                <h2 className="font-bold text-2xl">
+                                    {title}
+                                </h2>
+                                <p className="text-muted">{subtitle}</p>
+                            </div>
+                            {Array.from({ length: paras }, (_, j) => (
+                                <p key={j}>{LOREM}</p>
+                            ))}
+                        </motion.div>
+                    </div>,
+                    document.body,
+                )}
         </motion.div>
     );
 }
