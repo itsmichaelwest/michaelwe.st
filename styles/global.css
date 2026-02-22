@@ -57,7 +57,7 @@
 @utility text-secondary { color: var(--semantic-text-secondary); }
 @utility text-muted { color: var(--semantic-text-muted); }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   .text-heading { color: var(--semantic-text-heading-dark); }
   .text-primary { color: var(--semantic-text-primary-dark); }
   .text-secondary { color: var(--semantic-text-secondary-dark); }
@@ -76,4 +76,9 @@
     body {
         background-color: #000;
     }
+} */
+
+html,
+body {
+    background-color: #fff;
 }

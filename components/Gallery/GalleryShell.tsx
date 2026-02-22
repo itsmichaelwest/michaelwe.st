@@ -637,9 +637,8 @@ export function GalleryShell({ items: realItems, children }: { items: ItemData[]
     if (!vw) return <div />;
 
     return (
-                    <div className="relative max-w-[80ch] w-full h-[60vh] mx-auto px-4 flex flex-col">
-
         <GalleryContext.Provider value={{ open, openSpring, aboutOpen, openAbout, closeAbout }}>
+            <div className="relative max-w-[80ch] w-full h-[60vh] mx-auto px-4 flex flex-col">
                 {children}
 
                 {/* Back button */}
@@ -724,9 +723,9 @@ export function GalleryShell({ items: realItems, children }: { items: ItemData[]
                         }}
                     />
                 </div>
-            <AboutModal open={aboutOpen} onClose={closeAbout} directNav={isAboutDirectNav} />
+                <AboutModal open={aboutOpen} onClose={closeAbout} directNav={isAboutDirectNav} />
+            </div>
         </GalleryContext.Provider>
-                    </div>
 
     );
 }

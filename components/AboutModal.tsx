@@ -24,7 +24,7 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
     const aboutSpring = useSpring(aboutProgress, MAIN_SPRING);
     const contentScale = useTransform(aboutSpring, [0, 1], [0.97, 1]);
     const backdropBlur = useTransform(aboutSpring, (v) => `blur(${v * 4}px)`);
-    const backdropBg = useTransform(aboutSpring, [0, 1], ["rgb(255 255 255 / 0)", "rgb(255 255 255 / 1)"]);
+    const backdropBg = useTransform(aboutSpring, [0, 1], ["rgb(255 255 255 / 0)", "rgb(255 255 255 / 0.8)"]);
 
     useEffect(() => {
         if (directNav) {
@@ -60,17 +60,17 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
             {/* Content panel */}
             <motion.div
                 className={clsx(
-                    "absolute inset-0 z-150 overflow-hidden px-4",
+                    "fixed inset-0 lg:absolute lg:inset-0 z-150 overflow-y-auto",
                     open ? "pointer-events-auto" : "pointer-events-none",
                 )}
                 style={{ opacity: aboutSpring, scale: contentScale }}
             >
-                <article className="w-full h-full grid grid-cols-2 gap-16 items-center">
+                <article className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-start px-4 py-16">
                         <Image
                             src={PortraitTall}
                             alt="Photo of Michael"
                         />
-                        <section className="h-full space-y-8 overflow-y-auto">
+                        <section className="space-y-8">
                                 <p>
                                     I&apos;m a self-taught designer with an engineering
                                     background, specializing in simple and effortless
@@ -144,7 +144,7 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
             {/* Close button */}
             <motion.button
                 className={clsx(
-                    "fixed top-6 right-6 z-[62] size-10 flex items-center justify-center rounded-full bg-[#EEE]/80 backdrop-blur-2xl border-none cursor-pointer",
+                    "fixed top-4 right-4 z-200 size-10 flex items-center justify-center rounded-full bg-[#EEE]/80 backdrop-blur-2xl border-none cursor-pointer",
                     open ? "pointer-events-auto" : "pointer-events-none",
                 )}
                 style={{ opacity: aboutSpring }}
