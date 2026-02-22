@@ -16,7 +16,6 @@ import {
 import Head from "next/head";
 import Image from "next/image";
 import { createPortal } from "react-dom";
-
 import Face from "../public/images/michael-face.jpg";
 import clsx from "clsx";
 
@@ -157,13 +156,17 @@ function railLeftOf(i: number, containerH: number) {
     return x;
 }
 
-function maxRailScroll(containerH: number, containerW: number) {
+function totalRailW(containerH: number) {
     let total = RAIL_PAD * 2;
     for (let i = 0; i < ITEMS.length; i++) {
         total += railItemW(i, containerH);
         if (i < ITEMS.length - 1) total += RAIL_GAP;
     }
-    return Math.max(0, total - containerW);
+    return total;
+}
+
+function maxRailScroll(containerH: number, containerW: number) {
+    return Math.max(0, totalRailW(containerH) - containerW);
 }
 
 // ── Hooks ─────────────────────────────────────────────────────
@@ -285,10 +288,8 @@ export default function NewDesignTest() {
         openRef.current = false;
         openProgress.set(0);
         galleryDragX.jump(0);
-        // Don't animate galleryDragY — galDragY * progress fades naturally.
-        // Don't center rail — item returns to its original rail position
-        // without snap or sideways drift from competing springs.
-    }, [openProgress, galleryDragX]);
+        centerRailOn(currentRef.current, true);
+    }, [openProgress, galleryDragX, centerRailOn]);
 
     const goToPage = useCallback(
         (i: number) => {
@@ -583,6 +584,7 @@ export default function NewDesignTest() {
         <>
             <Head>
                 <title>Design Test</title>
+                <style>{`html { overscroll-behavior-x: none; }`}</style>
             </Head>
 
             <div className="relative max-w-[80ch] w-full h-[60vh] mx-auto px-4 flex flex-col">
@@ -648,19 +650,15 @@ export default function NewDesignTest() {
                     onPointerMove={onPointerMove}
                     onPointerUp={onPointerUp}
                     onWheel={(e) => {
-                        if (openRef.current) return; // text scroll is native now
-                        // Rail: horizontal scroll (trackpad deltaX or mousewheel deltaY)
-                        const delta =
-                            Math.abs(e.deltaX) > Math.abs(e.deltaY)
-                                ? e.deltaX
-                                : e.deltaY;
+                        if (openRef.current) return;
+                        if (Math.abs(e.deltaX) < 1) return;
                         const max = maxRailScroll(
-                            vh,
+                            containerRectRef.current.height,
                             containerRectRef.current.width,
                         );
                         const cur = railOffset.get();
                         railOffset.jump(
-                            Math.max(-max, Math.min(0, cur - delta)),
+                            Math.max(-max, Math.min(0, cur - e.deltaX)),
                         );
                     }}
                 >
@@ -704,6 +702,7 @@ export default function NewDesignTest() {
                         }}
                     />
                 </div>
+
             </div>
         </>
     );
@@ -826,30 +825,36 @@ function GalleryItem({
         },
     );
 
-    // Portal scroll container for native scroll
-    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    // Measure text height for portal scroll track
+    const textRef = useRef<HTMLDivElement>(null);
+    const [textHeight, setTextHeight] = useState(0);
+    useEffect(() => {
+        const el = textRef.current;
+        if (!el) return;
+        const update = () => setTextHeight(el.offsetHeight);
+        update();
+        const ro = new ResizeObserver(update);
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, []);
 
-    // Static spacer: image bottom when fully open
+    // Portal scroll track: transparent native scroll container
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
     const imageBottom = (vh + GALLERY_H * vh * galScale) / 2;
 
-    // Portal text scale: shrinks with image during dismiss
-    const portalTextScale = useTransform(openSpring, (progress) => {
-        const currentScale = sRail + progress * (galScale - sRail);
-        return currentScale / galScale;
-    });
-
-    // Portal text opacity: fades with open spring AND immediately with overscroll drag
-    const portalTextOpacity = useTransform(
-        [openSpring, galleryDragY] as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-        ([progress, dragY]: number[]) => {
-            const overscrollFade = Math.max(0, 1 - dragY / (vh * 0.15));
-            return progress * overscrollFade;
-        },
-    );
-
-    // Overscroll-to-dismiss: non-passive wheel listener on portal element
+    // Delay portal mount until open animation completes
+    const [showPortal, setShowPortal] = useState(false);
     useEffect(() => {
-        if (!isActive) return;
+        if (isActive) {
+            const timer = setTimeout(() => setShowPortal(true), 350);
+            return () => clearTimeout(timer);
+        }
+        setShowPortal(false);
+    }, [isActive]);
+
+    // Overscroll-to-dismiss: non-passive wheel listener on portal
+    useEffect(() => {
+        if (!showPortal) return;
         const el = scrollContainerRef.current;
         if (!el) return;
 
@@ -917,7 +922,7 @@ function GalleryItem({
                 resetIdle();
                 return;
             }
-            // Otherwise: native scroll handles it
+            // Otherwise: browser native scroll handles it
         };
 
         el.addEventListener("wheel", onWheel, { passive: false });
@@ -925,11 +930,11 @@ function GalleryItem({
             el.removeEventListener("wheel", onWheel);
             if (idleTimer) clearTimeout(idleTimer);
         };
-    }, [isActive, vh, closeGallery, openProgressRaw, galleryDragY]);
+    }, [showPortal, vh, closeGallery, openProgressRaw, galleryDragY]);
 
-    // Sync native scroll position → galleryScrollY so image moves with text
+    // Sync native scroll → galleryScrollY so image moves with text
     useEffect(() => {
-        if (!isActive) return;
+        if (!showPortal) return;
         const el = scrollContainerRef.current;
         if (!el) return;
         const onScroll = () => {
@@ -937,7 +942,7 @@ function GalleryItem({
         };
         el.addEventListener("scroll", onScroll, { passive: true });
         return () => el.removeEventListener("scroll", onScroll);
-    }, [isActive, galleryScrollY]);
+    }, [showPortal, galleryScrollY]);
 
     return (
         <motion.div
@@ -977,30 +982,29 @@ function GalleryItem({
                 )}
             </motion.div>
 
-            {/* Non-active: absolute text for page-swipe fades */}
-            {!isActive && (
-                <motion.div
-                    className="absolute top-full left-1/2 w-screen pointer-events-none"
-                    style={{
-                        transform: `translateX(-50%) scale(${textScale})`,
-                        transformOrigin: "top center",
-                        opacity: textOpacity,
-                    }}
-                >
-                    <div className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6">
-                        <div className="space-y-2">
-                            <h2 className="font-bold text-2xl">{title}</h2>
-                            <p className="text-muted">{subtitle}</p>
-                        </div>
-                        {Array.from({ length: paras }, (_, j) => (
-                            <p key={j}>{LOREM}</p>
-                        ))}
+            {/* Text anchored to item — scales with wrapper during open/close/dismiss */}
+            <motion.div
+                ref={textRef}
+                className="absolute top-full left-1/2 w-screen pointer-events-none"
+                style={{
+                    transform: `translateX(-50%) scale(${textScale})`,
+                    transformOrigin: "top center",
+                    opacity: textOpacity,
+                }}
+            >
+                <div className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6">
+                    <div className="space-y-2">
+                        <h2 className="font-bold text-2xl">{title}</h2>
+                        <p className="text-muted">{subtitle}</p>
                     </div>
-                </motion.div>
-            )}
+                    {Array.from({ length: paras }, (_, j) => (
+                        <p key={j}>{LOREM}</p>
+                    ))}
+                </div>
+            </motion.div>
 
-            {/* Active: portal with native scroll */}
-            {isActive &&
+            {/* Transparent portal scroll track — provides native scroll mechanics */}
+            {showPortal &&
                 typeof document !== "undefined" &&
                 createPortal(
                     <div
@@ -1009,29 +1013,11 @@ function GalleryItem({
                         style={{ overscrollBehavior: "none" }}
                         onPointerDown={(e) => e.stopPropagation()}
                     >
-                        {/* Spacer: pushes text below the centered image */}
+                        {/* Spacer: image area + text height = total scroll content */}
                         <div
-                            style={{ height: imageBottom }}
+                            style={{ height: imageBottom + textHeight }}
                             className="pointer-events-none"
                         />
-                        <motion.div
-                            style={{
-                                opacity: portalTextOpacity,
-                                scale: portalTextScale,
-                                transformOrigin: "top center",
-                            }}
-                            className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6"
-                        >
-                            <div className="space-y-2">
-                                <h2 className="font-bold text-2xl">
-                                    {title}
-                                </h2>
-                                <p className="text-muted">{subtitle}</p>
-                            </div>
-                            {Array.from({ length: paras }, (_, j) => (
-                                <p key={j}>{LOREM}</p>
-                            ))}
-                        </motion.div>
                     </div>,
                     document.body,
                 )}
