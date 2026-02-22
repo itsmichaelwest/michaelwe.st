@@ -10,7 +10,7 @@ export function HeroBio() {
     return (
         <motion.div
             className={clsx(
-                "flex flex-col gap-4 transition-opacity duration-200",
+                "grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-4",
                 !open
                     ? "pointer-events-auto"
                     : "pointer-events-none",
@@ -20,6 +20,7 @@ export function HeroBio() {
                 filter: open ? "blur(4px)" : "blur(0px)",
             }}
         >
+            <div className="space-y-4">
             <div className="flex gap-4 items-center">
                 <Image
                     className="w-10 rounded-full shadow ring ring-black/10 dark:ring-white/5"
@@ -27,21 +28,25 @@ export function HeroBio() {
                     alt="Photo of Michael"
                 />
                 <div className="-space-y-1">
-                    <h1 className="font-semibold">Michael</h1>
+                    <h1 className="font-semibold">Michael West</h1>
                     <p className="font-medium text-muted">
                         Senior Designer at Microsoft
                     </p>
                 </div>
             </div>
             <p>
-                Hello.{" "}
+                Hello
+            </p>
+            </div>
+
+            <div className="flex items-start justify-start lg:justify-end">
                 <button
                     className="underline cursor-pointer bg-transparent border-none p-0 font-inherit text-inherit"
                     onClick={() => openAbout()}
                 >
-                    About me
+                    About
                 </button>
-            </p>
+            </div>
         </motion.div>
     );
 }
