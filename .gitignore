@@ -19,6 +19,9 @@
 .DS_Store
 .env*
 
+# typescript
+tsconfig.tsbuildinfo
+
 # debug
 npm-debug.log*
 yarn-debug.log*

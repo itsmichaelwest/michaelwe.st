@@ -1,14 +1,15 @@
-import siteMetadata from "../siteMetadata";
+import type { Metadata } from "next";
 import Link from "next/link";
-import SEO from "../components/SEO";
+import siteMetadata from "../siteMetadata";
 
-const NotFound = () => (
-    <>
-        <SEO
-            title={`Page not found - ${siteMetadata.title}`}
-            description={siteMetadata.description}
-            noIndex
-        />
+export const metadata: Metadata = {
+    title: `Page not found - ${siteMetadata.title}`,
+    description: siteMetadata.description,
+    robots: { index: false, follow: false },
+};
+
+export default function NotFound() {
+    return (
         <div
             style={{
                 textAlign: "center",
@@ -34,7 +35,5 @@ const NotFound = () => (
             </p>
             <p className="text-sm text-muted">HTTP 404</p>
         </div>
-    </>
-);
-
-export default NotFound;
+    );
+}

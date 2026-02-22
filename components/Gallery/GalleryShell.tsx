@@ -1,3 +1,5 @@
+"use client";
+
 import {
     useState,
     useEffect,
@@ -36,11 +38,10 @@ import {
 } from "./utils";
 import { GalleryItem } from "./GalleryItem";
 import { AboutModal } from "../AboutModal";
-import SEO from "../SEO";
 
 export function GalleryShell({ items: realItems, children }: { items: ItemData[]; children?: ReactNode }) {
     const isDirectNav = typeof window !== "undefined" &&
-        /^(?:\/en)?\/work\/.+$/.test(window.location.pathname);
+        /^\/work\/.+$/.test(window.location.pathname);
     const isAboutDirectNav = typeof window !== "undefined" &&
         window.location.pathname === "/about";
     const [open, setOpen] = useState(isDirectNav);
@@ -116,7 +117,7 @@ export function GalleryShell({ items: realItems, children }: { items: ItemData[]
     useLayoutEffect(() => {
         if (vw <= 0 || directNavChecked.current) return;
         directNavChecked.current = true;
-        const match = window.location.pathname.match(/^(?:\/en)?\/work\/(.+)$/);
+        const match = window.location.pathname.match(/^\/work\/(.+)$/);
         if (!match) return;
         const idx = idToIndex.get(match[1]);
         if (idx == null) return;
@@ -244,7 +245,7 @@ export function GalleryShell({ items: realItems, children }: { items: ItemData[]
             }
             setAboutOpen(false);
 
-            const match = window.location.pathname.match(/^(?:\/en)?\/work\/(.+)$/);
+            const match = window.location.pathname.match(/^\/work\/(.+)$/);
             if (match) {
                 const idx = idToIndex.get(match[1]);
                 if (idx != null && !openRef.current) openGallery(idx);
@@ -259,6 +260,17 @@ export function GalleryShell({ items: realItems, children }: { items: ItemData[]
         window.addEventListener("popstate", onPopState);
         return () => window.removeEventListener("popstate", onPopState);
     }, [idToIndex, openGallery, openProgress, galleryDragX, centerRailOn]);
+
+    // Update document.title for client-side navigation
+    useEffect(() => {
+        if (aboutOpen) {
+            document.title = "About — Michael";
+        } else if (open && items[current]) {
+            document.title = `${items[current].title} — Michael`;
+        } else {
+            document.title = "Michael";
+        }
+    }, [open, aboutOpen, current, items]);
 
     // Recalculate positions on resize
     useEffect(() => {
@@ -639,21 +651,6 @@ export function GalleryShell({ items: realItems, children }: { items: ItemData[]
 
     return (
         <GalleryContext.Provider value={{ open, openSpring, aboutOpen, openAbout, closeAbout }}>
-            {open && items[current] && !items[current].canonical && (
-                <SEO
-                    title={`${items[current].title} — Michael`}
-                    description={items[current].subtitle}
-                    image={items[current].img}
-                    canonical={`/work/${items[current].id}`}
-                />
-            )}
-            {aboutOpen && (
-                <SEO
-                    title="About — Michael"
-                    description="About Michael West"
-                    canonical="/about"
-                />
-            )}
             <div className="relative max-w-[80ch] w-full h-[80vh] md:h-[60vh] mx-auto px-4 flex flex-col">
                 {children}
 

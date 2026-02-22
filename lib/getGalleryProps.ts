@@ -19,6 +19,7 @@ const mdxOptions: SerializeOptions = {
 };
 
 export async function getGalleryItems(): Promise<ItemData[]> {
+    "use cache";
     const posts = getSortedWorkData().filter((p) => !p.hideFromList);
 
     return Promise.all(

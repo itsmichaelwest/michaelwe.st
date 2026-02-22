@@ -1,5 +1,6 @@
 module.exports = {
     reactStrictMode: true,
+    cacheComponents: true,
     turbopack: {
         rules: {
             "*.svg": {
@@ -112,10 +113,6 @@ module.exports = {
                 permanent: true,
             },
         ];
-    },
-    i18n: {
-        locales: ["en"],
-        defaultLocale: "en",
     },
     webpack(config) {
         config.module.rules.push({
