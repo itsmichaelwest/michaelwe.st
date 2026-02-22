@@ -793,7 +793,7 @@ export function GalleryShell({
                     {/* Gallery backdrop */}
                     <motion.div
                         className={clsx(
-                            "fixed inset-0 z-0",
+                            "fixed inset-0 z-0 select-none",
                             open
                                 ? "pointer-events-auto"
                                 : "pointer-events-none",

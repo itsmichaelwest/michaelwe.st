@@ -159,22 +159,35 @@ export function GalleryItem({
         },
     );
 
-    const textRef = useRef<HTMLDivElement>(null);
-    const [textHeight, setTextHeight] = useState(0);
-    useEffect(() => {
-        const el = textRef.current;
-        if (!el) return;
-        const update = () => setTextHeight(el.offsetHeight);
-        update();
-        const ro = new ResizeObserver(update);
-        ro.observe(el);
-        return () => ro.disconnect();
-    }, []);
-
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const thumbRef = useRef<HTMLDivElement>(null);
     const scrollbarIdleRef = useRef<ReturnType<typeof setTimeout>>(undefined);
     const imageBottom = (vh + GALLERY_H * vh * galScale) / 2;
+
+    // Touch gesture on image for mobile swipe/dismiss
+    const imageElRef = useRef<HTMLDivElement>(null);
+    const imageSwipeRef = useRef<{
+        startX: number;
+        startY: number;
+        axis: "x" | "y" | null;
+        lastX: number;
+        lastT: number;
+        vx: number;
+    } | null>(null);
+
+    // Measure text content height for portal spacer
+    const textWrapperRef = useRef<HTMLDivElement>(null);
+    const [textHeight, setTextHeight] = useState(0);
+    useEffect(() => {
+        if (!open) return;
+        const el = textWrapperRef.current;
+        if (!el) return;
+        const ro = new ResizeObserver(() => {
+            setTextHeight(el.offsetHeight);
+        });
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, [open]);
 
     const [showPortal, setShowPortal] = useState(false);
     useEffect(() => {
@@ -258,8 +271,7 @@ export function GalleryItem({
         };
     }, [showPortal, vh, closeGallery, openProgressRaw, galleryDragY]);
 
-    // Sync native scroll -> localScrollY; detect iOS negative scrollTop for dismiss
-    // Also update custom scrollbar thumb position
+    // Sync native scroll -> localScrollY + update custom scrollbar thumb
     const updateThumb = useCallback((el: HTMLElement) => {
         const thumb = thumbRef.current;
         if (!thumb) return;
@@ -318,96 +330,259 @@ export function GalleryItem({
         updateThumb,
     ]);
 
-    // Touch horizontal swipe on portal for page navigation (mobile)
-    const portalSwipeRef = useRef<{
-        startX: number;
-        active: boolean;
-        lastX: number;
-        lastT: number;
-        vx: number;
-    } | null>(null);
+    // Touch swipe/dismiss on image for mobile (native touch events have implicit capture)
+    useEffect(() => {
+        if (!isActive) return;
+        const el = imageElRef.current;
+        if (!el) return;
 
-    const onPortalPointerDown = useCallback(
-        (e: React.PointerEvent) => {
-            if (e.pointerType !== "touch") return;
-            e.stopPropagation();
-            const scrolled = scrollContainerRef.current?.scrollTop ?? 0;
-            if (e.clientY > imageBottom - scrolled) return;
-            portalSwipeRef.current = {
-                startX: e.clientX,
-                active: false,
-                lastX: e.clientX,
+        const onTouchStart = (e: TouchEvent) => {
+            const touch = e.touches[0];
+            imageSwipeRef.current = {
+                startX: touch.clientX,
+                startY: touch.clientY,
+                axis: null,
+                lastX: touch.clientX,
                 lastT: performance.now(),
                 vx: 0,
             };
-            (e.target as HTMLElement).setPointerCapture(e.pointerId);
-        },
-        [imageBottom],
-    );
+        };
 
-    const onPortalPointerMove = useCallback(
-        (e: React.PointerEvent) => {
-            e.stopPropagation();
-            const ref = portalSwipeRef.current;
+        const onTouchMove = (e: TouchEvent) => {
+            const ref = imageSwipeRef.current;
             if (!ref) return;
-            const dx = e.clientX - ref.startX;
+            const touch = e.touches[0];
+            const dx = touch.clientX - ref.startX;
+            const dy = touch.clientY - ref.startY;
 
             const now = performance.now();
             const dt = now - ref.lastT;
-            if (dt > 0) ref.vx = (e.clientX - ref.lastX) / dt;
-            ref.lastX = e.clientX;
+            if (dt > 0) ref.vx = (touch.clientX - ref.lastX) / dt;
+            ref.lastX = touch.clientX;
             ref.lastT = now;
 
-            if (!ref.active) {
-                if (Math.abs(dx) > 5) {
-                    ref.active = true;
-                } else return;
+            if (!ref.axis) {
+                if (Math.abs(dx) > 5 || Math.abs(dy) > 5)
+                    ref.axis = Math.abs(dx) > Math.abs(dy) ? "x" : "y";
+                else return;
             }
-            let offsetX = dx;
-            const isFirst = index === 0;
-            const isLast = index === itemCount - 1;
-            if ((isFirst && dx > 0) || (isLast && dx < 0))
-                offsetX *= RUBBER_BAND_K;
-            galleryDragX.jump(offsetX);
-        },
-        [galleryDragX, index, itemCount],
-    );
 
-    const onPortalPointerUp = useCallback(
-        (e: React.PointerEvent) => {
-            e.stopPropagation();
-            const ref = portalSwipeRef.current;
-            if (!ref?.active) {
-                portalSwipeRef.current = null;
+            if (ref.axis === "x") {
+                let offsetX = dx;
+                if (
+                    (index === 0 && dx > 0) ||
+                    (index === itemCount - 1 && dx < 0)
+                )
+                    offsetX *= RUBBER_BAND_K;
+                galleryDragX.jump(offsetX);
+            } else if (ref.axis === "y" && dy > 0) {
+                galleryDragY.jump(dy);
+                openProgressRaw.jump(1 - Math.min(dy / (vh * 0.3), 1));
+            }
+        };
+
+        const onTouchEnd = (e: TouchEvent) => {
+            const ref = imageSwipeRef.current;
+            if (!ref) return;
+            imageSwipeRef.current = null;
+            if (!ref.axis) return;
+            const touch = e.changedTouches[0];
+            const dx = touch.clientX - ref.startX;
+            const dy = touch.clientY - ref.startY;
+
+            if (ref.axis === "x") {
+                const threshold = vw * GALLERY_PAGE_THRESHOLD;
+                if (dx < -threshold || ref.vx < -GALLERY_DISMISS_VELOCITY)
+                    goToPage(index + 1);
+                else if (dx > threshold || ref.vx > GALLERY_DISMISS_VELOCITY)
+                    goToPage(index - 1);
+                else
+                    animate(galleryDragX, 0, {
+                        type: "spring",
+                        ...PAGE_SPRING,
+                    });
+            } else if (ref.axis === "y") {
+                if (dy > vh * 0.2) {
+                    closeGallery();
+                } else {
+                    openProgressRaw.set(1);
+                    animate(galleryDragY, 0, {
+                        type: "spring",
+                        ...MAIN_SPRING,
+                    });
+                }
+            }
+        };
+
+        const onTouchCancel = () => {
+            const ref = imageSwipeRef.current;
+            if (!ref) return;
+            imageSwipeRef.current = null;
+            if (ref.axis === "x") {
+                animate(galleryDragX, 0, { type: "spring", ...PAGE_SPRING });
+            } else if (ref.axis === "y") {
+                openProgressRaw.set(1);
+                animate(galleryDragY, 0, { type: "spring", ...MAIN_SPRING });
+            }
+        };
+
+        el.addEventListener("touchstart", onTouchStart, { passive: true });
+        el.addEventListener("touchmove", onTouchMove, { passive: true });
+        el.addEventListener("touchend", onTouchEnd, { passive: true });
+        el.addEventListener("touchcancel", onTouchCancel, { passive: true });
+        return () => {
+            el.removeEventListener("touchstart", onTouchStart);
+            el.removeEventListener("touchmove", onTouchMove);
+            el.removeEventListener("touchend", onTouchEnd);
+            el.removeEventListener("touchcancel", onTouchCancel);
+        };
+    }, [
+        isActive,
+        index,
+        itemCount,
+        vw,
+        vh,
+        galleryDragX,
+        galleryDragY,
+        openProgressRaw,
+        goToPage,
+        closeGallery,
+    ]);
+
+    // Touch scroll on text for mobile (mirrors wheel-scroll behavior on desktop)
+    useEffect(() => {
+        if (!isActive || !showPortal) return;
+        const textEl = textWrapperRef.current;
+        const portalEl = scrollContainerRef.current;
+        if (!textEl || !portalEl) return;
+
+        let startY = 0;
+        let startScroll = 0;
+        let scrolling = false;
+        let lastY = 0;
+        let lastT = 0;
+        let vy = 0;
+        let inOverscroll = false;
+        let overscrollAccum = 0;
+        let momentumRaf: number | null = null;
+        let closing = false;
+
+        const onTouchStart = (e: TouchEvent) => {
+            if (momentumRaf) {
+                cancelAnimationFrame(momentumRaf);
+                momentumRaf = null;
+            }
+            const touch = e.touches[0];
+            startY = touch.clientY;
+            lastY = touch.clientY;
+            lastT = performance.now();
+            startScroll = portalEl.scrollTop;
+            scrolling = false;
+            inOverscroll = false;
+            overscrollAccum = 0;
+            vy = 0;
+            closing = false;
+        };
+
+        const onTouchMove = (e: TouchEvent) => {
+            if (closing) return;
+            const touch = e.touches[0];
+            const dy = startY - touch.clientY; // positive = finger up = scroll down
+
+            const now = performance.now();
+            const dt = now - lastT;
+            if (dt > 0) vy = (lastY - touch.clientY) / dt;
+            lastY = touch.clientY;
+            lastT = now;
+
+            if (!scrolling && Math.abs(dy) > 8) {
+                scrolling = true;
+            }
+            if (!scrolling) return;
+
+            if (inOverscroll) {
+                if (dy > 0) {
+                    // Reversed direction, exit overscroll
+                    inOverscroll = false;
+                    overscrollAccum = 0;
+                    openProgressRaw.set(1);
+                    animate(galleryDragY, 0, {
+                        type: "spring",
+                        ...MAIN_SPRING,
+                    });
+                    startScroll = 0;
+                    startY = touch.clientY;
+                    return;
+                }
+                overscrollAccum = Math.max(0, -dy);
+                galleryDragY.jump(overscrollAccum);
+                openProgressRaw.jump(
+                    Math.max(0, 1 - overscrollAccum / (vh * 0.3)),
+                );
+                if (overscrollAccum > vh * 0.2) {
+                    closing = true;
+                    closeGallery();
+                }
                 return;
             }
-            const dx = e.clientX - ref.startX;
-            const vx = ref.vx;
-            portalSwipeRef.current = null;
-            const threshold = vw * GALLERY_PAGE_THRESHOLD;
-            if (dx < -threshold || vx < -GALLERY_DISMISS_VELOCITY)
-                goToPage(index + 1);
-            else if (dx > threshold || vx > GALLERY_DISMISS_VELOCITY)
-                goToPage(index - 1);
-            else
-                animate(galleryDragX, 0, {
-                    type: "spring",
-                    ...PAGE_SPRING,
-                });
-        },
-        [vw, goToPage, index, galleryDragX],
-    );
 
-    const onPortalPointerCancel = useCallback(
-        (e: React.PointerEvent) => {
-            e.stopPropagation();
-            if (portalSwipeRef.current?.active) {
-                animate(galleryDragX, 0, { type: "spring", ...PAGE_SPRING });
+            const newScroll = startScroll + dy;
+            if (newScroll <= 0 && dy < 0) {
+                inOverscroll = true;
+                portalEl.scrollTop = 0;
+                overscrollAccum = -newScroll;
+                galleryDragY.jump(overscrollAccum);
+                openProgressRaw.jump(
+                    Math.max(0, 1 - overscrollAccum / (vh * 0.3)),
+                );
+                return;
             }
-            portalSwipeRef.current = null;
-        },
-        [galleryDragX],
-    );
+            portalEl.scrollTop = newScroll;
+        };
+
+        const onTouchEnd = () => {
+            if (inOverscroll && !closing) {
+                if (overscrollAccum > vh * 0.15) {
+                    closeGallery();
+                } else {
+                    openProgressRaw.set(1);
+                    animate(galleryDragY, 0, {
+                        type: "spring",
+                        ...MAIN_SPRING,
+                    });
+                }
+                inOverscroll = false;
+                overscrollAccum = 0;
+                return;
+            }
+            if (!scrolling) return;
+            scrolling = false;
+            // Momentum
+            if (Math.abs(vy) > 0.3) {
+                let v = vy * 16;
+                const decel = () => {
+                    v *= 0.95;
+                    if (Math.abs(v) < 0.5) {
+                        momentumRaf = null;
+                        return;
+                    }
+                    portalEl.scrollTop += v;
+                    momentumRaf = requestAnimationFrame(decel);
+                };
+                momentumRaf = requestAnimationFrame(decel);
+            }
+        };
+
+        textEl.addEventListener("touchstart", onTouchStart, { passive: true });
+        textEl.addEventListener("touchmove", onTouchMove, { passive: true });
+        textEl.addEventListener("touchend", onTouchEnd, { passive: true });
+        return () => {
+            textEl.removeEventListener("touchstart", onTouchStart);
+            textEl.removeEventListener("touchmove", onTouchMove);
+            textEl.removeEventListener("touchend", onTouchEnd);
+            if (momentumRaf) cancelAnimationFrame(momentumRaf);
+        };
+    }, [isActive, showPortal, vh, closeGallery, openProgressRaw, galleryDragY]);
 
     return (
         <motion.div
@@ -425,8 +600,11 @@ export function GalleryItem({
         >
             {/* Image / color box */}
             <motion.div
+                ref={imageElRef}
                 className="absolute inset-0 rounded-2xl ring ring-black/10 cursor-pointer select-none"
-                onPointerDown={() => {
+                onPointerDown={(e) => {
+                    // Skip for touch on active item — handled by native touch handler
+                    if (e.pointerType === "touch" && isActive) return;
                     dragOnImageRef.current = true;
                 }}
                 style={{
@@ -449,7 +627,6 @@ export function GalleryItem({
 
             {/* Text anchored to item */}
             <motion.div
-                ref={textRef}
                 className={clsx(
                     "absolute top-full left-1/2 w-screen",
                     isActive ? "pointer-events-auto" : "pointer-events-none",
@@ -464,7 +641,10 @@ export function GalleryItem({
                 }}
             >
                 {open && (
-                    <div className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6">
+                    <div
+                        ref={textWrapperRef}
+                        className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6"
+                    >
                         <div className="space-y-2">
                             {year && (
                                 <p className="text-sm text-muted">{year}</p>
@@ -515,30 +695,11 @@ export function GalleryItem({
                 createPortal(
                     <div
                         ref={scrollContainerRef}
-                        className="gallery-portal fixed inset-0 overflow-y-auto z-[52] [@media(hover:hover)]:pointer-events-none"
-                        onClick={(e) => {
-                            const el = e.currentTarget;
-                            if (e.clientX > el.clientWidth) return;
-                            el.style.pointerEvents = "none";
-                            const target = document.elementFromPoint(
-                                e.clientX,
-                                e.clientY,
-                            );
-                            el.style.pointerEvents = "";
-                            if (
-                                target instanceof HTMLElement &&
-                                !el.contains(target)
-                            )
-                                target.click();
-                        }}
-                        onPointerDown={onPortalPointerDown}
-                        onPointerMove={onPortalPointerMove}
-                        onPointerUp={onPortalPointerUp}
-                        onPointerCancel={onPortalPointerCancel}
+                        className="gallery-portal fixed inset-0 overflow-y-auto z-[52] pointer-events-none"
                     >
                         <div
                             style={{ height: imageBottom + textHeight }}
-                            className="pointer-events-none"
+                            className="pointer-events-none select-none"
                         />
                     </div>,
                     document.body,

@@ -96,12 +96,10 @@ body {
     background-color: #fff;
 }
 
-/* Hide native scrollbar on gallery portal (replaced by custom scrollbar) */
-@media (hover: hover) {
-    .gallery-portal {
-        scrollbar-width: none;
-    }
-    .gallery-portal::-webkit-scrollbar {
-        display: none;
-    }
+/* Hide native scrollbar on gallery portal (scroll is handled programmatically) */
+.gallery-portal {
+    scrollbar-width: none;
+}
+.gallery-portal::-webkit-scrollbar {
+    display: none;
 }
