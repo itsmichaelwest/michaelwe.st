@@ -10,11 +10,16 @@ module.exports = {
     },
     async rewrites() {
         return [
-            { source: '/work/:id', destination: '/new-design-test' },
+            { source: '/work/:id', destination: '/' },
         ];
     },
     async redirects() {
         return [
+            {
+                source: "/work",
+                destination: "/",
+                permanent: false,
+            },
             {
                 source: "/blog/2019/01/27/design-decisions-in-cortana-os",
                 destination: "/work/cortana-os",

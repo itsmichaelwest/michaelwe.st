@@ -10,166 +10,33 @@ import {
     motion,
     useMotionValue,
     useSpring,
-    useTransform,
     animate,
-    type MotionValue,
 } from "motion/react";
-import Head from "next/head";
 import Image from "next/image";
-import { createPortal } from "react-dom";
-import Face from "../public/images/michael-face.jpg";
 import clsx from "clsx";
-import type { GetStaticProps } from "next";
-import { getSortedWorkData } from "../lib/work";
+import Face from "../../public/images/michael-face.jpg";
+import { useWindowSize } from "../../hooks/useWindowSize";
+import type { ItemData } from "./types";
+import { SAMPLE_ITEMS } from "./types";
 import {
-    serialize,
-    type SerializeOptions,
-    type SerializeResult,
-} from "next-mdx-remote-client/serialize";
-import { MDXClient } from "next-mdx-remote-client";
-import { components } from "../components/MDXComponents";
-import rehypeUnwrapImages from "rehype-unwrap-images";
-import rehypeImgSize from "rehype-img-size";
+    GALLERY_H,
+    MAIN_SPRING,
+    PAGE_SPRING,
+    DRAG_UP_VELOCITY_THRESHOLD,
+    DRAG_UP_DISTANCE_RATIO,
+    GALLERY_PAGE_THRESHOLD,
+    GALLERY_DISMISS_VELOCITY,
+    RUBBER_BAND_K,
+    DRAG_DECAY,
+} from "./constants";
+import {
+    railItemW,
+    railLeftOf,
+    maxRailScroll,
+} from "./utils";
+import { GalleryItem } from "./GalleryItem";
 
-// ── Data ──────────────────────────────────────────────────────
-interface ItemData {
-    id: string;
-    title: string;
-    subtitle: string;
-    aspect: number;
-    railH: number;
-    img?: string;
-    canonical?: string;
-    color?: string;
-    label?: string;
-    paras?: number;
-    mdxSource?: SerializeResult;
-}
-
-const SAMPLE_ITEMS: ItemData[] = [
-    { id: "s1", color: "#e74c3c", label: "1", aspect: 1680 / 1279, railH: 0.8, title: "Item One", subtitle: "Lorem ipsum dolor sit amet", paras: 5 },
-    { id: "s2", color: "#3498db", label: "2", aspect: 0.56, railH: 1.0, title: "Item Two", subtitle: "Consectetur adipiscing elit", paras: 1 },
-    { id: "s3", color: "#2ecc71", label: "3", aspect: 1.0, railH: 0.8, title: "Item Three", subtitle: "Sed do eiusmod tempor", paras: 3 },
-    { id: "s4", color: "#f39c12", label: "4", aspect: 1.33, railH: 0.7, title: "Item Four", subtitle: "Ut enim ad minim veniam", paras: 2 },
-    { id: "s5", color: "#9b59b6", label: "5", aspect: 0.56, railH: 0.95, title: "Item Five", subtitle: "Quis nostrud exercitation", paras: 6 },
-    { id: "s6", color: "#1abc9c", label: "6", aspect: 1.5, railH: 0.65, title: "Item Six", subtitle: "Duis aute irure dolor", paras: 1 },
-    { id: "s7", color: "#e67e22", label: "7", aspect: 1.28, railH: 0.75, title: "Item Seven", subtitle: "Excepteur sint occaecat", paras: 4 },
-    { id: "s8", color: "#2c3e50", label: "8", aspect: 0.75, railH: 0.9, title: "Item Eight", subtitle: "Sunt in culpa qui officia", paras: 2 },
-    { id: "s9", color: "#c0392b", label: "9", aspect: 1.6, railH: 0.55, title: "Item Nine", subtitle: "Mollit anim id est laborum", paras: 7 },
-    { id: "s10", color: "#16a085", label: "10", aspect: 1.0, railH: 0.85, title: "Item Ten", subtitle: "Nemo enim ipsam voluptatem", paras: 1 },
-];
-
-// ── Layout constants ──────────────────────────────────────────
-const GALLERY_H = 0.6; // gallery item height as fraction of vh
-const GALLERY_PAD = 32; // px padding each side in gallery mode
-const RAIL_PAD = 16; // px padding each side (matches parent's px-4)
-const RAIL_GAP = 64; // px between items
-
-// ── Spring configs ───────────────────────────────────────────
-const MAIN_SPRING = { stiffness: 300, damping: 35 };
-const PAGE_SPRING = { stiffness: 450, damping: 50 };
-
-// ── Drag thresholds ──────────────────────────────────────────
-const DRAG_UP_VELOCITY_THRESHOLD = 0.1;
-const DRAG_UP_DISTANCE_RATIO = 0.5;
-const GALLERY_PAGE_THRESHOLD = 0.33;
-const GALLERY_DISMISS_VELOCITY = 0.1;
-const RUBBER_BAND_K = 0.5;
-const DRAG_DECAY = 0.96;
-
-// ── Per-item sizing ──────────────────────────────────────────
-// Wrapper is always "natural" uncapped size; gallery scale adjusts for narrow vp
-function itemFullW(items: ItemData[], i: number, vh: number) {
-    return GALLERY_H * vh * items[i].aspect;
-}
-
-function itemGalleryScale(items: ItemData[], i: number, vw: number, vh: number) {
-    return Math.min(1, (vw - GALLERY_PAD * 2) / itemFullW(items, i, vh));
-}
-
-function itemRailScale(items: ItemData[], i: number, containerH: number, vh: number) {
-    return (items[i].railH * containerH) / (GALLERY_H * vh);
-}
-
-function railItemW(items: ItemData[], i: number, containerH: number) {
-    return items[i].aspect * items[i].railH * containerH;
-}
-
-function railLeftOf(items: ItemData[], i: number, containerH: number) {
-    let x = RAIL_PAD;
-    for (let j = 0; j < i; j++) x += railItemW(items, j, containerH) + RAIL_GAP;
-    return x;
-}
-
-function totalRailW(items: ItemData[], containerH: number) {
-    let total = RAIL_PAD * 2;
-    for (let i = 0; i < items.length; i++) {
-        total += railItemW(items, i, containerH);
-        if (i < items.length - 1) total += RAIL_GAP;
-    }
-    return total;
-}
-
-function maxRailScroll(items: ItemData[], containerH: number, containerW: number) {
-    return Math.max(0, totalRailW(items, containerH) - containerW);
-}
-
-// ── Hooks ─────────────────────────────────────────────────────
-function useWindowSize() {
-    const [size, setSize] = useState({ w: 0, h: 0 });
-    useEffect(() => {
-        const update = () =>
-            setSize({ w: window.innerWidth, h: window.innerHeight });
-        update();
-        window.addEventListener("resize", update);
-        return () => window.removeEventListener("resize", update);
-    }, []);
-    return size;
-}
-
-// ── Static props ─────────────────────────────────────────────
-export const getStaticProps: GetStaticProps = async () => {
-    const posts = getSortedWorkData().filter((p) => !p.hideFromList);
-    const mdxOptions: SerializeOptions = {
-        disableImports: true,
-        mdxOptions: {
-            rehypePlugins: [
-                rehypeUnwrapImages,
-                [rehypeImgSize, { dir: "public" }],
-            ],
-        },
-        parseFrontmatter: true,
-    };
-
-    const items: ItemData[] = await Promise.all(
-        posts.map(async (p) => {
-            const mdxSource = await serialize({
-                source: p.content,
-                options: mdxOptions,
-            });
-            return {
-                id: p.id,
-                title: p.title ?? p.id,
-                subtitle: p.description ?? p.category ?? "",
-                aspect: p.heroAspectRatio ?? 1.0,
-                railH: 0.8,
-                img: p.heroImage
-                    ? `/images/${p.id}/${p.heroImage}`
-                    : undefined,
-                canonical: p.canonical ?? null,
-                mdxSource,
-            };
-        }),
-    );
-    return { props: { items } };
-};
-
-// ── Component ─────────────────────────────────────────────────
-export default function NewDesignTest({
-    items: realItems,
-}: {
-    items: ItemData[];
-}) {
+export function GalleryShell({ items: realItems }: { items: ItemData[] }) {
     const isDirectNav = typeof window !== "undefined" &&
         /^(?:\/en)?\/work\/.+$/.test(window.location.pathname);
     const [open, setOpen] = useState(isDirectNav);
@@ -215,8 +82,6 @@ export default function NewDesignTest({
     });
     const [, setRectVersion] = useState(0);
 
-    // Measure container rect every render. Triggers re-render on change
-    // so layout-dependent values (sRail, railItemW, etc.) pick up the real dims.
     useLayoutEffect(() => {
         if (containerRef.current) {
             const r = containerRef.current.getBoundingClientRect();
@@ -238,7 +103,7 @@ export default function NewDesignTest({
         }
     });
 
-    // Direct navigation detection — wait for vw so positions are correct before first paint
+    // Direct navigation — wait for vw so positions are correct before first paint
     const directNavChecked = useRef(false);
     useLayoutEffect(() => {
         if (vw <= 0 || directNavChecked.current) return;
@@ -257,7 +122,7 @@ export default function NewDesignTest({
         galleryPageX.jump(-idx * vw);
         galleryDragX.jump(0);
         galleryDragY.jump(0);
-    }, [vw]); // eslint-disable-line react-hooks/exhaustive-deps -- runs once when vw first available
+    }, [vw]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const openGallery = useCallback(
         (i: number) => {
@@ -274,14 +139,7 @@ export default function NewDesignTest({
                 history.pushState({ gallery: id }, "", `/work/${id}`);
             }
         },
-        [
-            openProgress,
-            galleryPageX,
-            galleryDragX,
-            galleryDragY,
-            vw,
-            items,
-        ],
+        [openProgress, galleryPageX, galleryDragX, galleryDragY, vw, items],
     );
 
     const centerRailOn = useCallback(
@@ -313,7 +171,7 @@ export default function NewDesignTest({
         centerRailOn(currentRef.current, true);
         if (directNavRef.current) {
             directNavRef.current = false;
-            history.replaceState(null, "", "/new-design-test");
+            history.replaceState(null, "", "/");
         } else {
             history.back();
         }
@@ -352,7 +210,7 @@ export default function NewDesignTest({
         return () => window.removeEventListener("keydown", onKey);
     }, [closeGallery, goToPage]);
 
-    // Popstate — sync gallery state when browser back/forward fires
+    // Popstate
     useEffect(() => {
         const onPopState = () => {
             const match = window.location.pathname.match(/^(?:\/en)?\/work\/(.+)$/);
@@ -360,7 +218,6 @@ export default function NewDesignTest({
                 const idx = idToIndex.get(match[1]);
                 if (idx != null && !openRef.current) openGallery(idx);
             } else if (openRef.current) {
-                // Close without another history.back()
                 setOpen(false);
                 openRef.current = false;
                 openProgress.set(0);
@@ -405,8 +262,6 @@ export default function NewDesignTest({
                 hActive = false;
                 hAccum = 0;
                 navigated = false;
-                // Rail horizontal scroll — accept both deltaX and deltaY
-                // so vertical-only mouse wheels can scroll the carousel
                 const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY)
                     ? e.deltaX
                     : e.deltaY;
@@ -423,8 +278,6 @@ export default function NewDesignTest({
                 return;
             }
 
-            // Eat remaining inertia after navigation — keep resetting
-            // the idle timer so navigated only clears when events truly stop
             if (navigated) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -437,7 +290,6 @@ export default function NewDesignTest({
                 return;
             }
 
-            // Gallery: horizontal swipe for page navigation
             if (
                 hActive ||
                 (Math.abs(e.deltaX) > Math.abs(e.deltaY) &&
@@ -450,8 +302,7 @@ export default function NewDesignTest({
 
                 let delta = -e.deltaX;
                 const isFirst = currentRef.current === 0;
-                const isLast =
-                    currentRef.current === items.length - 1;
+                const isLast = currentRef.current === items.length - 1;
                 if (
                     (isFirst && hAccum + delta > 0) ||
                     (isLast && hAccum + delta < 0)
@@ -461,7 +312,6 @@ export default function NewDesignTest({
                 hAccum += delta;
                 galleryDragX.jump(hAccum);
 
-                // Navigate when distance crosses threshold
                 const threshold = vw * GALLERY_PAGE_THRESHOLD;
                 if (hAccum < -threshold) {
                     navigated = true;
@@ -488,7 +338,6 @@ export default function NewDesignTest({
                 );
                 return;
             }
-            // Vertical: let bubble to GalleryItem's window listener
         };
 
         el.addEventListener("wheel", onWheel, { passive: false });
@@ -604,7 +453,6 @@ export default function NewDesignTest({
                 }
                 if (dragAxisRef.current === "y") {
                     if (dragOnImageRef.current && dy > 0) {
-                        // Drag down on image → dismiss gesture
                         galleryDragY.jump(dy);
                         openProgress.jump(1 - Math.min(dy / (vh * 0.3), 1));
                     }
@@ -669,7 +517,7 @@ export default function NewDesignTest({
 
             if (!didDragRef.current) {
                 if (openRef.current) {
-                    // do nothing — use back button or drag-to-dismiss
+                    // do nothing
                 } else {
                     const tapped = findTappedItem(
                         e.clientX,
@@ -699,7 +547,6 @@ export default function NewDesignTest({
                         });
                 } else if (dragAxisRef.current === "y") {
                     if (dragOnImageRef.current) {
-                        // Release dismiss gesture
                         if (dy > vh * 0.2 || vy > GALLERY_DISMISS_VELOCITY) {
                             closeGallery();
                         } else {
@@ -710,7 +557,6 @@ export default function NewDesignTest({
                             });
                         }
                     }
-                    // Text scroll — no snap-back needed, already at final position
                 }
             } else {
                 if (dragAxisRef.current === "x") {
@@ -762,18 +608,8 @@ export default function NewDesignTest({
 
     return (
         <>
-            <Head>
-                <title>Design Test</title>
-                <style>{`
-                    html, body { overflow: hidden; overscroll-behavior: none; height: 100%; }
-                    @media (any-pointer: coarse) {
-                        .gallery-portal { pointer-events: auto !important; touch-action: pan-y; }
-                    }
-                `}</style>
-            </Head>
-
             <div className="relative max-w-[80ch] w-full h-[60vh] mx-auto px-4 flex flex-col">
-                {/* Max-width content area — fills space above rail */}
+                {/* Hero area */}
                 <motion.div
                     className={clsx(
                         "flex flex-col gap-4 transition-opacity duration-200",
@@ -802,7 +638,7 @@ export default function NewDesignTest({
                     <p>Hello</p>
                 </motion.div>
 
-                {/* Back button — outside gallery container for z-index above portal */}
+                {/* Back button */}
                 <motion.button
                     className={clsx(
                         "fixed top-4 left-4 z-[53] size-10 flex items-center justify-center p-0 rounded-full bg-white/80 dark:bg-black/80 border-none cursor-pointer",
@@ -869,7 +705,7 @@ export default function NewDesignTest({
                         />
                     ))}
 
-                    {/* Gallery backdrop — fixed overlay inside container for events + bg */}
+                    {/* Gallery backdrop */}
                     <motion.div
                         className={clsx(
                             "fixed inset-0 z-0",
@@ -882,461 +718,7 @@ export default function NewDesignTest({
                         }}
                     />
                 </div>
-
             </div>
         </>
-    );
-}
-
-// ── Individual item ───────────────────────────────────────────
-const LOREM =
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
-
-function GalleryItem({
-    index,
-    items,
-    itemCount,
-    current,
-    color,
-    label,
-    title,
-    subtitle,
-    img,
-    paras,
-    mdxSource,
-    open,
-    vw,
-    vh,
-    openSpring,
-    railScroll,
-    galleryPageX,
-    galleryDragX,
-    galleryDragY,
-    closeGallery,
-    goToPage,
-    openProgressRaw,
-    dragOnImageRef,
-    containerRectRef,
-}: {
-    index: number;
-    items: ItemData[];
-    itemCount: number;
-    current: number;
-    color?: string;
-    label?: string;
-    title: string;
-    subtitle: string;
-    img?: string;
-    paras?: number;
-    mdxSource?: SerializeResult;
-    open: boolean;
-    vw: number;
-    vh: number;
-    openSpring: MotionValue<number>;
-    railScroll: MotionValue<number>;
-    galleryPageX: MotionValue<number>;
-    galleryDragX: MotionValue<number>;
-    galleryDragY: MotionValue<number>;
-    closeGallery: () => void;
-    goToPage: (i: number) => void;
-    openProgressRaw: MotionValue<number>;
-    dragOnImageRef: React.MutableRefObject<boolean>;
-    containerRectRef: React.RefObject<{
-        left: number;
-        bottom: number;
-        height: number;
-    }>;
-}) {
-    const cH = containerRectRef.current.height;
-    const naturalW = itemFullW(items, index, vh);
-    const galScale = itemGalleryScale(items, index, vw, vh);
-    const sRail = itemRailScale(items, index, cH, vh);
-    const originOff = (naturalW * (1 - sRail)) / 2;
-    const myRailLeft = railLeftOf(items, index, cH);
-    const isActive = open && index === current;
-    const isNearby = !open || Math.abs(index - current) <= 1;
-
-    // Local scroll value — only the active item updates this, so scroll
-    // events don't trigger transform recomputation for the other 9 items
-    const localScrollY = useMotionValue(0);
-    useEffect(() => {
-        if (!isActive) localScrollY.jump(0);
-    }, [isActive, localScrollY]);
-
-    const transformInputs = [
-        openSpring,
-        railScroll,
-        galleryPageX,
-        galleryDragX,
-        galleryDragY,
-        localScrollY,
-    ];
-    const transformStr = useTransform(
-        transformInputs as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-        ([progress, rail, galPageX, galDragX, galDragY, sY]: number[]) => {
-            // Short-circuit for off-screen items in gallery mode
-            if (progress > 0.5) {
-                const approxCenter = galPageX + galDragX + index * vw;
-                if (Math.abs(approxCenter) > vw * 1.5) {
-                    return `translate3d(${approxCenter}px, 0px, 0px) scale(${galScale})`;
-                }
-            }
-
-            const rect = containerRectRef.current;
-            const railX = myRailLeft - originOff + rail;
-            const galX =
-                index * vw +
-                (vw - naturalW) / 2 -
-                rect.left +
-                galPageX +
-                galDragX;
-
-            const x = railX + progress * (galX - railX);
-            const scale = sRail + progress * (galScale - sRail);
-            const visualH = GALLERY_H * vh * scale;
-            const nudge = rect.bottom - (vh + visualH) / 2;
-            const y = galDragY * progress - sY * progress - progress * nudge;
-            return `translate3d(${x}px, ${y}px, 0px) scale(${scale})`;
-        },
-    );
-
-    // Static counter-scale: compensates for galScale so text is 1:1 at full gallery,
-    // but scales naturally with the wrapper during open/close/dismiss transitions
-    const textScale = 1 / galScale;
-
-    // Text opacity: fades with open spring AND proximity to center (for page swipes)
-    const textOpacity = useTransform(
-        [galleryPageX, galleryDragX, openSpring] as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-        ([pageX, dragX, progress]: number[]) => {
-            const dist = Math.abs(pageX + dragX + index * vw);
-            const proximity = Math.max(0, 1 - dist / (vw * 0.5));
-            return proximity * progress;
-        },
-    );
-
-    // Measure text height for portal scroll track
-    const textRef = useRef<HTMLDivElement>(null);
-    const [textHeight, setTextHeight] = useState(0);
-    useEffect(() => {
-        const el = textRef.current;
-        if (!el) return;
-        const update = () => setTextHeight(el.offsetHeight);
-        update();
-        const ro = new ResizeObserver(update);
-        ro.observe(el);
-        return () => ro.disconnect();
-    }, []);
-
-    // Portal scroll track: transparent native scroll container
-    const scrollContainerRef = useRef<HTMLDivElement>(null);
-    const imageBottom = (vh + GALLERY_H * vh * galScale) / 2;
-
-    // Delay portal mount until open animation completes
-    const [showPortal, setShowPortal] = useState(false);
-    useEffect(() => {
-        if (isActive) {
-            const timer = setTimeout(() => setShowPortal(true), 350);
-            return () => clearTimeout(timer);
-        }
-        setShowPortal(false);
-    }, [isActive]);
-
-    // Wheel handler on window: forwards deltaY to portal scrollTop + overscroll-to-dismiss
-    // On window so it works even with pointer-events:none on the portal
-    useEffect(() => {
-        if (!showPortal) return;
-        const portalEl = scrollContainerRef.current;
-        if (!portalEl) return;
-
-        let accum = 0;
-        let inOverscroll = false;
-        let closing = false;
-        let idleTimer: ReturnType<typeof setTimeout> | null = null;
-
-        const resetIdle = () => {
-            if (idleTimer) clearTimeout(idleTimer);
-            idleTimer = setTimeout(() => {
-                if (!inOverscroll || closing) return;
-                inOverscroll = false;
-                accum = 0;
-                openProgressRaw.set(1);
-                animate(galleryDragY, 0, {
-                    type: "spring",
-                    ...MAIN_SPRING,
-                });
-            }, 150);
-        };
-
-        const onWheel = (e: WheelEvent) => {
-            e.preventDefault();
-
-            if (closing) return;
-
-            if (inOverscroll) {
-                if (e.deltaY > 2) {
-                    inOverscroll = false;
-                    accum = 0;
-                    openProgressRaw.set(1);
-                    animate(galleryDragY, 0, {
-                        type: "spring",
-                        ...MAIN_SPRING,
-                    });
-                    return;
-                }
-                accum = Math.max(0, accum - e.deltaY);
-                galleryDragY.jump(accum);
-                openProgressRaw.jump(
-                    Math.max(0, 1 - accum / (vh * 0.3)),
-                );
-                if (accum > vh * 0.2) {
-                    closing = true;
-                    inOverscroll = false;
-                    closeGallery();
-                    return;
-                }
-                resetIdle();
-                return;
-            }
-
-            // At top + scrolling up → enter overscroll
-            if (portalEl.scrollTop <= 0 && e.deltaY < 0) {
-                inOverscroll = true;
-                accum = -e.deltaY;
-                galleryDragY.jump(accum);
-                openProgressRaw.jump(
-                    Math.max(0, 1 - accum / (vh * 0.3)),
-                );
-                resetIdle();
-                return;
-            }
-
-            // Forward to portal for native scrollTop tracking + scrollbar
-            portalEl.scrollTop += e.deltaY;
-        };
-
-        window.addEventListener("wheel", onWheel, { passive: false });
-        return () => {
-            window.removeEventListener("wheel", onWheel);
-            if (idleTimer) clearTimeout(idleTimer);
-        };
-    }, [showPortal, vh, closeGallery, openProgressRaw, galleryDragY]);
-
-    // Sync native scroll → galleryScrollY; detect iOS negative scrollTop for dismiss
-    useEffect(() => {
-        if (!showPortal) return;
-        const el = scrollContainerRef.current;
-        if (!el) return;
-        const onScroll = () => {
-            const st = el.scrollTop;
-            if (st < 0) {
-                // iOS rubber-band overscroll at top → track as dismiss gesture
-                const pull = -st;
-                galleryDragY.jump(pull);
-                openProgressRaw.jump(
-                    Math.max(0, 1 - pull / (vh * 0.3)),
-                );
-                if (pull > vh * 0.15) {
-                    closeGallery();
-                }
-            } else {
-                // Reset dismiss state if rubber-band sprang back
-                if (galleryDragY.get() > 0) {
-                    galleryDragY.jump(0);
-                    openProgressRaw.set(1);
-                }
-                localScrollY.jump(st);
-            }
-        };
-        el.addEventListener("scroll", onScroll, { passive: true });
-        return () => el.removeEventListener("scroll", onScroll);
-    }, [
-        showPortal,
-        localScrollY,
-        vh,
-        galleryDragY,
-        openProgressRaw,
-        closeGallery,
-    ]);
-
-    // Touch horizontal swipe on portal for page navigation (mobile)
-    // touch-action: pan-y lets browser handle vertical scroll; horizontal fires pointer events
-    const portalSwipeRef = useRef<{
-        startX: number;
-        active: boolean;
-        lastX: number;
-        lastT: number;
-        vx: number;
-    } | null>(null);
-
-    const onPortalPointerDown = useCallback(
-        (e: React.PointerEvent) => {
-            if (e.pointerType !== "touch") return;
-            // Stop React synthetic event from bubbling to container's handlers
-            e.stopPropagation();
-            // Only swipe on image — account for scroll offset
-            const scrolled = scrollContainerRef.current?.scrollTop ?? 0;
-            if (e.clientY > imageBottom - scrolled) return;
-            portalSwipeRef.current = {
-                startX: e.clientX,
-                active: false,
-                lastX: e.clientX,
-                lastT: performance.now(),
-                vx: 0,
-            };
-            (e.target as HTMLElement).setPointerCapture(e.pointerId);
-        },
-        [imageBottom],
-    );
-
-    const onPortalPointerMove = useCallback(
-        (e: React.PointerEvent) => {
-            e.stopPropagation();
-            const ref = portalSwipeRef.current;
-            if (!ref) return;
-            const dx = e.clientX - ref.startX;
-
-            // Track velocity
-            const now = performance.now();
-            const dt = now - ref.lastT;
-            if (dt > 0) ref.vx = (e.clientX - ref.lastX) / dt;
-            ref.lastX = e.clientX;
-            ref.lastT = now;
-
-            if (!ref.active) {
-                if (Math.abs(dx) > 5) {
-                    ref.active = true;
-                } else return;
-            }
-            let offsetX = dx;
-            const isFirst = index === 0;
-            const isLast = index === itemCount - 1;
-            if ((isFirst && dx > 0) || (isLast && dx < 0))
-                offsetX *= RUBBER_BAND_K;
-            galleryDragX.jump(offsetX);
-        },
-        [galleryDragX, index],
-    );
-
-    const onPortalPointerUp = useCallback(
-        (e: React.PointerEvent) => {
-            e.stopPropagation();
-            const ref = portalSwipeRef.current;
-            if (!ref?.active) {
-                portalSwipeRef.current = null;
-                return;
-            }
-            const dx = e.clientX - ref.startX;
-            const vx = ref.vx; // px/ms
-            portalSwipeRef.current = null;
-            const threshold = vw * GALLERY_PAGE_THRESHOLD;
-            if (dx < -threshold || vx < -GALLERY_DISMISS_VELOCITY)
-                goToPage(index + 1);
-            else if (dx > threshold || vx > GALLERY_DISMISS_VELOCITY)
-                goToPage(index - 1);
-            else
-                animate(galleryDragX, 0, {
-                    type: "spring",
-                    ...PAGE_SPRING,
-                });
-        },
-        [vw, goToPage, index, galleryDragX],
-    );
-
-    const onPortalPointerCancel = useCallback((e: React.PointerEvent) => {
-        e.stopPropagation();
-        if (portalSwipeRef.current?.active) {
-            animate(galleryDragX, 0, { type: "spring", ...PAGE_SPRING });
-        }
-        portalSwipeRef.current = null;
-    }, [galleryDragX]);
-
-    return (
-        <motion.div
-            className={clsx(
-                "absolute bottom-0 left-0 overflow-visible",
-                isNearby && "will-change-transform",
-                isActive ? "z-2" : "z-1",
-            )}
-            style={{
-                width: naturalW,
-                height: GALLERY_H * vh,
-                transformOrigin: "center bottom",
-                transform: transformStr,
-            }}
-        >
-            {/* Colored box */}
-            <motion.div
-                className="absolute inset-0 cursor-pointer"
-                onPointerDown={() => {
-                    dragOnImageRef.current = true;
-                }}
-                style={{
-                    background: !img && color,
-                    // borderRadius,
-                }}
-            >
-                {img ? (
-                    <Image
-                        src={img}
-                        alt=""
-                        fill
-                        className="absolute inset-0 object-cover select-none pointer-events-none"
-                    />
-                ) : (
-                    <span className="text-8xl text-white select-none pointer-events-none">
-                        {label}
-                    </span>
-                )}
-            </motion.div>
-
-            {/* Text anchored to item — scales with wrapper during open/close/dismiss */}
-            <motion.div
-                ref={textRef}
-                className={clsx(
-                    "absolute top-full left-1/2 w-screen",
-                    isActive ? "pointer-events-auto" : "pointer-events-none",
-                )}
-                onPointerDown={isActive ? (e) => e.stopPropagation() : undefined}
-                style={{
-                    transform: `translateX(-50%) scale(${textScale})`,
-                    transformOrigin: "top center",
-                    opacity: textOpacity,
-                }}
-            >
-                <div className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6">
-                    <div className="space-y-2">
-                        <h2 className="font-bold text-2xl">{title}</h2>
-                        <p className="text-muted">{subtitle}</p>
-                    </div>
-                    {mdxSource && !("error" in mdxSource) ? (
-                        <MDXClient {...mdxSource} components={components} />
-                    ) : (
-                        Array.from({ length: paras ?? 1 }, (_, j) => (
-                            <p key={j}>{LOREM}</p>
-                        ))
-                    )}
-                </div>
-            </motion.div>
-
-            {/* Transparent portal scroll track — provides native scroll mechanics */}
-            {showPortal &&
-                typeof document !== "undefined" &&
-                createPortal(
-                    <div
-                        ref={scrollContainerRef}
-                        className="gallery-portal fixed inset-0 overflow-y-auto z-[52] pointer-events-none"
-                        onPointerDown={onPortalPointerDown}
-                        onPointerMove={onPortalPointerMove}
-                        onPointerUp={onPortalPointerUp}
-                        onPointerCancel={onPortalPointerCancel}
-                    >
-                        <div
-                            style={{ height: imageBottom + textHeight }}
-                            className="pointer-events-none"
-                        />
-                    </div>,
-                    document.body,
-                )}
-        </motion.div>
     );
 }

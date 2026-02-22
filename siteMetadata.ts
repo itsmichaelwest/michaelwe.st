@@ -2,10 +2,6 @@ const siteMetadata = {
     title: "Michael",
     menuLinks: [
         {
-            name: "Work",
-            link: "/work",
-        },
-        {
             name: "About",
             link: "/about",
         },
