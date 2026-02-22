@@ -46,6 +46,8 @@ export function GalleryItem({
     subtitle,
     img,
     noMSFT,
+    officialURL,
+    officialURLText,
     year,
     paras,
     mdxSource,
@@ -73,6 +75,8 @@ export function GalleryItem({
     subtitle: string;
     img?: string;
     noMSFT?: boolean;
+    officialURL?: string;
+    officialURLText?: string;
     year?: string;
     paras?: number;
     mdxSource?: SerializeResult;
@@ -168,6 +172,8 @@ export function GalleryItem({
     }, []);
 
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const thumbRef = useRef<HTMLDivElement>(null);
+    const scrollbarIdleRef = useRef<ReturnType<typeof setTimeout>>(undefined);
     const imageBottom = (vh + GALLERY_H * vh * galScale) / 2;
 
     const [showPortal, setShowPortal] = useState(false);
@@ -253,6 +259,31 @@ export function GalleryItem({
     }, [showPortal, vh, closeGallery, openProgressRaw, galleryDragY]);
 
     // Sync native scroll -> localScrollY; detect iOS negative scrollTop for dismiss
+    // Also update custom scrollbar thumb position
+    const updateThumb = useCallback((el: HTMLElement) => {
+        const thumb = thumbRef.current;
+        if (!thumb) return;
+        const { scrollTop, scrollHeight, clientHeight } = el;
+        const maxScroll = scrollHeight - clientHeight;
+        if (maxScroll <= 0) {
+            delete thumb.dataset.scrolling;
+            return;
+        }
+        const ratio = scrollTop / maxScroll;
+        const thumbH = Math.max(
+            40,
+            (clientHeight / scrollHeight) * clientHeight,
+        );
+        const thumbY = ratio * (clientHeight - thumbH);
+        thumb.style.height = `${thumbH}px`;
+        thumb.style.transform = `translateY(${thumbY}px)`;
+        thumb.dataset.scrolling = "true";
+        if (scrollbarIdleRef.current) clearTimeout(scrollbarIdleRef.current);
+        scrollbarIdleRef.current = setTimeout(() => {
+            if (thumbRef.current) delete thumbRef.current.dataset.scrolling;
+        }, 1200);
+    }, []);
+
     useEffect(() => {
         if (!showPortal) return;
         const el = scrollContainerRef.current;
@@ -273,6 +304,7 @@ export function GalleryItem({
                 }
                 localScrollY.jump(st);
             }
+            updateThumb(el);
         };
         el.addEventListener("scroll", onScroll, { passive: true });
         return () => el.removeEventListener("scroll", onScroll);
@@ -283,6 +315,7 @@ export function GalleryItem({
         galleryDragY,
         openProgressRaw,
         closeGallery,
+        updateThumb,
     ]);
 
     // Touch horizontal swipe on portal for page navigation (mobile)
@@ -438,6 +471,30 @@ export function GalleryItem({
                             )}
                             <h2 className="font-bold text-2xl">{title}</h2>
                             <p className="text-muted">{subtitle}</p>
+                            {officialURL && (
+                                <a
+                                    href={officialURL}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 text-sm font-medium rounded-full bg-[#EEE]/80 no-underline text-[#333] hover:bg-[#DDD] transition-colors"
+                                >
+                                    {officialURLText ?? "View project"}
+                                    <svg
+                                        width="12"
+                                        height="12"
+                                        viewBox="0 0 12 12"
+                                        fill="none"
+                                    >
+                                        <path
+                                            d="M3.5 2.5H9.5V8.5M9.5 2.5L2.5 9.5"
+                                            stroke="currentColor"
+                                            strokeWidth="1.5"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                        />
+                                    </svg>
+                                </a>
+                            )}
                         </div>
                         {noMSFT && <NoMSFTDisclaimer title={title} />}
                         {mdxSource && !("error" in mdxSource) ? (
@@ -458,7 +515,7 @@ export function GalleryItem({
                 createPortal(
                     <div
                         ref={scrollContainerRef}
-                        className="gallery-portal fixed inset-0 overflow-y-auto z-[52]"
+                        className="gallery-portal fixed inset-0 overflow-y-auto z-[52] [@media(hover:hover)]:pointer-events-none"
                         onClick={(e) => {
                             const el = e.currentTarget;
                             if (e.clientX > el.clientWidth) return;
@@ -482,6 +539,73 @@ export function GalleryItem({
                         <div
                             style={{ height: imageBottom + textHeight }}
                             className="pointer-events-none"
+                        />
+                    </div>,
+                    document.body,
+                )}
+
+            {/* Custom scrollbar (hover devices only, replaces hidden native one) */}
+            {showPortal &&
+                typeof document !== "undefined" &&
+                createPortal(
+                    <div
+                        className="group/sb fixed top-0 right-0.5 bottom-0 w-2.5 z-[53] py-2 hidden [@media(hover:hover)]:flex items-start"
+                        onPointerEnter={() => {
+                            const el = scrollContainerRef.current;
+                            if (el) updateThumb(el);
+                        }}
+                        onPointerDown={(e) => {
+                            // Track click: jump scroll to position
+                            e.stopPropagation();
+                            const el = scrollContainerRef.current;
+                            if (!el) return;
+                            const { scrollHeight, clientHeight } = el;
+                            const maxScroll = scrollHeight - clientHeight;
+                            const ratio = e.clientY / clientHeight;
+                            el.scrollTop = ratio * maxScroll;
+                        }}
+                    >
+                        <div
+                            ref={thumbRef}
+                            className="w-1.5 rounded-full bg-black/30 opacity-0 group-hover/sb:opacity-100 data-[scrolling]:opacity-100 transition-opacity duration-300 cursor-grab active:cursor-grabbing active:bg-black/50"
+                            style={{ height: 40 }}
+                            onPointerDown={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                (e.target as HTMLElement).setPointerCapture(
+                                    e.pointerId,
+                                );
+                                const startY = e.clientY;
+                                const el = scrollContainerRef.current;
+                                if (!el) return;
+                                const startScroll = el.scrollTop;
+                                const { scrollHeight, clientHeight } = el;
+                                const maxScroll = scrollHeight - clientHeight;
+                                const thumbH = Math.max(
+                                    40,
+                                    (clientHeight / scrollHeight) *
+                                        clientHeight,
+                                );
+                                const onMove = (me: PointerEvent) => {
+                                    const dy = me.clientY - startY;
+                                    el.scrollTop =
+                                        startScroll +
+                                        (dy / (clientHeight - thumbH)) *
+                                            maxScroll;
+                                };
+                                const onUp = () => {
+                                    window.removeEventListener(
+                                        "pointermove",
+                                        onMove,
+                                    );
+                                    window.removeEventListener(
+                                        "pointerup",
+                                        onUp,
+                                    );
+                                };
+                                window.addEventListener("pointermove", onMove);
+                                window.addEventListener("pointerup", onUp);
+                            }}
                         />
                     </div>,
                     document.body,

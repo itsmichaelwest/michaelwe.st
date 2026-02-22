@@ -769,6 +769,8 @@ export function GalleryShell({
                             subtitle={item.subtitle}
                             img={item.img}
                             noMSFT={item.noMSFT}
+                            officialURL={item.officialURL}
+                            officialURLText={item.officialURLText}
                             year={item.year}
                             paras={item.paras}
                             mdxSource={item.mdxSource}

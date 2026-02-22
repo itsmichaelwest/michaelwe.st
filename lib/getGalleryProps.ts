@@ -34,6 +34,8 @@ export async function getGalleryItems(): Promise<ItemData[]> {
                 img: p.heroImage ? `/images/${p.id}/${p.heroImage}` : undefined,
                 canonical: p.canonical ?? null,
                 noMSFT: p.noMSFT ?? false,
+                officialURL: p.officialURL,
+                officialURLText: p.officialURLText,
                 year: p.date
                     ? new Date(p.date).getFullYear().toString()
                     : undefined,

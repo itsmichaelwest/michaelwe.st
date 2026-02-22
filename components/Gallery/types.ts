@@ -12,6 +12,8 @@ export interface ItemData {
     year?: string;
     color?: string;
     label?: string;
+    officialURL?: string;
+    officialURLText?: string;
     paras?: number;
     mdxSource?: SerializeResult;
 }

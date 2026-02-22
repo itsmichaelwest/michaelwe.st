@@ -102,7 +102,7 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
                 style={{ opacity: aboutSpring, scale: contentScale }}
             >
                 <article className="w-full md:h-full grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 px-4 pt-24 pb-16 md:pt-0 md:pb-0">
-                    <div className="relative md:h-full md:min-h-0 overflow-hidden">
+                    <div className="relative md:h-full md:min-h-0 rounded-xl border border-black/5 overflow-hidden">
                         <Image
                             className="md:absolute md:inset-0 md:h-full md:w-full md:object-cover"
                             src={PortraitTall}
