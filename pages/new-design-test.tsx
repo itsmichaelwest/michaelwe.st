@@ -4,6 +4,7 @@ import {
     useLayoutEffect,
     useCallback,
     useRef,
+    useMemo,
 } from "react";
 import {
     motion,
@@ -18,99 +19,43 @@ import Image from "next/image";
 import { createPortal } from "react-dom";
 import Face from "../public/images/michael-face.jpg";
 import clsx from "clsx";
+import type { GetStaticProps } from "next";
+import { getSortedWorkData } from "../lib/work";
+import {
+    serialize,
+    type SerializeOptions,
+    type SerializeResult,
+} from "next-mdx-remote-client/serialize";
+import { MDXClient } from "next-mdx-remote-client";
+import { components } from "../components/MDXComponents";
+import rehypeUnwrapImages from "rehype-unwrap-images";
+import rehypeImgSize from "rehype-img-size";
 
 // ── Data ──────────────────────────────────────────────────────
-const ITEMS = [
-    {
-        color: "#e74c3c",
-        label: "1",
-        aspect: 1680 / 1279,
-        railH: 0.8,
-        title: "Item One",
-        subtitle: "Lorem ipsum dolor sit amet",
-        paras: 5,
-    },
-    {
-        color: "#3498db",
-        label: "2",
-        aspect: 0.56,
-        railH: 1.0,
-        title: "Item Two",
-        subtitle: "Consectetur adipiscing elit",
-        paras: 1,
-    },
-    {
-        color: "#2ecc71",
-        label: "3",
-        aspect: 1.0,
-        railH: 0.8,
-        title: "Item Three",
-        subtitle: "Sed do eiusmod tempor",
-        paras: 3,
-    },
-    {
-        color: "#f39c12",
-        label: "4",
-        aspect: 1.33,
-        railH: 0.7,
-        title: "Item Four",
-        subtitle: "Ut enim ad minim veniam",
-        paras: 2,
-    },
-    {
-        color: "#9b59b6",
-        label: "5",
-        aspect: 0.56,
-        railH: 0.95,
-        title: "Item Five",
-        subtitle: "Quis nostrud exercitation",
-        paras: 6,
-    },
-    {
-        color: "#1abc9c",
-        label: "6",
-        aspect: 1.5,
-        railH: 0.65,
-        title: "Item Six",
-        subtitle: "Duis aute irure dolor",
-        paras: 1,
-    },
-    {
-        color: "#e67e22",
-        label: "7",
-        aspect: 1.28,
-        railH: 0.75,
-        title: "Item Seven",
-        subtitle: "Excepteur sint occaecat",
-        paras: 4,
-    },
-    {
-        color: "#2c3e50",
-        label: "8",
-        aspect: 0.75,
-        railH: 0.9,
-        title: "Item Eight",
-        subtitle: "Sunt in culpa qui officia",
-        paras: 2,
-    },
-    {
-        color: "#c0392b",
-        label: "9",
-        aspect: 1.6,
-        railH: 0.55,
-        title: "Item Nine",
-        subtitle: "Mollit anim id est laborum",
-        paras: 7,
-    },
-    {
-        color: "#16a085",
-        label: "10",
-        aspect: 1.0,
-        railH: 0.85,
-        title: "Item Ten",
-        subtitle: "Nemo enim ipsam voluptatem",
-        paras: 1,
-    },
+interface ItemData {
+    id: string;
+    title: string;
+    subtitle: string;
+    aspect: number;
+    railH: number;
+    img?: string;
+    color?: string;
+    label?: string;
+    paras?: number;
+    mdxSource?: SerializeResult;
+}
+
+const SAMPLE_ITEMS: ItemData[] = [
+    { id: "s1", color: "#e74c3c", label: "1", aspect: 1680 / 1279, railH: 0.8, title: "Item One", subtitle: "Lorem ipsum dolor sit amet", paras: 5 },
+    { id: "s2", color: "#3498db", label: "2", aspect: 0.56, railH: 1.0, title: "Item Two", subtitle: "Consectetur adipiscing elit", paras: 1 },
+    { id: "s3", color: "#2ecc71", label: "3", aspect: 1.0, railH: 0.8, title: "Item Three", subtitle: "Sed do eiusmod tempor", paras: 3 },
+    { id: "s4", color: "#f39c12", label: "4", aspect: 1.33, railH: 0.7, title: "Item Four", subtitle: "Ut enim ad minim veniam", paras: 2 },
+    { id: "s5", color: "#9b59b6", label: "5", aspect: 0.56, railH: 0.95, title: "Item Five", subtitle: "Quis nostrud exercitation", paras: 6 },
+    { id: "s6", color: "#1abc9c", label: "6", aspect: 1.5, railH: 0.65, title: "Item Six", subtitle: "Duis aute irure dolor", paras: 1 },
+    { id: "s7", color: "#e67e22", label: "7", aspect: 1.28, railH: 0.75, title: "Item Seven", subtitle: "Excepteur sint occaecat", paras: 4 },
+    { id: "s8", color: "#2c3e50", label: "8", aspect: 0.75, railH: 0.9, title: "Item Eight", subtitle: "Sunt in culpa qui officia", paras: 2 },
+    { id: "s9", color: "#c0392b", label: "9", aspect: 1.6, railH: 0.55, title: "Item Nine", subtitle: "Mollit anim id est laborum", paras: 7 },
+    { id: "s10", color: "#16a085", label: "10", aspect: 1.0, railH: 0.85, title: "Item Ten", subtitle: "Nemo enim ipsam voluptatem", paras: 1 },
 ];
 
 // ── Layout constants ──────────────────────────────────────────
@@ -133,39 +78,39 @@ const DRAG_DECAY = 0.96;
 
 // ── Per-item sizing ──────────────────────────────────────────
 // Wrapper is always "natural" uncapped size; gallery scale adjusts for narrow vp
-function itemFullW(i: number, vh: number) {
-    return GALLERY_H * vh * ITEMS[i].aspect;
+function itemFullW(items: ItemData[], i: number, vh: number) {
+    return GALLERY_H * vh * items[i].aspect;
 }
 
-function itemGalleryScale(i: number, vw: number, vh: number) {
-    return Math.min(1, (vw - GALLERY_PAD * 2) / itemFullW(i, vh));
+function itemGalleryScale(items: ItemData[], i: number, vw: number, vh: number) {
+    return Math.min(1, (vw - GALLERY_PAD * 2) / itemFullW(items, i, vh));
 }
 
-function itemRailScale(i: number, containerH: number, vh: number) {
-    return (ITEMS[i].railH * containerH) / (GALLERY_H * vh);
+function itemRailScale(items: ItemData[], i: number, containerH: number, vh: number) {
+    return (items[i].railH * containerH) / (GALLERY_H * vh);
 }
 
-function railItemW(i: number, containerH: number) {
-    return ITEMS[i].aspect * ITEMS[i].railH * containerH;
+function railItemW(items: ItemData[], i: number, containerH: number) {
+    return items[i].aspect * items[i].railH * containerH;
 }
 
-function railLeftOf(i: number, containerH: number) {
+function railLeftOf(items: ItemData[], i: number, containerH: number) {
     let x = RAIL_PAD;
-    for (let j = 0; j < i; j++) x += railItemW(j, containerH) + RAIL_GAP;
+    for (let j = 0; j < i; j++) x += railItemW(items, j, containerH) + RAIL_GAP;
     return x;
 }
 
-function totalRailW(containerH: number) {
+function totalRailW(items: ItemData[], containerH: number) {
     let total = RAIL_PAD * 2;
-    for (let i = 0; i < ITEMS.length; i++) {
-        total += railItemW(i, containerH);
-        if (i < ITEMS.length - 1) total += RAIL_GAP;
+    for (let i = 0; i < items.length; i++) {
+        total += railItemW(items, i, containerH);
+        if (i < items.length - 1) total += RAIL_GAP;
     }
     return total;
 }
 
-function maxRailScroll(containerH: number, containerW: number) {
-    return Math.max(0, totalRailW(containerH) - containerW);
+function maxRailScroll(items: ItemData[], containerH: number, containerW: number) {
+    return Math.max(0, totalRailW(items, containerH) - containerW);
 }
 
 // ── Hooks ─────────────────────────────────────────────────────
@@ -181,11 +126,55 @@ function useWindowSize() {
     return size;
 }
 
+// ── Static props ─────────────────────────────────────────────
+export const getStaticProps: GetStaticProps = async () => {
+    const posts = getSortedWorkData().filter((p) => !p.hideFromList);
+    const mdxOptions: SerializeOptions = {
+        disableImports: true,
+        mdxOptions: {
+            rehypePlugins: [
+                rehypeUnwrapImages,
+                [rehypeImgSize, { dir: "public" }],
+            ],
+        },
+        parseFrontmatter: true,
+    };
+
+    const items: ItemData[] = await Promise.all(
+        posts.map(async (p) => {
+            const mdxSource = await serialize({
+                source: p.content,
+                options: mdxOptions,
+            });
+            return {
+                id: p.id,
+                title: p.title ?? p.id,
+                subtitle: p.description ?? p.category ?? "",
+                aspect: 1.0,
+                railH: 0.8,
+                img: p.featuredBlockImage
+                    ? `/images/${p.id}/${p.featuredBlockImage}`
+                    : undefined,
+                mdxSource,
+            };
+        }),
+    );
+    return { props: { items } };
+};
+
 // ── Component ─────────────────────────────────────────────────
-export default function NewDesignTest() {
+export default function NewDesignTest({
+    items: realItems,
+}: {
+    items: ItemData[];
+}) {
     const [open, setOpen] = useState(false);
     const [current, setCurrent] = useState(0);
     const { w: vw, h: vh } = useWindowSize();
+    const items = useMemo(
+        () => [...realItems, ...SAMPLE_ITEMS],
+        [realItems],
+    );
 
     const railOffset = useMotionValue(0);
     const galleryPageX = useMotionValue(0);
@@ -262,9 +251,9 @@ export default function NewDesignTest() {
         (idx: number, smooth = false) => {
             if (vw <= 0 || vh <= 0) return;
             const cH = containerRectRef.current.height;
-            const w = railItemW(idx, cH);
-            const center = railLeftOf(idx, cH) + w / 2;
-            const max = maxRailScroll(cH, containerRectRef.current.width);
+            const w = railItemW(items, idx, cH);
+            const center = railLeftOf(items, idx, cH) + w / 2;
+            const max = maxRailScroll(items, cH, containerRectRef.current.width);
             const vpCenter = vw / 2 - containerRectRef.current.left;
             const target = Math.max(-max, Math.min(0, vpCenter - center));
             if (smooth) {
@@ -276,7 +265,7 @@ export default function NewDesignTest() {
                 railOffset.jump(target);
             }
         },
-        [railOffset, vw, vh],
+        [railOffset, vw, vh, items],
     );
 
     const closeGallery = useCallback(() => {
@@ -289,7 +278,7 @@ export default function NewDesignTest() {
 
     const goToPage = useCallback(
         (i: number) => {
-            const clamped = Math.max(0, Math.min(i, ITEMS.length - 1));
+            const clamped = Math.max(0, Math.min(i, items.length - 1));
             setCurrent(clamped);
             currentRef.current = clamped;
             const drag = galleryDragX.get();
@@ -300,7 +289,7 @@ export default function NewDesignTest() {
                 ...PAGE_SPRING,
             });
         },
-        [galleryPageX, galleryDragX, vw],
+        [galleryPageX, galleryDragX, vw, items.length],
     );
 
     useEffect(() => {
@@ -322,6 +311,7 @@ export default function NewDesignTest() {
             galleryDragX.jump(0);
         } else {
             const max = maxRailScroll(
+                items,
                 containerRectRef.current.height,
                 containerRectRef.current.width,
             );
@@ -329,7 +319,7 @@ export default function NewDesignTest() {
             if (cur < -max) railOffset.jump(-max);
             if (cur > 0) railOffset.jump(0);
         }
-    }, [vw, vh, galleryPageX, galleryDragX, railOffset]);
+    }, [vw, vh, galleryPageX, galleryDragX, railOffset, items]);
 
     // Non-passive wheel: rail scroll (closed) + horizontal gallery swipe (open)
     useEffect(() => {
@@ -353,6 +343,7 @@ export default function NewDesignTest() {
                     : e.deltaY;
                 if (Math.abs(delta) < 1) return;
                 const max = maxRailScroll(
+                    items,
                     containerRectRef.current.height,
                     containerRectRef.current.width,
                 );
@@ -391,7 +382,7 @@ export default function NewDesignTest() {
                 let delta = -e.deltaX;
                 const isFirst = currentRef.current === 0;
                 const isLast =
-                    currentRef.current === ITEMS.length - 1;
+                    currentRef.current === items.length - 1;
                 if (
                     (isFirst && hAccum + delta > 0) ||
                     (isLast && hAccum + delta < 0)
@@ -436,7 +427,7 @@ export default function NewDesignTest() {
             el.removeEventListener("wheel", onWheel);
             if (idleTimer) clearTimeout(idleTimer);
         };
-    }, [vw, railOffset, galleryDragX, goToPage]);
+    }, [vw, railOffset, galleryDragX, goToPage, items]);
 
     const startMomentum = useCallback(
         (velocity: number) => {
@@ -446,6 +437,7 @@ export default function NewDesignTest() {
                 if (Math.abs(v) < 0.5) {
                     momentumRef.current = null;
                     const max = maxRailScroll(
+                        items,
                         containerRectRef.current.height,
                         containerRectRef.current.width,
                     );
@@ -464,6 +456,7 @@ export default function NewDesignTest() {
                 }
                 railOffset.set(railOffset.get() + v);
                 const max = maxRailScroll(
+                    items,
                     containerRectRef.current.height,
                     containerRectRef.current.width,
                 );
@@ -473,7 +466,7 @@ export default function NewDesignTest() {
             };
             momentumRef.current = requestAnimationFrame(tick);
         },
-        [railOffset, vw, vh],
+        [railOffset, vw, vh, items],
     );
 
     const stopMomentum = useCallback(() => {
@@ -535,7 +528,7 @@ export default function NewDesignTest() {
                 if (dragAxisRef.current === "x" && dragOnImageRef.current) {
                     let offsetX = dx;
                     const isFirst = currentRef.current === 0;
-                    const isLast = currentRef.current === ITEMS.length - 1;
+                    const isLast = currentRef.current === items.length - 1;
                     if ((isFirst && dx > 0) || (isLast && dx < 0))
                         offsetX = dx * RUBBER_BAND_K;
                     galleryDragX.jump(offsetX);
@@ -550,6 +543,7 @@ export default function NewDesignTest() {
             } else {
                 if (dragAxisRef.current === "x") {
                     const max = maxRailScroll(
+                        items,
                         containerRectRef.current.height,
                         containerRectRef.current.width,
                     );
@@ -572,6 +566,7 @@ export default function NewDesignTest() {
             vw,
             vh,
             centerRailOn,
+            items,
         ],
     );
 
@@ -584,10 +579,10 @@ export default function NewDesignTest() {
         if (!rect) return -1;
         const localX = screenX - rect.left;
         const localY = screenY - rect.top;
-        for (let i = 0; i < ITEMS.length; i++) {
-            const left = railLeftOf(i, rect.height) + scrollOff;
-            const w = railItemW(i, rect.height);
-            const itemTop = rect.height * (1 - ITEMS[i].railH);
+        for (let i = 0; i < items.length; i++) {
+            const left = railLeftOf(items, i, rect.height) + scrollOff;
+            const w = railItemW(items, i, rect.height);
+            const itemTop = rect.height * (1 - items[i].railH);
             if (localX >= left && localX <= left + w && localY >= itemTop)
                 return i;
         }
@@ -756,17 +751,20 @@ export default function NewDesignTest() {
                     onPointerMove={onPointerMove}
                     onPointerUp={onPointerUp}
                 >
-                    {ITEMS.map((item, i) => (
+                    {items.map((item, i) => (
                         <GalleryItem
-                            key={i}
+                            key={item.id}
                             index={i}
+                            items={items}
+                            itemCount={items.length}
                             current={current}
                             color={item.color}
                             label={item.label}
                             title={item.title}
                             subtitle={item.subtitle}
-                            img={item?.img}
+                            img={item.img}
                             paras={item.paras}
+                            mdxSource={item.mdxSource}
                             open={open}
                             vw={vw}
                             vh={vh}
@@ -808,6 +806,8 @@ const LOREM =
 
 function GalleryItem({
     index,
+    items,
+    itemCount,
     current,
     color,
     label,
@@ -815,6 +815,7 @@ function GalleryItem({
     subtitle,
     img,
     paras,
+    mdxSource,
     open,
     vw,
     vh,
@@ -830,20 +831,23 @@ function GalleryItem({
     containerRectRef,
 }: {
     index: number;
+    items: ItemData[];
+    itemCount: number;
     current: number;
-    color: string;
-    label: string;
+    color?: string;
+    label?: string;
     title: string;
     subtitle: string;
     img?: string;
-    paras: number;
+    paras?: number;
+    mdxSource?: SerializeResult;
     open: boolean;
     vw: number;
     vh: number;
-    openSpring: ReturnType<typeof useSpring>;
-    railScroll: ReturnType<typeof useMotionValue>;
-    galleryPageX: ReturnType<typeof useMotionValue>;
-    galleryDragX: ReturnType<typeof useMotionValue>;
+    openSpring: MotionValue<number>;
+    railScroll: MotionValue<number>;
+    galleryPageX: MotionValue<number>;
+    galleryDragX: MotionValue<number>;
     galleryDragY: MotionValue<number>;
     closeGallery: () => void;
     goToPage: (i: number) => void;
@@ -856,11 +860,11 @@ function GalleryItem({
     }>;
 }) {
     const cH = containerRectRef.current.height;
-    const naturalW = itemFullW(index, vh);
-    const galScale = itemGalleryScale(index, vw, vh);
-    const sRail = itemRailScale(index, cH, vh);
+    const naturalW = itemFullW(items, index, vh);
+    const galScale = itemGalleryScale(items, index, vw, vh);
+    const sRail = itemRailScale(items, index, cH, vh);
     const originOff = (naturalW * (1 - sRail)) / 2;
-    const myRailLeft = railLeftOf(index, cH);
+    const myRailLeft = railLeftOf(items, index, cH);
     const isActive = open && index === current;
     const isNearby = !open || Math.abs(index - current) <= 1;
 
@@ -1117,7 +1121,7 @@ function GalleryItem({
             }
             let offsetX = dx;
             const isFirst = index === 0;
-            const isLast = index === ITEMS.length - 1;
+            const isLast = index === itemCount - 1;
             if ((isFirst && dx > 0) || (isLast && dx < 0))
                 offsetX *= RUBBER_BAND_K;
             galleryDragX.jump(offsetX);
@@ -1216,9 +1220,13 @@ function GalleryItem({
                         <h2 className="font-bold text-2xl">{title}</h2>
                         <p className="text-muted">{subtitle}</p>
                     </div>
-                    {Array.from({ length: paras }, (_, j) => (
-                        <p key={j}>{LOREM}</p>
-                    ))}
+                    {mdxSource && !("error" in mdxSource) ? (
+                        <MDXClient {...mdxSource} components={components} />
+                    ) : (
+                        Array.from({ length: paras ?? 1 }, (_, j) => (
+                            <p key={j}>{LOREM}</p>
+                        ))
+                    )}
                 </div>
             </motion.div>
 
