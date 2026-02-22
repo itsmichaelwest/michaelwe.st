@@ -346,15 +346,19 @@ export default function NewDesignTest() {
                 hActive = false;
                 hAccum = 0;
                 navigated = false;
-                // Rail horizontal scroll
-                if (Math.abs(e.deltaX) < 1) return;
+                // Rail horizontal scroll — accept both deltaX and deltaY
+                // so vertical-only mouse wheels can scroll the carousel
+                const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY)
+                    ? e.deltaX
+                    : e.deltaY;
+                if (Math.abs(delta) < 1) return;
                 const max = maxRailScroll(
                     containerRectRef.current.height,
                     containerRectRef.current.width,
                 );
                 const cur = railOffset.get();
                 railOffset.jump(
-                    Math.max(-max, Math.min(0, cur - e.deltaX)),
+                    Math.max(-max, Math.min(0, cur - delta)),
                 );
                 return;
             }
