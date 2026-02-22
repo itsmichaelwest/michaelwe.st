@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import {
     motion,
     useMotionValue,
@@ -45,6 +45,34 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
         return () => window.removeEventListener("keydown", onKey);
     }, [open, onClose]);
 
+    const sectionRef = useRef<HTMLElement>(null);
+    const [scrollMask, setScrollMask] = useState<"none" | "bottom" | "top" | "both">("none");
+
+    const updateMask = useCallback(() => {
+        const el = sectionRef.current;
+        if (!el) return;
+        const top = el.scrollTop > 2;
+        const bottom = el.scrollTop + el.clientHeight < el.scrollHeight - 2;
+        setScrollMask(top && bottom ? "both" : top ? "top" : bottom ? "bottom" : "none");
+    }, []);
+
+    useEffect(() => {
+        const el = sectionRef.current;
+        if (!el) return;
+        updateMask();
+        el.addEventListener("scroll", updateMask, { passive: true });
+        return () => el.removeEventListener("scroll", updateMask);
+    }, [open, updateMask]);
+
+    const maskImage =
+        scrollMask === "both"
+            ? "linear-gradient(to bottom, transparent, black 32px, black calc(100% - 32px), transparent)"
+            : scrollMask === "top"
+              ? "linear-gradient(to bottom, transparent, black 32px)"
+              : scrollMask === "bottom"
+                ? "linear-gradient(to bottom, black calc(100% - 32px), transparent)"
+                : undefined;
+
     return (
         <>
             {/* Backdrop */}
@@ -65,15 +93,19 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
                 )}
                 style={{ opacity: aboutSpring, scale: contentScale }}
             >
-                <article className="w-full md:h-full grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 px-4 pt-32 pb-16 md:pt-0 md:pb-0">
-                        <div className="relative md:h-full md:min-h-0">
+                <article className="w-full md:h-full grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 px-4 pt-24 pb-16 md:pt-0 md:pb-0">
+                        <div className="relative md:h-full md:min-h-0 overflow-hidden">
                             <Image
                                 className="md:absolute md:inset-0 md:h-full md:w-full md:object-cover"
                                 src={PortraitTall}
                                 alt="Photo of Michael"
                             />
                         </div>
-                        <section className="space-y-8 md:overflow-y-auto md:h-full">
+                        <section
+                            ref={sectionRef}
+                            className="space-y-8 md:overflow-y-auto md:h-full"
+                            style={{ maskImage, WebkitMaskImage: maskImage }}
+                        >
                                 <p>
                                     I&apos;m a self-taught designer with an engineering
                                     background, specializing in simple and effortless

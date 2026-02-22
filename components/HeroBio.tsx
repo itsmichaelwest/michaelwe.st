@@ -3,6 +3,7 @@ import Image from "next/image";
 import clsx from "clsx";
 import Face from "../public/images/michael-face.jpg";
 import { useGallery } from "./Gallery/GalleryContext";
+import Link from "next/link";
 
 export function HeroBio() {
     const { open, openAbout } = useGallery();
@@ -10,7 +11,7 @@ export function HeroBio() {
     return (
         <motion.div
             className={clsx(
-                "grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-4",
+                "grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-4",
                 !open
                     ? "pointer-events-auto"
                     : "pointer-events-none",
@@ -20,7 +21,7 @@ export function HeroBio() {
                 filter: open ? "blur(4px)" : "blur(0px)",
             }}
         >
-            <div className="space-y-4">
+            <div className="space-y-6">
             <div className="flex gap-4 items-center">
                 <Image
                     className="w-10 rounded-full shadow ring ring-black/10 dark:ring-white/5"
@@ -34,18 +35,46 @@ export function HeroBio() {
                     </p>
                 </div>
             </div>
+            <div className="space-y-2">
+            <p className="text-muted italic">
+                Designer, engineer, builder.
+            </p>
             <p>
-                Hello
+                I currently work on Windows, where our team focuses on making your PC experience more powerful and delightful with AI, while also scaling new tooling across the studio.                 <button
+                    className="inline text-muted hover:underline cursor-pointer bg-transparent border-none p-0 font-inherit"
+                    onClick={() => openAbout()}
+                >
+                    More...
+                </button>
             </p>
             </div>
 
-            <div className="flex items-start justify-start lg:justify-end">
-                <button
-                    className="underline cursor-pointer bg-transparent border-none p-0 font-inherit text-inherit"
-                    onClick={() => openAbout()}
+            </div>
+            <div className="flex flex-col items-start md:items-end text-muted">
+                <Link
+                    className="hover:underline cursor-pointer bg-transparent border-none p-0 font-inherit text-inherit"
+                    href="https://x.com/itsmichaelwest"
+                    target="_blank"
+            rel="noopener noreferrer me"
                 >
-                    About
-                </button>
+                    X
+                </Link>
+                <Link
+                    className="hover:underline cursor-pointer bg-transparent border-none p-0 font-inherit text-inherit"
+                    href="https://www.linkedin.com/in/itsmichaelwest"
+                    target="_blank"
+            rel="noopener noreferrer me"
+                >
+                    LinkedIn
+                </Link>
+                <Link
+                    className="hover:underline cursor-pointer bg-transparent border-none p-0 font-inherit text-inherit"
+                    href="https://github.com/itsmichaelwest"
+                    target="_blank"
+            rel="noopener noreferrer me"
+                >
+                    GitHub
+                </Link>
             </div>
         </motion.div>
     );

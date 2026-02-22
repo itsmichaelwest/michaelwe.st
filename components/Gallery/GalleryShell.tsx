@@ -668,7 +668,7 @@ export function GalleryShell({ items: realItems, children }: { items: ItemData[]
                 <div
                     ref={containerRef}
                     className={clsx(
-                        "absolute bottom-0 inset-x-0 h-8/12 overflow-visible touch-none",
+                        "absolute bottom-0 inset-x-0 h-1/2 md:h-7/12 overflow-visible touch-none",
                         open ? "z-51" : "z-auto",
                     )}
                     onPointerDownCapture={() => {
