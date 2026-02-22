@@ -337,6 +337,102 @@ export default function NewDesignTest() {
         }
     }, [vw, vh, galleryPageX, galleryDragX, galleryScrollY, railOffset]);
 
+    // Non-passive wheel: rail scroll (closed) + horizontal gallery swipe (open)
+    useEffect(() => {
+        const el = containerRef.current;
+        if (!el) return;
+
+        let hAccum = 0;
+        let hActive = false;
+        let navigated = false;
+        let idleTimer: ReturnType<typeof setTimeout> | null = null;
+
+        const onWheel = (e: WheelEvent) => {
+            if (!openRef.current) {
+                hActive = false;
+                hAccum = 0;
+                navigated = false;
+                // Rail horizontal scroll
+                if (Math.abs(e.deltaX) < 1) return;
+                const max = maxRailScroll(
+                    containerRectRef.current.height,
+                    containerRectRef.current.width,
+                );
+                const cur = railOffset.get();
+                railOffset.jump(
+                    Math.max(-max, Math.min(0, cur - e.deltaX)),
+                );
+                return;
+            }
+
+            // Eat remaining inertia after navigation
+            if (navigated) {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
+
+            // Gallery: horizontal swipe for page navigation
+            if (
+                hActive ||
+                (Math.abs(e.deltaX) > Math.abs(e.deltaY) &&
+                    Math.abs(e.deltaX) > 1)
+            ) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                hActive = true;
+
+                let delta = -e.deltaX;
+                const isFirst = currentRef.current === 0;
+                const isLast =
+                    currentRef.current === ITEMS.length - 1;
+                if (
+                    (isFirst && hAccum + delta > 0) ||
+                    (isLast && hAccum + delta < 0)
+                ) {
+                    delta *= RUBBER_BAND_K;
+                }
+                hAccum += delta;
+                galleryDragX.jump(hAccum);
+
+                // Navigate when distance crosses threshold
+                const threshold = vw * GALLERY_PAGE_THRESHOLD;
+                if (hAccum < -threshold) {
+                    navigated = true;
+                    goToPage(currentRef.current + 1);
+                } else if (hAccum > threshold) {
+                    navigated = true;
+                    goToPage(currentRef.current - 1);
+                }
+
+                if (idleTimer) clearTimeout(idleTimer);
+                idleTimer = setTimeout(
+                    () => {
+                        if (!navigated) {
+                            animate(galleryDragX, 0, {
+                                type: "spring",
+                                ...PAGE_SPRING,
+                            });
+                        }
+                        hActive = false;
+                        hAccum = 0;
+                        navigated = false;
+                    },
+                    navigated ? 500 : 150,
+                );
+                return;
+            }
+            // Vertical: let bubble to GalleryItem's window listener
+        };
+
+        el.addEventListener("wheel", onWheel, { passive: false });
+        return () => {
+            el.removeEventListener("wheel", onWheel);
+            if (idleTimer) clearTimeout(idleTimer);
+        };
+    }, [vw, railOffset, galleryDragX, goToPage]);
+
     const startMomentum = useCallback(
         (velocity: number) => {
             let v = velocity;
@@ -649,18 +745,6 @@ export default function NewDesignTest() {
                     onPointerDown={onPointerDown}
                     onPointerMove={onPointerMove}
                     onPointerUp={onPointerUp}
-                    onWheel={(e) => {
-                        if (openRef.current) return;
-                        if (Math.abs(e.deltaX) < 1) return;
-                        const max = maxRailScroll(
-                            containerRectRef.current.height,
-                            containerRectRef.current.width,
-                        );
-                        const cur = railOffset.get();
-                        railOffset.jump(
-                            Math.max(-max, Math.min(0, cur - e.deltaX)),
-                        );
-                    }}
                 >
                     {ITEMS.map((item, i) => (
                         <GalleryItem
