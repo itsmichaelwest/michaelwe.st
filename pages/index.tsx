@@ -1,5 +1,6 @@
 import Head from "next/head";
 import type { GetStaticProps } from "next";
+import SEO from "../components/SEO";
 import { getSortedWorkData } from "../lib/work";
 import {
     serialize,
@@ -52,8 +53,8 @@ export const getStaticProps: GetStaticProps = async () => {
 export default function Home({ items }: { items: ItemData[] }) {
     return (
         <>
+            <SEO title="Michael" description="Michael is designing things." />
             <Head>
-                <title>Michael</title>
                 <style>{`
                     html, body { overflow: hidden; overscroll-behavior: none; height: 100%; }
                     @media (any-pointer: coarse) {

@@ -36,6 +36,7 @@ import {
 } from "./utils";
 import { GalleryItem } from "./GalleryItem";
 import { AboutModal } from "../AboutModal";
+import SEO from "../SEO";
 
 export function GalleryShell({ items: realItems, children }: { items: ItemData[]; children?: ReactNode }) {
     const isDirectNav = typeof window !== "undefined" &&
@@ -638,6 +639,21 @@ export function GalleryShell({ items: realItems, children }: { items: ItemData[]
 
     return (
         <GalleryContext.Provider value={{ open, openSpring, aboutOpen, openAbout, closeAbout }}>
+            {open && items[current] && !items[current].canonical && (
+                <SEO
+                    title={`${items[current].title} — Michael`}
+                    description={items[current].subtitle}
+                    image={items[current].img}
+                    canonical={`/work/${items[current].id}`}
+                />
+            )}
+            {aboutOpen && (
+                <SEO
+                    title="About — Michael"
+                    description="About Michael West"
+                    canonical="/about"
+                />
+            )}
             <div className="relative max-w-[80ch] w-full h-[80vh] md:h-[60vh] mx-auto px-4 flex flex-col">
                 {children}
 
@@ -668,7 +684,7 @@ export function GalleryShell({ items: realItems, children }: { items: ItemData[]
                 <div
                     ref={containerRef}
                     className={clsx(
-                        "absolute bottom-0 inset-x-0 h-1/2 md:h-7/12 overflow-visible touch-none",
+                        "absolute bottom-0 inset-x-0 h-1/2 overflow-visible touch-none",
                         open ? "z-51" : "z-auto",
                     )}
                     onPointerDownCapture={() => {

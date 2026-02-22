@@ -37,38 +37,38 @@ const SEO: FC<SEOProps> = ({
 
     return (
         <Head>
-            <title>{title}</title>
-            {description && <meta name="description" content={description} />}
+            <title key="title">{title}</title>
+            {description && <meta key="description" name="description" content={description} />}
 
             {computedCanonical && (
-                <link rel="canonical" href={computedCanonical} />
+                <link key="canonical" rel="canonical" href={computedCanonical} />
             )}
 
-            <meta property="og:title" content={title} />
-            <meta property="og:type" content={type} />
+            <meta key="og:title" property="og:title" content={title} />
+            <meta key="og:type" property="og:type" content={type} />
             {description && (
-                <meta property="og:description" content={description} />
+                <meta key="og:description" property="og:description" content={description} />
             )}
             {computedCanonical && (
-                <meta property="og:url" content={computedCanonical} />
+                <meta key="og:url" property="og:url" content={computedCanonical} />
             )}
-            <meta property="og:site_name" content={siteMetadata.title} />
-            {ogImage && <meta property="og:image" content={ogImage} />}
+            <meta key="og:site_name" property="og:site_name" content={siteMetadata.title} />
+            {ogImage && <meta key="og:image" property="og:image" content={ogImage} />}
 
-            <meta name="twitter:card" content={image ? "summary_large_image" : "summary"} />
+            <meta key="twitter:card" name="twitter:card" content={image ? "summary_large_image" : "summary"} />
             {twitterHandle && (
-                <meta name="twitter:site" content={twitterHandle} />
+                <meta key="twitter:site" name="twitter:site" content={twitterHandle} />
             )}
-            <meta name="twitter:title" content={title} />
+            <meta key="twitter:title" name="twitter:title" content={title} />
             {description && (
-                <meta name="twitter:description" content={description} />
+                <meta key="twitter:description" name="twitter:description" content={description} />
             )}
             {twitterHandle && (
-                <meta name="twitter:creator" content={twitterHandle} />
+                <meta key="twitter:creator" name="twitter:creator" content={twitterHandle} />
             )}
-            {ogImage && <meta name="twitter:image" content={ogImage} />}
+            {ogImage && <meta key="twitter:image" name="twitter:image" content={ogImage} />}
 
-            {noIndex && <meta name="robots" content="noindex,nofollow" />}
+            {noIndex && <meta key="robots" name="robots" content="noindex,nofollow" />}
         </Head>
     );
 };
