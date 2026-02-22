@@ -680,7 +680,12 @@ export default function NewDesignTest() {
         <>
             <Head>
                 <title>Design Test</title>
-                <style>{`html { overscroll-behavior-x: none; }`}</style>
+                <style>{`
+                    html, body { overflow: hidden; overscroll-behavior: none; height: 100%; }
+                    @media (any-pointer: coarse) {
+                        .gallery-portal { pointer-events: auto !important; touch-action: pan-y; }
+                    }
+                `}</style>
             </Head>
 
             <div className="relative max-w-[80ch] w-full h-[60vh] mx-auto px-4 flex flex-col">
@@ -767,6 +772,7 @@ export default function NewDesignTest() {
                             galleryDragY={galleryDragY}
                             galleryScrollY={galleryScrollY}
                             closeGallery={closeGallery}
+                            goToPage={goToPage}
                             openProgressRaw={openProgress}
                             dragOnImageRef={dragOnImageRef}
                             containerRectRef={containerRectRef}
@@ -815,6 +821,7 @@ function GalleryItem({
     galleryDragY,
     galleryScrollY,
     closeGallery,
+    goToPage,
     openProgressRaw,
     dragOnImageRef,
     containerRectRef,
@@ -837,6 +844,7 @@ function GalleryItem({
     galleryDragY: MotionValue<number>;
     galleryScrollY: MotionValue<number>;
     closeGallery: () => void;
+    goToPage: (i: number) => void;
     openProgressRaw: MotionValue<number>;
     dragOnImageRef: React.MutableRefObject<boolean>;
     containerRectRef: React.RefObject<{
@@ -1016,17 +1024,126 @@ function GalleryItem({
         };
     }, [showPortal, vh, closeGallery, openProgressRaw, galleryDragY]);
 
-    // Sync native scroll → galleryScrollY so image moves with text
+    // Sync native scroll → galleryScrollY; detect iOS negative scrollTop for dismiss
     useEffect(() => {
         if (!showPortal) return;
         const el = scrollContainerRef.current;
         if (!el) return;
         const onScroll = () => {
-            galleryScrollY.jump(el.scrollTop);
+            const st = el.scrollTop;
+            if (st < 0) {
+                // iOS rubber-band overscroll at top → track as dismiss gesture
+                const pull = -st;
+                galleryDragY.jump(pull);
+                openProgressRaw.jump(
+                    Math.max(0, 1 - pull / (vh * 0.3)),
+                );
+                if (pull > vh * 0.15) {
+                    closeGallery();
+                }
+            } else {
+                // Reset dismiss state if rubber-band sprang back
+                if (galleryDragY.get() > 0) {
+                    galleryDragY.jump(0);
+                    openProgressRaw.set(1);
+                }
+                galleryScrollY.jump(st);
+            }
         };
         el.addEventListener("scroll", onScroll, { passive: true });
         return () => el.removeEventListener("scroll", onScroll);
-    }, [showPortal, galleryScrollY]);
+    }, [
+        showPortal,
+        galleryScrollY,
+        vh,
+        galleryDragY,
+        openProgressRaw,
+        closeGallery,
+    ]);
+
+    // Touch horizontal swipe on portal for page navigation (mobile)
+    // touch-action: pan-y lets browser handle vertical scroll; horizontal fires pointer events
+    const portalSwipeRef = useRef<{
+        startX: number;
+        active: boolean;
+        lastX: number;
+        lastT: number;
+        vx: number;
+    } | null>(null);
+
+    const onPortalPointerDown = useCallback(
+        (e: React.PointerEvent) => {
+            if (e.pointerType !== "touch") return;
+            portalSwipeRef.current = {
+                startX: e.clientX,
+                active: false,
+                lastX: e.clientX,
+                lastT: performance.now(),
+                vx: 0,
+            };
+            (e.target as HTMLElement).setPointerCapture(e.pointerId);
+        },
+        [],
+    );
+
+    const onPortalPointerMove = useCallback(
+        (e: React.PointerEvent) => {
+            const ref = portalSwipeRef.current;
+            if (!ref) return;
+            const dx = e.clientX - ref.startX;
+
+            // Track velocity
+            const now = performance.now();
+            const dt = now - ref.lastT;
+            if (dt > 0) ref.vx = (e.clientX - ref.lastX) / dt;
+            ref.lastX = e.clientX;
+            ref.lastT = now;
+
+            if (!ref.active) {
+                if (Math.abs(dx) > 5) {
+                    ref.active = true;
+                } else return;
+            }
+            let offsetX = dx;
+            const isFirst = index === 0;
+            const isLast = index === ITEMS.length - 1;
+            if ((isFirst && dx > 0) || (isLast && dx < 0))
+                offsetX *= RUBBER_BAND_K;
+            galleryDragX.jump(offsetX);
+        },
+        [galleryDragX, index],
+    );
+
+    const onPortalPointerUp = useCallback(
+        (e: React.PointerEvent) => {
+            const ref = portalSwipeRef.current;
+            if (!ref?.active) {
+                portalSwipeRef.current = null;
+                return;
+            }
+            const dx = e.clientX - ref.startX;
+            const vx = ref.vx; // px/ms
+            portalSwipeRef.current = null;
+            const threshold = vw * GALLERY_PAGE_THRESHOLD;
+            if (dx < -threshold || vx < -GALLERY_DISMISS_VELOCITY)
+                goToPage(index + 1);
+            else if (dx > threshold || vx > GALLERY_DISMISS_VELOCITY)
+                goToPage(index - 1);
+            else
+                animate(galleryDragX, 0, {
+                    type: "spring",
+                    ...PAGE_SPRING,
+                });
+        },
+        [vw, goToPage, index, galleryDragX],
+    );
+
+    const onPortalPointerCancel = useCallback(() => {
+        if (portalSwipeRef.current?.active) {
+            animate(galleryDragX, 0, { type: "spring", ...PAGE_SPRING });
+        }
+        portalSwipeRef.current = null;
+    }, [galleryDragX]);
 
     return (
         <motion.div
@@ -1097,10 +1214,12 @@ function GalleryItem({
                 createPortal(
                     <div
                         ref={scrollContainerRef}
-                        className="fixed inset-0 overflow-y-auto z-[52] pointer-events-none"
-                        style={{ overscrollBehavior: "none" }}
+                        className="gallery-portal fixed inset-0 overflow-y-auto z-[52] pointer-events-none"
+                        onPointerDown={onPortalPointerDown}
+                        onPointerMove={onPortalPointerMove}
+                        onPointerUp={onPortalPointerUp}
+                        onPointerCancel={onPortalPointerCancel}
                     >
-                        {/* Spacer: image area + text height = total scroll content */}
                         <div
                             style={{ height: imageBottom + textHeight }}
                             className="pointer-events-none"
