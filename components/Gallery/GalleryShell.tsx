@@ -644,7 +644,7 @@ export function GalleryShell({ items: realItems, children }: { items: ItemData[]
                 {/* Back button */}
                 <motion.button
                     className={clsx(
-                        "fixed top-4 left-4 z-[53] size-10 flex items-center justify-center p-0 rounded-full bg-white/80 dark:bg-black/80 border-none cursor-pointer",
+                        "fixed top-4 left-4 z-[53] size-10 flex items-center justify-center p-0 rounded-full bg-[#EEE]/80 backdrop-blur-2xl border-none cursor-pointer",
                         open
                             ? "pointer-events-auto"
                             : "pointer-events-none",

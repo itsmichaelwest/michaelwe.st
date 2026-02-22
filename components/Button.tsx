@@ -13,10 +13,10 @@ const Button: React.FC<ButtonProps> = ({ to, style, children }) => {
 
     if (style === "onPrimary") {
         bg =
-            "border-2 border-white text-primary dark:text-primary hover:bg-white hover:text-black";
+            "border-2 border-white text-primary hover:bg-white hover:text-black";
     } else {
         bg =
-            "bg-linear-to-b from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 hover:bg-none hover:bg-gray-50 dark:hover:bg-gray-800 ring ring-black/5 dark:ring-white/5 text-secondary hover:text-heading dark:text-secondary dark:hover:text-primary";
+            "bg-linear-to-b from-white to-gray-50 hover:bg-none hover:bg-gray-50 ring ring-black/5 dark:ring-white/5 text-secondary hover:text-heading";
     }
 
     const classes =

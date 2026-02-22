@@ -24,7 +24,7 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
     const aboutSpring = useSpring(aboutProgress, MAIN_SPRING);
     const contentScale = useTransform(aboutSpring, [0, 1], [0.97, 1]);
     const backdropBlur = useTransform(aboutSpring, (v) => `blur(${v * 4}px)`);
-    const backdropBg = useTransform(aboutSpring, [0, 1], ["rgb(255 255 255 / 0)", "rgb(255 255 255 / 0.8)"]);
+    const backdropBg = useTransform(aboutSpring, [0, 1], ["rgb(255 255 255 / 0)", "rgb(255 255 255 / 0.95)"]);
 
     useEffect(() => {
         if (directNav) {
@@ -60,17 +60,20 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
             {/* Content panel */}
             <motion.div
                 className={clsx(
-                    "fixed inset-0 lg:absolute lg:inset-0 z-150 overflow-y-auto",
+                    "fixed inset-0 lg:absolute lg:inset-0 z-150 overflow-y-auto lg:overflow-hidden",
                     open ? "pointer-events-auto" : "pointer-events-none",
                 )}
                 style={{ opacity: aboutSpring, scale: contentScale }}
             >
-                <article className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-start px-4 py-16">
-                        <Image
-                            src={PortraitTall}
-                            alt="Photo of Michael"
-                        />
-                        <section className="space-y-8">
+                <article className="w-full lg:h-full grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 px-4 pt-32 pb-16 lg:pt-0 lg:pb-0">
+                        <div className="relative lg:h-full lg:min-h-0">
+                            <Image
+                                className="lg:absolute lg:inset-0 lg:h-full lg:w-full lg:object-cover"
+                                src={PortraitTall}
+                                alt="Photo of Michael"
+                            />
+                        </div>
+                        <section className="space-y-8 lg:overflow-y-auto lg:h-full">
                                 <p>
                                     I&apos;m a self-taught designer with an engineering
                                     background, specializing in simple and effortless
