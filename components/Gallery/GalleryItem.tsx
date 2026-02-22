@@ -395,7 +395,7 @@ export function GalleryItem({
         >
             {/* Image / color box */}
             <motion.div
-                className="absolute inset-0 cursor-pointer"
+                className="absolute inset-0 rounded-2xl ring ring-black/10 cursor-pointer select-none"
                 onPointerDown={() => {
                     dragOnImageRef.current = true;
                 }}
@@ -408,10 +408,10 @@ export function GalleryItem({
                         src={img}
                         alt=""
                         fill
-                        className="absolute inset-0 object-cover select-none pointer-events-none"
+                        className="absolute inset-0 rounded-2xl object-cover pointer-events-none"
                     />
                 ) : (
-                    <span className="text-8xl text-white select-none pointer-events-none">
+                    <span className="text-8xl text-white pointer-events-none">
                         {label}
                     </span>
                 )}
@@ -457,7 +457,15 @@ export function GalleryItem({
                 createPortal(
                     <div
                         ref={scrollContainerRef}
-                        className="gallery-portal fixed inset-0 overflow-y-auto z-[52] pointer-events-none"
+                        className="gallery-portal fixed inset-0 overflow-y-auto z-[52]"
+                        onClick={(e) => {
+                            const el = e.currentTarget;
+                            if (e.clientX > el.clientWidth) return;
+                            el.style.pointerEvents = 'none';
+                            const target = document.elementFromPoint(e.clientX, e.clientY);
+                            el.style.pointerEvents = '';
+                            if (target instanceof HTMLElement && !el.contains(target)) target.click();
+                        }}
                         onPointerDown={onPortalPointerDown}
                         onPointerMove={onPortalPointerMove}
                         onPointerUp={onPortalPointerUp}

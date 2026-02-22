@@ -10,7 +10,7 @@ export const components: MDXComponents = {
         <h2 className="text-3xl font-semibold">{children}</h2>
     ),
     strong: ({ children }) => (
-        <strong className="font-semibold text-black dark:text-white">
+        <strong className="font-semibold text-black">
             {children}
         </strong>
     ),
@@ -19,7 +19,7 @@ export const components: MDXComponents = {
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-medium text-blue-600 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-200"
+            className="font-medium text-blue-600 hover:text-blue-700"
         >
             {children}
         </Link>
@@ -31,7 +31,7 @@ export const components: MDXComponents = {
                 alt={alt}
                 height={height}
                 width={width}
-                className="rounded-2xl shadow-xs ring ring-black/5 dark:ring-white/5"
+                className="rounded-xl ring ring-black/5"
             />
             <figcaption className="text-sm opacity-50">{alt}</figcaption>
         </figure>
