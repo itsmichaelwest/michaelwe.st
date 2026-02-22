@@ -11,10 +11,14 @@ export const getStaticProps: GetStaticProps = async () => {
     return { props: { items } };
 };
 
-export default function Home({ items }: { items: ItemData[] }) {
+export default function AboutPage({ items }: { items: ItemData[] }) {
     return (
         <>
-            <SEO title="Michael" description="Michael is designing things." />
+            <SEO
+                title="About — Michael"
+                description="About Michael West"
+                canonical="/about"
+            />
             <Head>
                 <style>{`
                     html, body { overflow: hidden; overscroll-behavior: none; height: 100%; }

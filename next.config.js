@@ -8,12 +8,6 @@ module.exports = {
             },
         },
     },
-    async rewrites() {
-        return [
-            { source: '/work/:id', destination: '/' },
-            { source: '/about', destination: '/' },
-        ];
-    },
     async redirects() {
         return [
             {
