@@ -12,6 +12,8 @@ import clsx from "clsx";
 import type { SerializeResult } from "next-mdx-remote-client/serialize";
 import { MDXClient } from "next-mdx-remote-client";
 import { components } from "../MDXComponents";
+import NoMSFTDisclaimer from "../NoMSFTDisclaimer";
+import Footer from "../Footer";
 import type { ItemData } from "./types";
 import {
     GALLERY_H,
@@ -41,6 +43,8 @@ export function GalleryItem({
     title,
     subtitle,
     img,
+    noMSFT,
+    year,
     paras,
     mdxSource,
     open,
@@ -66,6 +70,8 @@ export function GalleryItem({
     title: string;
     subtitle: string;
     img?: string;
+    noMSFT?: boolean;
+    year?: string;
     paras?: number;
     mdxSource?: SerializeResult;
     open: boolean;
@@ -425,9 +431,13 @@ export function GalleryItem({
             >
                 <div className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6">
                     <div className="space-y-2">
+                        {year && (
+                            <p className="text-sm text-muted">{year}</p>
+                        )}
                         <h2 className="font-bold text-2xl">{title}</h2>
                         <p className="text-muted">{subtitle}</p>
                     </div>
+                    {noMSFT && <NoMSFTDisclaimer title={title} />}
                     {mdxSource && !("error" in mdxSource) ? (
                         <MDXClient {...mdxSource} components={components} />
                     ) : (
@@ -435,6 +445,7 @@ export function GalleryItem({
                             <p key={j}>{LOREM}</p>
                         ))
                     )}
+                    <Footer />
                 </div>
             </motion.div>
 

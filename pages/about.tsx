@@ -1,14 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import Button from "../components/Button";
-import Layout from "../components/Layout";
 import SEO from "../components/SEO";
 
 import PortraitTall from "../public/images/michael-portrait-tall.jpg";
 import siteMetadata from "../siteMetadata";
 
 const About = () => (
-    <Layout>
+    <>
         <SEO
             title={`About - ${siteMetadata.title}`}
             description={siteMetadata.description}
@@ -91,7 +90,7 @@ const About = () => (
                 </Button>
             </section>
         </article>
-    </Layout>
+    </>
 );
 
 export default About;

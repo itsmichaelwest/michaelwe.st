@@ -1,10 +1,9 @@
-import Layout from "../components/Layout";
 import siteMetadata from "../siteMetadata";
 import Link from "next/link";
 import SEO from "../components/SEO";
 
 const NotFound = () => (
-    <Layout>
+    <>
         <SEO
             title={`Page not found - ${siteMetadata.title}`}
             description={siteMetadata.description}
@@ -35,7 +34,7 @@ const NotFound = () => (
             </p>
             <p className="text-sm text-muted">HTTP 404</p>
         </div>
-    </Layout>
+    </>
 );
 
 export default NotFound;

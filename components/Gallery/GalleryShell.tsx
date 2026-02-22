@@ -5,6 +5,7 @@ import {
     useCallback,
     useRef,
     useMemo,
+    type ReactNode,
 } from "react";
 import {
     motion,
@@ -12,10 +13,9 @@ import {
     useSpring,
     animate,
 } from "motion/react";
-import Image from "next/image";
 import clsx from "clsx";
-import Face from "../../public/images/michael-face.jpg";
 import { useWindowSize } from "../../hooks/useWindowSize";
+import { GalleryContext } from "./GalleryContext";
 import type { ItemData } from "./types";
 import { SAMPLE_ITEMS } from "./types";
 import {
@@ -36,14 +36,16 @@ import {
 } from "./utils";
 import { GalleryItem } from "./GalleryItem";
 
-export function GalleryShell({ items: realItems }: { items: ItemData[] }) {
+export function GalleryShell({ items: realItems, children }: { items: ItemData[]; children?: ReactNode }) {
     const isDirectNav = typeof window !== "undefined" &&
         /^(?:\/en)?\/work\/.+$/.test(window.location.pathname);
     const [open, setOpen] = useState(isDirectNav);
     const [current, setCurrent] = useState(0);
     const { w: vw, h: vh } = useWindowSize();
     const items = useMemo(
-        () => [...realItems, ...SAMPLE_ITEMS],
+        () => process.env.NODE_ENV === "production"
+            ? realItems
+            : [...realItems, ...SAMPLE_ITEMS],
         [realItems],
     );
 
@@ -607,36 +609,9 @@ export function GalleryShell({ items: realItems }: { items: ItemData[] }) {
     if (!vw) return <div />;
 
     return (
-        <>
+        <GalleryContext.Provider value={{ open, openSpring }}>
             <div className="relative max-w-[80ch] w-full h-[60vh] mx-auto px-4 flex flex-col">
-                {/* Hero area */}
-                <motion.div
-                    className={clsx(
-                        "flex flex-col gap-4 transition-opacity duration-200",
-                        !open
-                            ? "pointer-events-auto"
-                            : "pointer-events-none",
-                    )}
-                    animate={{
-                        opacity: open ? 0 : 1,
-                        filter: open ? "blur(4px)" : "blur(0px)",
-                    }}
-                >
-                    <div className="flex gap-4 items-center">
-                        <Image
-                            className="w-10 rounded-full shadow ring ring-black/10 dark:ring-white/5"
-                            src={Face}
-                            alt="Photo of Michael"
-                        />
-                        <div className="-space-y-1">
-                            <h1 className="font-semibold">Michael</h1>
-                            <p className="font-medium text-muted">
-                                Senior Designer at Microsoft
-                            </p>
-                        </div>
-                    </div>
-                    <p>Hello</p>
-                </motion.div>
+                {children}
 
                 {/* Back button */}
                 <motion.button
@@ -687,6 +662,8 @@ export function GalleryShell({ items: realItems }: { items: ItemData[] }) {
                             title={item.title}
                             subtitle={item.subtitle}
                             img={item.img}
+                            noMSFT={item.noMSFT}
+                            year={item.year}
                             paras={item.paras}
                             mdxSource={item.mdxSource}
                             open={open}
@@ -719,6 +696,6 @@ export function GalleryShell({ items: realItems }: { items: ItemData[] }) {
                     />
                 </div>
             </div>
-        </>
+        </GalleryContext.Provider>
     );
 }

@@ -9,6 +9,7 @@ import rehypeUnwrapImages from "rehype-unwrap-images";
 import rehypeImgSize from "rehype-img-size";
 import { GalleryShell } from "../components/Gallery";
 import type { ItemData } from "../components/Gallery";
+import { HeroBio } from "../components/HeroBio";
 
 export const getStaticProps: GetStaticProps = async () => {
     const posts = getSortedWorkData().filter((p) => !p.hideFromList);
@@ -39,6 +40,8 @@ export const getStaticProps: GetStaticProps = async () => {
                     ? `/images/${p.id}/${p.heroImage}`
                     : undefined,
                 canonical: p.canonical ?? null,
+                noMSFT: p.noMSFT ?? false,
+                year: p.date ? new Date(p.date).getFullYear().toString() : undefined,
                 mdxSource,
             };
         }),
@@ -58,7 +61,9 @@ export default function Home({ items }: { items: ItemData[] }) {
                     }
                 `}</style>
             </Head>
-            <GalleryShell items={items} />
+            <GalleryShell items={items}>
+                <HeroBio />
+            </GalleryShell>
         </>
     );
 }

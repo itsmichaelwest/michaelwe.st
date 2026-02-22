@@ -8,6 +8,8 @@ export interface ItemData {
     railH: number;
     img?: string;
     canonical?: string | null;
+    noMSFT?: boolean;
+    year?: string;
     color?: string;
     label?: string;
     paras?: number;
