@@ -852,11 +852,12 @@ function GalleryItem({
         setShowPortal(false);
     }, [isActive]);
 
-    // Overscroll-to-dismiss: non-passive wheel listener on portal
+    // Wheel handler on window: forwards deltaY to portal scrollTop + overscroll-to-dismiss
+    // On window so it works even with pointer-events:none on the portal
     useEffect(() => {
         if (!showPortal) return;
-        const el = scrollContainerRef.current;
-        if (!el) return;
+        const portalEl = scrollContainerRef.current;
+        if (!portalEl) return;
 
         let accum = 0;
         let inOverscroll = false;
@@ -878,13 +879,11 @@ function GalleryItem({
         };
 
         const onWheel = (e: WheelEvent) => {
-            if (closing) {
-                e.preventDefault();
-                return;
-            }
+            e.preventDefault();
+
+            if (closing) return;
 
             if (inOverscroll) {
-                e.preventDefault();
                 if (e.deltaY > 2) {
                     inOverscroll = false;
                     accum = 0;
@@ -911,8 +910,7 @@ function GalleryItem({
             }
 
             // At top + scrolling up → enter overscroll
-            if (el.scrollTop <= 0 && e.deltaY < 0) {
-                e.preventDefault();
+            if (portalEl.scrollTop <= 0 && e.deltaY < 0) {
                 inOverscroll = true;
                 accum = -e.deltaY;
                 galleryDragY.jump(accum);
@@ -922,12 +920,14 @@ function GalleryItem({
                 resetIdle();
                 return;
             }
-            // Otherwise: browser native scroll handles it
+
+            // Forward to portal for native scrollTop tracking + scrollbar
+            portalEl.scrollTop += e.deltaY;
         };
 
-        el.addEventListener("wheel", onWheel, { passive: false });
+        window.addEventListener("wheel", onWheel, { passive: false });
         return () => {
-            el.removeEventListener("wheel", onWheel);
+            window.removeEventListener("wheel", onWheel);
             if (idleTimer) clearTimeout(idleTimer);
         };
     }, [showPortal, vh, closeGallery, openProgressRaw, galleryDragY]);
@@ -985,7 +985,11 @@ function GalleryItem({
             {/* Text anchored to item — scales with wrapper during open/close/dismiss */}
             <motion.div
                 ref={textRef}
-                className="absolute top-full left-1/2 w-screen pointer-events-none"
+                className={clsx(
+                    "absolute top-full left-1/2 w-screen",
+                    isActive ? "pointer-events-auto" : "pointer-events-none",
+                )}
+                onPointerDown={isActive ? (e) => e.stopPropagation() : undefined}
                 style={{
                     transform: `translateX(-50%) scale(${textScale})`,
                     transformOrigin: "top center",
@@ -1009,9 +1013,8 @@ function GalleryItem({
                 createPortal(
                     <div
                         ref={scrollContainerRef}
-                        className="fixed inset-0 overflow-y-auto z-[52]"
+                        className="fixed inset-0 overflow-y-auto z-[52] pointer-events-none"
                         style={{ overscrollBehavior: "none" }}
-                        onPointerDown={(e) => e.stopPropagation()}
                     >
                         {/* Spacer: image area + text height = total scroll content */}
                         <div
