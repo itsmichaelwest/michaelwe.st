@@ -10,9 +10,7 @@ export const components: MDXComponents = {
         <h2 className="text-3xl font-semibold">{children}</h2>
     ),
     strong: ({ children }) => (
-        <strong className="font-semibold text-black">
-            {children}
-        </strong>
+        <strong className="font-semibold text-black">{children}</strong>
     ),
     a: ({ href, children }) => (
         <Link

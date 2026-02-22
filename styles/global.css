@@ -3,59 +3,72 @@
 
 /* Tailwind v4 theme tokens migrated from tailwind.config.js */
 @theme {
-  /* Fonts */
-  --font-display: var(--font-inter), Inter, ui-sans-serif, system-ui, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  --font-sans: var(--font-inter), Inter, ui-sans-serif, system-ui, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    /* Fonts */
+    --font-display:
+        var(--font-inter), Inter, ui-sans-serif, system-ui, Arial,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji";
+    --font-sans:
+        var(--font-inter), Inter, ui-sans-serif, system-ui, Arial,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji";
 
-  /* Custom brand colors */
-  --color-twitter: #1da1f2;
-  --color-mastodon: #595aff;
-  --color-linkedin: #0073b1;
-  --color-dribbble: #ea4c89;
-  --color-behance: #1769ff;
+    /* Custom brand colors */
+    --color-twitter: #1da1f2;
+    --color-mastodon: #595aff;
+    --color-linkedin: #0073b1;
+    --color-dribbble: #ea4c89;
+    --color-behance: #1769ff;
 
-  /* Blue scale */
-  --color-blue-50: #e3f1fd;
-  --color-blue-100: #bcdcfc;
-  --color-blue-200: #92c7fa;
-  --color-blue-300: #68b1f7;
-  --color-blue-400: #4ba1f6;
-  --color-blue-500: #3591f3; /* DEFAULT */
-  --color-blue-600: #3383e5;
-  --color-blue-700: #3071d1;
-  --color-blue-800: #2c60bf;
-  --color-blue-900: #26419f;
+    /* Blue scale */
+    --color-blue-50: #e3f1fd;
+    --color-blue-100: #bcdcfc;
+    --color-blue-200: #92c7fa;
+    --color-blue-300: #68b1f7;
+    --color-blue-400: #4ba1f6;
+    --color-blue-500: #3591f3; /* DEFAULT */
+    --color-blue-600: #3383e5;
+    --color-blue-700: #3071d1;
+    --color-blue-800: #2c60bf;
+    --color-blue-900: #26419f;
 
-  /* Gray scale */
-  --color-gray-50: #f4f4f4;
-  --color-gray-100: #eaeaea;
-  --color-gray-200: #dadada;
-  --color-gray-300: #d0d0d0;
-  --color-gray-400: #c8c8c8;
-  --color-gray-500: #a6a6a6;
-  --color-gray-600: #666666;
-  --color-gray-700: #3c3c3c;
-  --color-gray-800: #333333;
-  --color-gray-900: #212121;
+    /* Gray scale */
+    --color-gray-50: #f4f4f4;
+    --color-gray-100: #eaeaea;
+    --color-gray-200: #dadada;
+    --color-gray-300: #d0d0d0;
+    --color-gray-400: #c8c8c8;
+    --color-gray-500: #a6a6a6;
+    --color-gray-600: #666666;
+    --color-gray-700: #3c3c3c;
+    --color-gray-800: #333333;
+    --color-gray-900: #212121;
 }
-
 
 /* Semantic text color utilities (avoid --text-* namespace to not collide with font sizes) */
 @theme inline {
-  --semantic-text-primary: var(--color-gray-900);
-  --semantic-text-primary-dark: var(--color-gray-100);
-  --semantic-text-secondary: var(--color-gray-800);
-  --semantic-text-secondary-dark: var(--color-gray-200);
-  --semantic-text-muted: var(--color-gray-600);
-  --semantic-text-muted-dark: var(--color-gray-500);
-  --semantic-text-heading: var(--color-gray-900);
-  --semantic-text-heading-dark: var(--color-gray-100);
+    --semantic-text-primary: var(--color-gray-900);
+    --semantic-text-primary-dark: var(--color-gray-100);
+    --semantic-text-secondary: var(--color-gray-800);
+    --semantic-text-secondary-dark: var(--color-gray-200);
+    --semantic-text-muted: var(--color-gray-600);
+    --semantic-text-muted-dark: var(--color-gray-500);
+    --semantic-text-heading: var(--color-gray-900);
+    --semantic-text-heading-dark: var(--color-gray-100);
 }
 
-@utility text-heading { color: var(--semantic-text-heading); }
-@utility text-primary { color: var(--semantic-text-primary); }
-@utility text-secondary { color: var(--semantic-text-secondary); }
-@utility text-muted { color: var(--semantic-text-muted); }
+@utility text-heading {
+    color: var(--semantic-text-heading);
+}
+@utility text-primary {
+    color: var(--semantic-text-primary);
+}
+@utility text-secondary {
+    color: var(--semantic-text-secondary);
+}
+@utility text-muted {
+    color: var(--semantic-text-muted);
+}
 
 /* @media (prefers-color-scheme: dark) {
   .text-heading { color: var(--semantic-text-heading-dark); }

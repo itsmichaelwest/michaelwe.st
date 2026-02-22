@@ -75,4 +75,4 @@ export const getPostData = (id: string): IPostData => {
         content,
         ...data,
     };
-}
+};

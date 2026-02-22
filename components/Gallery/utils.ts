@@ -5,11 +5,21 @@ export function itemFullW(items: ItemData[], i: number, vh: number) {
     return GALLERY_H * vh * items[i].aspect;
 }
 
-export function itemGalleryScale(items: ItemData[], i: number, vw: number, vh: number) {
+export function itemGalleryScale(
+    items: ItemData[],
+    i: number,
+    vw: number,
+    vh: number,
+) {
     return Math.min(1, (vw - GALLERY_PAD * 2) / itemFullW(items, i, vh));
 }
 
-export function itemRailScale(items: ItemData[], i: number, containerH: number, vh: number) {
+export function itemRailScale(
+    items: ItemData[],
+    i: number,
+    containerH: number,
+    vh: number,
+) {
     return (items[i].railH * containerH) / (GALLERY_H * vh);
 }
 
@@ -32,6 +42,10 @@ export function totalRailW(items: ItemData[], containerH: number) {
     return total;
 }
 
-export function maxRailScroll(items: ItemData[], containerH: number, containerW: number) {
+export function maxRailScroll(
+    items: ItemData[],
+    containerH: number,
+    containerW: number,
+) {
     return Math.max(0, totalRailW(items, containerH) - containerW);
 }

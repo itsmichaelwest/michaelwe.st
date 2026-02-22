@@ -222,9 +222,7 @@ export function GalleryItem({
                 }
                 accum = Math.max(0, accum - e.deltaY);
                 galleryDragY.jump(accum);
-                openProgressRaw.jump(
-                    Math.max(0, 1 - accum / (vh * 0.3)),
-                );
+                openProgressRaw.jump(Math.max(0, 1 - accum / (vh * 0.3)));
                 if (accum > vh * 0.2) {
                     closing = true;
                     inOverscroll = false;
@@ -239,9 +237,7 @@ export function GalleryItem({
                 inOverscroll = true;
                 accum = -e.deltaY;
                 galleryDragY.jump(accum);
-                openProgressRaw.jump(
-                    Math.max(0, 1 - accum / (vh * 0.3)),
-                );
+                openProgressRaw.jump(Math.max(0, 1 - accum / (vh * 0.3)));
                 resetIdle();
                 return;
             }
@@ -266,9 +262,7 @@ export function GalleryItem({
             if (st < 0) {
                 const pull = -st;
                 galleryDragY.jump(pull);
-                openProgressRaw.jump(
-                    Math.max(0, 1 - pull / (vh * 0.3)),
-                );
+                openProgressRaw.jump(Math.max(0, 1 - pull / (vh * 0.3)));
                 if (pull > vh * 0.15) {
                     closeGallery();
                 }
@@ -371,13 +365,16 @@ export function GalleryItem({
         [vw, goToPage, index, galleryDragX],
     );
 
-    const onPortalPointerCancel = useCallback((e: React.PointerEvent) => {
-        e.stopPropagation();
-        if (portalSwipeRef.current?.active) {
-            animate(galleryDragX, 0, { type: "spring", ...PAGE_SPRING });
-        }
-        portalSwipeRef.current = null;
-    }, [galleryDragX]);
+    const onPortalPointerCancel = useCallback(
+        (e: React.PointerEvent) => {
+            e.stopPropagation();
+            if (portalSwipeRef.current?.active) {
+                animate(galleryDragX, 0, { type: "spring", ...PAGE_SPRING });
+            }
+            portalSwipeRef.current = null;
+        },
+        [galleryDragX],
+    );
 
     return (
         <motion.div
@@ -424,7 +421,9 @@ export function GalleryItem({
                     "absolute top-full left-1/2 w-screen",
                     isActive ? "pointer-events-auto" : "pointer-events-none",
                 )}
-                onPointerDown={isActive ? (e) => e.stopPropagation() : undefined}
+                onPointerDown={
+                    isActive ? (e) => e.stopPropagation() : undefined
+                }
                 style={{
                     transform: `translateX(-50%) scale(${textScale})`,
                     transformOrigin: "top center",
@@ -433,9 +432,7 @@ export function GalleryItem({
             >
                 <div className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6">
                     <div className="space-y-2">
-                        {year && (
-                            <p className="text-sm text-muted">{year}</p>
-                        )}
+                        {year && <p className="text-sm text-muted">{year}</p>}
                         <h2 className="font-bold text-2xl">{title}</h2>
                         <p className="text-muted">{subtitle}</p>
                     </div>
@@ -461,10 +458,17 @@ export function GalleryItem({
                         onClick={(e) => {
                             const el = e.currentTarget;
                             if (e.clientX > el.clientWidth) return;
-                            el.style.pointerEvents = 'none';
-                            const target = document.elementFromPoint(e.clientX, e.clientY);
-                            el.style.pointerEvents = '';
-                            if (target instanceof HTMLElement && !el.contains(target)) target.click();
+                            el.style.pointerEvents = "none";
+                            const target = document.elementFromPoint(
+                                e.clientX,
+                                e.clientY,
+                            );
+                            el.style.pointerEvents = "";
+                            if (
+                                target instanceof HTMLElement &&
+                                !el.contains(target)
+                            )
+                                target.click();
                         }}
                         onPointerDown={onPortalPointerDown}
                         onPointerMove={onPortalPointerMove}

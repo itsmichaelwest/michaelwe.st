@@ -10,10 +10,7 @@ import type { ItemData } from "../components/Gallery";
 const mdxOptions: SerializeOptions = {
     disableImports: true,
     mdxOptions: {
-        rehypePlugins: [
-            rehypeUnwrapImages,
-            [rehypeImgSize, { dir: "public" }],
-        ],
+        rehypePlugins: [rehypeUnwrapImages, [rehypeImgSize, { dir: "public" }]],
     },
     parseFrontmatter: true,
 };
@@ -34,12 +31,12 @@ export async function getGalleryItems(): Promise<ItemData[]> {
                 subtitle: p.description ?? p.category ?? "",
                 aspect: p.heroAspectRatio ?? 1.0,
                 railH: 0.8,
-                img: p.heroImage
-                    ? `/images/${p.id}/${p.heroImage}`
-                    : undefined,
+                img: p.heroImage ? `/images/${p.id}/${p.heroImage}` : undefined,
                 canonical: p.canonical ?? null,
                 noMSFT: p.noMSFT ?? false,
-                year: p.date ? new Date(p.date).getFullYear().toString() : undefined,
+                year: p.date
+                    ? new Date(p.date).getFullYear().toString()
+                    : undefined,
                 mdxSource,
             };
         }),
