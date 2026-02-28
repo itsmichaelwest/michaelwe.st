@@ -772,7 +772,6 @@ export function GalleryShell({
                             officialURL={item.officialURL}
                             officialURLText={item.officialURLText}
                             year={item.year}
-                            paras={item.paras}
                             mdxSource={item.mdxSource}
                             open={open}
                             vw={vw}

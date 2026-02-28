@@ -14,7 +14,6 @@ export interface ItemData {
     label?: string;
     officialURL?: string;
     officialURLText?: string;
-    paras?: number;
     mdxSource?: SerializeResult;
 }
 
@@ -26,8 +25,7 @@ export const SAMPLE_ITEMS: ItemData[] = [
         aspect: 1680 / 1279,
         railH: 0.8,
         title: "Item One",
-        subtitle: "Lorem ipsum dolor sit amet",
-        paras: 5,
+        subtitle: "Sample item one",
     },
     {
         id: "s2",
@@ -36,8 +34,7 @@ export const SAMPLE_ITEMS: ItemData[] = [
         aspect: 0.56,
         railH: 1.0,
         title: "Item Two",
-        subtitle: "Consectetur adipiscing elit",
-        paras: 1,
+        subtitle: "Sample item two",
     },
     {
         id: "s3",
@@ -46,8 +43,7 @@ export const SAMPLE_ITEMS: ItemData[] = [
         aspect: 1.0,
         railH: 0.8,
         title: "Item Three",
-        subtitle: "Sed do eiusmod tempor",
-        paras: 3,
+        subtitle: "Sample item three",
     },
     {
         id: "s4",
@@ -56,8 +52,7 @@ export const SAMPLE_ITEMS: ItemData[] = [
         aspect: 1.33,
         railH: 0.7,
         title: "Item Four",
-        subtitle: "Ut enim ad minim veniam",
-        paras: 2,
+        subtitle: "Sample item four",
     },
     {
         id: "s5",
@@ -66,8 +61,7 @@ export const SAMPLE_ITEMS: ItemData[] = [
         aspect: 0.56,
         railH: 0.95,
         title: "Item Five",
-        subtitle: "Quis nostrud exercitation",
-        paras: 6,
+        subtitle: "Sample item five",
     },
     {
         id: "s6",
@@ -76,8 +70,7 @@ export const SAMPLE_ITEMS: ItemData[] = [
         aspect: 1.5,
         railH: 0.65,
         title: "Item Six",
-        subtitle: "Duis aute irure dolor",
-        paras: 1,
+        subtitle: "Sample item six",
     },
     {
         id: "s7",
@@ -86,8 +79,7 @@ export const SAMPLE_ITEMS: ItemData[] = [
         aspect: 1.28,
         railH: 0.75,
         title: "Item Seven",
-        subtitle: "Excepteur sint occaecat",
-        paras: 4,
+        subtitle: "Sample item seven",
     },
     {
         id: "s8",
@@ -96,8 +88,7 @@ export const SAMPLE_ITEMS: ItemData[] = [
         aspect: 0.75,
         railH: 0.9,
         title: "Item Eight",
-        subtitle: "Sunt in culpa qui officia",
-        paras: 2,
+        subtitle: "Sample item eight",
     },
     {
         id: "s9",
@@ -106,8 +97,7 @@ export const SAMPLE_ITEMS: ItemData[] = [
         aspect: 1.6,
         railH: 0.55,
         title: "Item Nine",
-        subtitle: "Mollit anim id est laborum",
-        paras: 7,
+        subtitle: "Sample item nine",
     },
     {
         id: "s10",
@@ -116,7 +106,6 @@ export const SAMPLE_ITEMS: ItemData[] = [
         aspect: 1.0,
         railH: 0.85,
         title: "Item Ten",
-        subtitle: "Nemo enim ipsam voluptatem",
-        paras: 1,
+        subtitle: "Sample item ten",
     },
 ];
