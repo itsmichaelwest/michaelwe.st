@@ -17,6 +17,7 @@
         "clsx": "^2.1.1",
         "date-fns": "^4.1.0",
         "gray-matter": "^4.0.3",
+        "image-size": "^2.0.2",
         "motion": "^12.23.12",
         "next": "16.1.6",
         "next-mdx-remote-client": "^2.1.3",

@@ -4,12 +4,13 @@ import {
     type SerializeOptions,
 } from "next-mdx-remote-client/serialize";
 import rehypeUnwrapImages from "rehype-unwrap-images";
+import { rehypeImageSize } from "./rehypeImageSize";
 import type { ItemData } from "../components/Gallery";
 
 const mdxOptions: SerializeOptions = {
     disableImports: true,
     mdxOptions: {
-        rehypePlugins: [rehypeUnwrapImages],
+        rehypePlugins: [rehypeUnwrapImages, rehypeImageSize],
     },
     parseFrontmatter: true,
 };

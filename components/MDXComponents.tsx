@@ -34,14 +34,13 @@ export const components: MDXComponents = {
                     className="rounded-xl ring ring-black/5"
                 />
             ) : (
-                <div className="relative w-full">
+                <div className="relative w-full aspect-video">
                     <Image
                         src={src}
                         alt={alt}
-                        width={0}
-                        height={0}
+                        fill
                         sizes="(max-width: 768px) 100vw, min(80ch, 100vw)"
-                        className="rounded-xl ring ring-black/5 h-auto w-full"
+                        className="rounded-xl ring ring-black/5 object-contain"
                     />
                 </div>
             )}
