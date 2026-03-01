@@ -768,6 +768,7 @@ export function GalleryShell({
                             title={item.title}
                             subtitle={item.subtitle}
                             img={item.img}
+                            imgAlt={item.imgAlt}
                             noMSFT={item.noMSFT}
                             officialURL={item.officialURL}
                             officialURLText={item.officialURLText}

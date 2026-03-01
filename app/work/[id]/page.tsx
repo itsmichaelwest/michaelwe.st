@@ -55,11 +55,34 @@ export default async function WorkPage({
 }: {
     params: Promise<{ id: string }>;
 }) {
-    await params;
+    const { id } = await params;
+    const post = getPostData(id);
     const items = await getGalleryItems();
+
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "CreativeWork",
+        name: post.title ?? id,
+        description: post.description ?? post.category ?? "",
+        url: `https://www.michaelwe.st/work/${id}`,
+        author: { "@type": "Person", name: "Michael West" },
+        ...(post.date && { datePublished: post.date }),
+        ...(post.heroImage && {
+            image: `https://www.michaelwe.st/images/${id}/${post.heroImage}`,
+        }),
+    };
+
     return (
-        <GalleryShell items={items}>
-            <HeroBio />
-        </GalleryShell>
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify(jsonLd),
+                }}
+            />
+            <GalleryShell items={items}>
+                <HeroBio />
+            </GalleryShell>
+        </>
     );
 }

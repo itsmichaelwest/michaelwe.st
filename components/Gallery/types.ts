@@ -7,6 +7,7 @@ export interface ItemData {
     aspect: number;
     railH: number;
     img?: string;
+    imgAlt?: string;
     canonical?: string | null;
     noMSFT?: boolean;
     year?: string;

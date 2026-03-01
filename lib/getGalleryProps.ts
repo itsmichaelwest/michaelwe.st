@@ -31,6 +31,7 @@ export async function getGalleryItems(): Promise<ItemData[]> {
                 aspect: p.heroAspectRatio ?? 1.0,
                 railH: 0.8,
                 img: p.heroImage ? `/images/${p.id}/${p.heroImage}` : undefined,
+                imgAlt: p.heroImageAlt ?? "",
                 canonical: p.canonical ?? null,
                 noMSFT: p.noMSFT ?? false,
                 officialURL: p.officialURL,

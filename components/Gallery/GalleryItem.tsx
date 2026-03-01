@@ -43,6 +43,7 @@ export function GalleryItem({
     title,
     subtitle,
     img,
+    imgAlt,
     noMSFT,
     officialURL,
     officialURLText,
@@ -71,6 +72,7 @@ export function GalleryItem({
     title: string;
     subtitle: string;
     img?: string;
+    imgAlt?: string;
     noMSFT?: boolean;
     officialURL?: string;
     officialURLText?: string;
@@ -611,7 +613,7 @@ export function GalleryItem({
                 {img ? (
                     <Image
                         src={img}
-                        alt=""
+                        alt={imgAlt ?? ""}
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
                         loading={isActive ? "eager" : "lazy"}

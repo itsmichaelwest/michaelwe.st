@@ -28,6 +28,26 @@ export const metadata: Metadata = {
     },
 };
 
+const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+        {
+            "@type": "WebSite",
+            name: siteMetadata.title,
+            url: siteMetadata.siteURL,
+            description: siteMetadata.description,
+        },
+        {
+            "@type": "Person",
+            name: siteMetadata.author,
+            url: siteMetadata.siteURL,
+            sameAs: [
+                `https://twitter.com/${siteMetadata.social.twitter.replace("@", "")}`,
+            ],
+        },
+    ],
+};
+
 export default function RootLayout({
     children,
 }: {
@@ -36,6 +56,12 @@ export default function RootLayout({
     return (
         <html lang="en">
             <head>
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify(jsonLd),
+                    }}
+                />
                 <style
                     dangerouslySetInnerHTML={{
                         __html: `
