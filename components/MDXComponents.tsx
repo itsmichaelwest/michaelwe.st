@@ -24,13 +24,27 @@ export const components: MDXComponents = {
     ),
     img: ({ src, alt, height, width }) => (
         <figure className="my-16 space-y-4">
-            <Image
-                src={src}
-                alt={alt}
-                height={height}
-                width={width}
-                className="rounded-xl ring ring-black/5"
-            />
+            {height && width ? (
+                <Image
+                    src={src}
+                    alt={alt}
+                    height={height}
+                    width={width}
+                    sizes="(max-width: 768px) 100vw, min(80ch, 100vw)"
+                    className="rounded-xl ring ring-black/5"
+                />
+            ) : (
+                <div className="relative w-full">
+                    <Image
+                        src={src}
+                        alt={alt}
+                        width={0}
+                        height={0}
+                        sizes="(max-width: 768px) 100vw, min(80ch, 100vw)"
+                        className="rounded-xl ring ring-black/5 h-auto w-full"
+                    />
+                </div>
+            )}
             <figcaption className="text-sm opacity-50">{alt}</figcaption>
         </figure>
     ),

@@ -613,6 +613,8 @@ export function GalleryItem({
                         src={img}
                         alt=""
                         fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+                        priority={isActive}
                         className="absolute inset-0 rounded-2xl object-cover pointer-events-none"
                     />
                 ) : (
