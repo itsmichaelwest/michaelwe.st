@@ -4,19 +4,17 @@ import {
     type SerializeOptions,
 } from "next-mdx-remote-client/serialize";
 import rehypeUnwrapImages from "rehype-unwrap-images";
-import rehypeImgSize from "rehype-img-size";
 import type { ItemData } from "../components/Gallery";
 
 const mdxOptions: SerializeOptions = {
     disableImports: true,
     mdxOptions: {
-        rehypePlugins: [rehypeUnwrapImages, [rehypeImgSize, { dir: "public" }]],
+        rehypePlugins: [rehypeUnwrapImages],
     },
     parseFrontmatter: true,
 };
 
 export async function getGalleryItems(): Promise<ItemData[]> {
-    "use cache";
     const posts = getSortedWorkData().filter((p) => !p.hideFromList);
 
     return Promise.all(

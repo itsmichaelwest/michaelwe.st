@@ -1,6 +1,5 @@
 module.exports = {
     reactStrictMode: true,
-    cacheComponents: true,
     turbopack: {
         rules: {
             "*.svg": {
