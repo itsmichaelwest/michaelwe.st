@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import {
     motion,
     useMotionValue,
@@ -50,6 +50,7 @@ export function GalleryItem({
     year,
     mdxSource,
     open,
+    showOverlay,
     vw,
     vh,
     openSpring,
@@ -80,6 +81,7 @@ export function GalleryItem({
     paras?: number;
     mdxSource?: SerializeResult;
     open: boolean;
+    showOverlay: boolean;
     vw: number;
     vh: number;
     openSpring: MotionValue<number>;
@@ -105,6 +107,7 @@ export function GalleryItem({
     const myRailLeft = railLeftOf(items, index, cH);
     const isActive = open && index === current;
     const isNearby = !open || Math.abs(index - current) <= 1;
+    const showPortal = isActive && showOverlay;
 
     const localScrollY = useMotionValue(0);
     useEffect(() => {
@@ -147,17 +150,6 @@ export function GalleryItem({
         },
     );
 
-    const textScale = 1 / galScale;
-
-    const textOpacity = useTransform(
-        [galleryPageX, galleryDragX, openSpring] as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-        ([pageX, dragX, progress]: number[]) => {
-            const dist = Math.abs(pageX + dragX + index * vw);
-            const proximity = Math.max(0, 1 - dist / (vw * 0.5));
-            return proximity * progress;
-        },
-    );
-
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const thumbRef = useRef<HTMLDivElement>(null);
     const scrollbarIdleRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -174,30 +166,16 @@ export function GalleryItem({
         vx: number;
     } | null>(null);
 
-    // Measure text content height for portal spacer
-    const textWrapperRef = useRef<HTMLDivElement>(null);
-    const [textHeight, setTextHeight] = useState(0);
+    // Reset portal scroll position when switching items
     useEffect(() => {
-        if (!open) return;
-        const el = textWrapperRef.current;
-        if (!el) return;
-        const ro = new ResizeObserver(() => {
-            setTextHeight(el.offsetHeight);
-        });
-        ro.observe(el);
-        return () => ro.disconnect();
-    }, [open]);
-
-    const [showPortal, setShowPortal] = useState(false);
-    useEffect(() => {
-        if (isActive) {
-            const timer = setTimeout(() => setShowPortal(true), 350);
-            return () => clearTimeout(timer);
+        if (showPortal) {
+            const el = scrollContainerRef.current;
+            if (el) el.scrollTop = 0;
         }
-        setShowPortal(false);
-    }, [isActive]);
+    }, [showPortal]);
 
-    // Wheel handler on window: forwards deltaY to portal scrollTop + overscroll-to-dismiss
+    // Desktop: forward wheel events from outside the portal (e.g. image area)
+    // to the native scroll container, with overscroll-to-dismiss
     useEffect(() => {
         if (!showPortal) return;
         const portalEl = scrollContainerRef.current;
@@ -223,6 +201,12 @@ export function GalleryItem({
         };
 
         const onWheel = (e: WheelEvent) => {
+            // If the event is inside the portal text area, native scroll handles it
+            if (portalEl.contains(e.target as Node)) return;
+
+            // Only handle vertical wheel from outside the portal (e.g. image area)
+            if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+
             e.preventDefault();
 
             if (closing) return;
@@ -448,59 +432,30 @@ export function GalleryItem({
         closeGallery,
     ]);
 
-    // Touch scroll on text for mobile (mirrors wheel-scroll behavior on desktop)
+    // Touch overscroll-to-dismiss on the portal text area (mobile)
     useEffect(() => {
-        if (!isActive || !showPortal) return;
-        const textEl = textWrapperRef.current;
+        if (!showPortal) return;
         const portalEl = scrollContainerRef.current;
-        if (!textEl || !portalEl) return;
+        if (!portalEl) return;
 
         let startY = 0;
-        let startScroll = 0;
-        let scrolling = false;
-        let lastY = 0;
-        let lastT = 0;
-        let vy = 0;
         let inOverscroll = false;
         let overscrollAccum = 0;
-        let momentumRaf: number | null = null;
         let closing = false;
 
         const onTouchStart = (e: TouchEvent) => {
-            if (momentumRaf) {
-                cancelAnimationFrame(momentumRaf);
-                momentumRaf = null;
-            }
-            const touch = e.touches[0];
-            startY = touch.clientY;
-            lastY = touch.clientY;
-            lastT = performance.now();
-            startScroll = portalEl.scrollTop;
-            scrolling = false;
+            startY = e.touches[0].clientY;
             inOverscroll = false;
             overscrollAccum = 0;
-            vy = 0;
             closing = false;
         };
 
         const onTouchMove = (e: TouchEvent) => {
             if (closing) return;
-            const touch = e.touches[0];
-            const dy = startY - touch.clientY; // positive = finger up = scroll down
-
-            const now = performance.now();
-            const dt = now - lastT;
-            if (dt > 0) vy = (lastY - touch.clientY) / dt;
-            lastY = touch.clientY;
-            lastT = now;
-
-            if (!scrolling && Math.abs(dy) > 8) {
-                scrolling = true;
-            }
-            if (!scrolling) return;
+            const dy = e.touches[0].clientY - startY;
 
             if (inOverscroll) {
-                if (dy > 0) {
+                if (dy <= 0) {
                     // Reversed direction, exit overscroll
                     inOverscroll = false;
                     overscrollAccum = 0;
@@ -509,34 +464,30 @@ export function GalleryItem({
                         type: "spring",
                         ...MAIN_SPRING,
                     });
-                    startScroll = 0;
-                    startY = touch.clientY;
                     return;
                 }
-                overscrollAccum = Math.max(0, -dy);
-                galleryDragY.jump(overscrollAccum);
+                e.preventDefault();
+                overscrollAccum = dy;
+                galleryDragY.jump(dy);
                 openProgressRaw.jump(
-                    Math.max(0, 1 - overscrollAccum / (vh * 0.3)),
+                    Math.max(0, 1 - dy / (vh * 0.3)),
                 );
-                if (overscrollAccum > vh * 0.2) {
+                if (dy > vh * 0.2) {
                     closing = true;
                     closeGallery();
                 }
                 return;
             }
 
-            const newScroll = startScroll + dy;
-            if (newScroll <= 0 && dy < 0) {
+            // Enter overscroll: at top of scroll and pulling down
+            if (portalEl.scrollTop <= 0 && dy > 10) {
                 inOverscroll = true;
-                portalEl.scrollTop = 0;
-                overscrollAccum = -newScroll;
-                galleryDragY.jump(overscrollAccum);
+                overscrollAccum = dy;
+                galleryDragY.jump(dy);
                 openProgressRaw.jump(
-                    Math.max(0, 1 - overscrollAccum / (vh * 0.3)),
+                    Math.max(0, 1 - dy / (vh * 0.3)),
                 );
-                return;
             }
-            portalEl.scrollTop = newScroll;
         };
 
         const onTouchEnd = () => {
@@ -550,38 +501,24 @@ export function GalleryItem({
                         ...MAIN_SPRING,
                     });
                 }
-                inOverscroll = false;
-                overscrollAccum = 0;
-                return;
             }
-            if (!scrolling) return;
-            scrolling = false;
-            // Momentum
-            if (Math.abs(vy) > 0.3) {
-                let v = vy * 16;
-                const decel = () => {
-                    v *= 0.95;
-                    if (Math.abs(v) < 0.5) {
-                        momentumRaf = null;
-                        return;
-                    }
-                    portalEl.scrollTop += v;
-                    momentumRaf = requestAnimationFrame(decel);
-                };
-                momentumRaf = requestAnimationFrame(decel);
-            }
+            inOverscroll = false;
+            overscrollAccum = 0;
         };
 
-        textEl.addEventListener("touchstart", onTouchStart, { passive: true });
-        textEl.addEventListener("touchmove", onTouchMove, { passive: true });
-        textEl.addEventListener("touchend", onTouchEnd, { passive: true });
+        portalEl.addEventListener("touchstart", onTouchStart, {
+            passive: true,
+        });
+        portalEl.addEventListener("touchmove", onTouchMove, {
+            passive: false,
+        });
+        portalEl.addEventListener("touchend", onTouchEnd, { passive: true });
         return () => {
-            textEl.removeEventListener("touchstart", onTouchStart);
-            textEl.removeEventListener("touchmove", onTouchMove);
-            textEl.removeEventListener("touchend", onTouchEnd);
-            if (momentumRaf) cancelAnimationFrame(momentumRaf);
+            portalEl.removeEventListener("touchstart", onTouchStart);
+            portalEl.removeEventListener("touchmove", onTouchMove);
+            portalEl.removeEventListener("touchend", onTouchEnd);
         };
-    }, [isActive, showPortal, vh, closeGallery, openProgressRaw, galleryDragY]);
+    }, [showPortal, vh, closeGallery, openProgressRaw, galleryDragY]);
 
     return (
         <motion.div
@@ -626,78 +563,72 @@ export function GalleryItem({
                 )}
             </motion.div>
 
-            {/* Text anchored to item */}
-            <motion.div
-                className={clsx(
-                    "absolute top-full left-1/2 w-screen",
-                    isActive ? "pointer-events-auto" : "pointer-events-none",
-                )}
-                onPointerDown={
-                    isActive ? (e) => e.stopPropagation() : undefined
-                }
-                style={{
-                    transform: `translateX(-50%) scale(${textScale})`,
-                    transformOrigin: "top center",
-                    opacity: textOpacity,
-                }}
-            >
-                {open && (
-                    <div
-                        ref={textWrapperRef}
-                        className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6"
-                    >
-                        <div className="space-y-2">
-                            {year && (
-                                <p className="text-sm text-muted">{year}</p>
-                            )}
-                            <h2 className="font-bold text-2xl">{title}</h2>
-                            <p className="text-muted">{subtitle}</p>
-                            {officialURL && (
-                                <a
-                                    href={officialURL}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 text-sm font-medium rounded-full bg-[#EEE]/80 no-underline text-[#333] hover:bg-[#DDD] transition-colors"
-                                >
-                                    {officialURLText ?? "View project"}
-                                    <svg
-                                        width="12"
-                                        height="12"
-                                        viewBox="0 0 12 12"
-                                        fill="none"
-                                    >
-                                        <path
-                                            d="M3.5 2.5H9.5V8.5M9.5 2.5L2.5 9.5"
-                                            stroke="currentColor"
-                                            strokeWidth="1.5"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                        />
-                                    </svg>
-                                </a>
-                            )}
-                        </div>
-                        {noMSFT && <NoMSFTDisclaimer title={title} />}
-                        {mdxSource && !("error" in mdxSource) && (
-                            <MDXClient {...mdxSource} components={components} />
-                        )}
-                        <Footer />
-                    </div>
-                )}
-            </motion.div>
-
-            {/* Transparent portal scroll track */}
+            {/* Portal: native scroll container with text content */}
             {showPortal &&
                 typeof document !== "undefined" &&
                 createPortal(
                     <div
                         ref={scrollContainerRef}
                         className="gallery-portal fixed inset-0 overflow-y-auto z-[52] pointer-events-none"
+                        style={{ overscrollBehavior: "contain" }}
                     >
+                        {/* Transparent spacer for image area — clicks pass through */}
                         <div
-                            style={{ height: imageBottom + textHeight }}
+                            style={{ height: imageBottom }}
                             className="pointer-events-none select-none"
                         />
+                        {/* Text content — interactive, selectable, with native scroll */}
+                        <div className="pointer-events-auto bg-white">
+                            <div className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6">
+                                <div className="space-y-2">
+                                    {year && (
+                                        <p className="text-sm text-muted">
+                                            {year}
+                                        </p>
+                                    )}
+                                    <h2 className="font-bold text-2xl">
+                                        {title}
+                                    </h2>
+                                    <p className="text-muted">{subtitle}</p>
+                                    {officialURL && (
+                                        <a
+                                            href={officialURL}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 text-sm font-medium rounded-full bg-[#EEE]/80 no-underline text-[#333] hover:bg-[#DDD] transition-colors"
+                                        >
+                                            {officialURLText ??
+                                                "View project"}
+                                            <svg
+                                                width="12"
+                                                height="12"
+                                                viewBox="0 0 12 12"
+                                                fill="none"
+                                            >
+                                                <path
+                                                    d="M3.5 2.5H9.5V8.5M9.5 2.5L2.5 9.5"
+                                                    stroke="currentColor"
+                                                    strokeWidth="1.5"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                />
+                                            </svg>
+                                        </a>
+                                    )}
+                                </div>
+                                {noMSFT && (
+                                    <NoMSFTDisclaimer title={title} />
+                                )}
+                                {mdxSource &&
+                                    !("error" in mdxSource) && (
+                                        <MDXClient
+                                            {...mdxSource}
+                                            components={components}
+                                        />
+                                    )}
+                                <Footer />
+                            </div>
+                        </div>
                     </div>,
                     document.body,
                 )}

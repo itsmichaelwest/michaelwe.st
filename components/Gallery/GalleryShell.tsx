@@ -90,6 +90,24 @@ export function GalleryShell({
     });
     const [, setRectVersion] = useState(0);
 
+    // Show overlay (text content portal) after the open animation completes.
+    // Stays true while open so page navigation is instant.
+    const [showOverlay, setShowOverlay] = useState(isDirectNav);
+    const showOverlayTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+    useEffect(() => {
+        if (open) {
+            clearTimeout(showOverlayTimerRef.current);
+            showOverlayTimerRef.current = setTimeout(
+                () => setShowOverlay(true),
+                350,
+            );
+        } else {
+            clearTimeout(showOverlayTimerRef.current);
+            setShowOverlay(false);
+        }
+        return () => clearTimeout(showOverlayTimerRef.current);
+    }, [open]);
+
     useLayoutEffect(() => {
         if (containerRef.current) {
             const r = containerRef.current.getBoundingClientRect();
@@ -775,6 +793,7 @@ export function GalleryShell({
                             year={item.year}
                             mdxSource={item.mdxSource}
                             open={open}
+                            showOverlay={showOverlay}
                             vw={vw}
                             vh={vh}
                             openSpring={openSpring}
