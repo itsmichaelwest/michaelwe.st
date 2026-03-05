@@ -158,13 +158,6 @@ export function GalleryItem({
         },
     );
 
-    // Fade out portal text during dismiss so image doesn't go behind it
-    const portalTextOpacity = useTransform(
-        openProgressRaw,
-        [0.85, 1],
-        [0, 1],
-    );
-
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const thumbRef = useRef<HTMLDivElement>(null);
     const scrollbarIdleRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -633,9 +626,15 @@ export function GalleryItem({
                 )}
             </motion.div>
 
-            {/* Text anchored to item — visual only, scales with image during open/close */}
+            {/* Text anchored to item */}
             <motion.div
-                className="absolute top-full left-1/2 w-screen pointer-events-none"
+                className={clsx(
+                    "absolute top-full left-1/2 w-screen",
+                    isActive ? "pointer-events-auto" : "pointer-events-none",
+                )}
+                onPointerDown={
+                    isActive ? (e) => e.stopPropagation() : undefined
+                }
                 style={{
                     transform: `translateX(-50%) scale(${textScale})`,
                     transformOrigin: "top center",
@@ -695,70 +694,10 @@ export function GalleryItem({
                         ref={scrollContainerRef}
                         className="gallery-portal fixed inset-0 overflow-y-auto z-[52] pointer-events-none"
                     >
-                        {/* Transparent spacer for image area */}
                         <div
-                            style={{ height: imageBottom }}
+                            style={{ height: imageBottom + textHeight }}
                             className="pointer-events-none select-none"
                         />
-                        {/* Interactive text — selectable, links work, native scroll */}
-                        <motion.div
-                            className="pointer-events-auto"
-                            style={{ opacity: portalTextOpacity }}
-                        >
-                            <div className="bg-white">
-                                <div className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6">
-                                    <div className="space-y-2">
-                                        {year && (
-                                            <p className="text-sm text-muted">
-                                                {year}
-                                            </p>
-                                        )}
-                                        <h2 className="font-bold text-2xl">
-                                            {title}
-                                        </h2>
-                                        <p className="text-muted">
-                                            {subtitle}
-                                        </p>
-                                        {officialURL && (
-                                            <a
-                                                href={officialURL}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 text-sm font-medium rounded-full bg-[#EEE]/80 no-underline text-[#333] hover:bg-[#DDD] transition-colors"
-                                            >
-                                                {officialURLText ??
-                                                    "View project"}
-                                                <svg
-                                                    width="12"
-                                                    height="12"
-                                                    viewBox="0 0 12 12"
-                                                    fill="none"
-                                                >
-                                                    <path
-                                                        d="M3.5 2.5H9.5V8.5M9.5 2.5L2.5 9.5"
-                                                        stroke="currentColor"
-                                                        strokeWidth="1.5"
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                    />
-                                                </svg>
-                                            </a>
-                                        )}
-                                    </div>
-                                    {noMSFT && (
-                                        <NoMSFTDisclaimer title={title} />
-                                    )}
-                                    {mdxSource &&
-                                        !("error" in mdxSource) && (
-                                            <MDXClient
-                                                {...mdxSource}
-                                                components={components}
-                                            />
-                                        )}
-                                    <Footer />
-                                </div>
-                            </div>
-                        </motion.div>
                     </div>,
                     document.body,
                 )}
