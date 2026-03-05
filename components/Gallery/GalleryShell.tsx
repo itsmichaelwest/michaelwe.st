@@ -25,6 +25,7 @@ import {
     GALLERY_DISMISS_VELOCITY,
     RUBBER_BAND_K,
     DRAG_DECAY,
+    OVERLAY_SHOW_DELAY,
 } from "./constants";
 import { railItemW, railLeftOf, maxRailScroll } from "./utils";
 import { GalleryItem } from "./GalleryItem";
@@ -93,19 +94,21 @@ export function GalleryShell({
     // Show overlay (text content portal) after the open animation completes.
     // Stays true while open so page navigation is instant.
     const [showOverlay, setShowOverlay] = useState(isDirectNav);
-    const showOverlayTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+    const showOverlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     useEffect(() => {
         if (open) {
-            clearTimeout(showOverlayTimerRef.current);
+            if (showOverlayTimerRef.current) clearTimeout(showOverlayTimerRef.current);
             showOverlayTimerRef.current = setTimeout(
                 () => setShowOverlay(true),
-                350,
+                OVERLAY_SHOW_DELAY,
             );
         } else {
-            clearTimeout(showOverlayTimerRef.current);
+            if (showOverlayTimerRef.current) clearTimeout(showOverlayTimerRef.current);
             setShowOverlay(false);
         }
-        return () => clearTimeout(showOverlayTimerRef.current);
+        return () => {
+            if (showOverlayTimerRef.current) clearTimeout(showOverlayTimerRef.current);
+        };
     }, [open]);
 
     useLayoutEffect(() => {

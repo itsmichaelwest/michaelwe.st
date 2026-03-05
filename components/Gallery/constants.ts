@@ -15,3 +15,6 @@ export const GALLERY_PAGE_THRESHOLD = 0.33;
 export const GALLERY_DISMISS_VELOCITY = 0.1;
 export const RUBBER_BAND_K = 0.5;
 export const DRAG_DECAY = 0.96;
+
+// Timing
+export const OVERLAY_SHOW_DELAY = 350;
