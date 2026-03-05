@@ -25,7 +25,6 @@ import {
     GALLERY_DISMISS_VELOCITY,
     RUBBER_BAND_K,
     DRAG_DECAY,
-    OVERLAY_SHOW_DELAY,
 } from "./constants";
 import { railItemW, railLeftOf, maxRailScroll } from "./utils";
 import { GalleryItem } from "./GalleryItem";
@@ -90,26 +89,6 @@ export function GalleryShell({
         height: 0,
     });
     const [, setRectVersion] = useState(0);
-
-    // Show overlay (text content portal) after the open animation completes.
-    // Stays true while open so page navigation is instant.
-    const [showOverlay, setShowOverlay] = useState(isDirectNav);
-    const showOverlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    useEffect(() => {
-        if (open) {
-            if (showOverlayTimerRef.current) clearTimeout(showOverlayTimerRef.current);
-            showOverlayTimerRef.current = setTimeout(
-                () => setShowOverlay(true),
-                OVERLAY_SHOW_DELAY,
-            );
-        } else {
-            if (showOverlayTimerRef.current) clearTimeout(showOverlayTimerRef.current);
-            setShowOverlay(false);
-        }
-        return () => {
-            if (showOverlayTimerRef.current) clearTimeout(showOverlayTimerRef.current);
-        };
-    }, [open]);
 
     useLayoutEffect(() => {
         if (containerRef.current) {
@@ -796,7 +775,6 @@ export function GalleryShell({
                             year={item.year}
                             mdxSource={item.mdxSource}
                             open={open}
-                            showOverlay={showOverlay}
                             vw={vw}
                             vh={vh}
                             openSpring={openSpring}
