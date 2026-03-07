@@ -175,9 +175,10 @@ export function GalleryItem({
     const scrollbarIdleRef = useRef<ReturnType<typeof setTimeout>>(undefined);
     const imageBottom = (vh + GALLERY_H * vh * galScale) / 2;
 
-    // Touch gesture on image for mobile swipe/dismiss
+    // Touch gesture on spacer (image area) for mobile swipe/dismiss
     const imageElRef = useRef<HTMLDivElement>(null);
-    const imageSwipeRef = useRef<{
+    const spacerRef = useRef<HTMLDivElement>(null);
+    const spacerSwipeRef = useRef<{
         startX: number;
         startY: number;
         axis: "x" | "y" | null;
@@ -187,6 +188,10 @@ export function GalleryItem({
     } | null>(null);
 
     const textWrapperRef = useRef<HTMLDivElement>(null);
+
+    // Track when portal was last scrolled through content (scrollTop > 0)
+    // Used to prevent scroll momentum from accidentally triggering overscroll-to-dismiss
+    const lastContentScrollTimeRef = useRef(0);
 
     const [showPortal, setShowPortal] = useState(false);
     useEffect(() => {
@@ -199,7 +204,7 @@ export function GalleryItem({
         return () => clearTimeout(timer);
     }, [isActive]);
 
-    // Desktop wheel: native scroll on text, overscroll-to-dismiss, horizontal page nav
+    // Desktop wheel: native scroll on text, overscroll-to-dismiss
     useEffect(() => {
         if (!showPortal) return;
         const portalEl = scrollContainerRef.current;
@@ -209,15 +214,6 @@ export function GalleryItem({
         let inOverscroll = false;
         let closing = false;
         let idleTimer: ReturnType<typeof setTimeout> | null = null;
-        // Track when scrollTop was last > 0 to prevent scroll momentum
-        // from accidentally triggering overscroll-to-dismiss
-        let lastScrolledTime = 0;
-
-        // Horizontal navigation state
-        let hAccum = 0;
-        let hActive = false;
-        let hNavigated = false;
-        let hIdleTimer: ReturnType<typeof setTimeout> | null = null;
 
         const resetIdle = () => {
             if (idleTimer) clearTimeout(idleTimer);
@@ -235,12 +231,6 @@ export function GalleryItem({
 
         const onWheel = (e: WheelEvent) => {
             if (closing) return;
-
-            // Track when portal had content scrolled (scrollTop > 0)
-            // to distinguish intentional dismiss from scroll momentum
-            if (portalEl.scrollTop > 0) {
-                lastScrolledTime = performance.now();
-            }
 
             const isOnText =
                 textWrapperRef.current?.contains(e.target as Node) ?? false;
@@ -274,8 +264,12 @@ export function GalleryItem({
             if (portalEl.scrollTop <= 0 && e.deltaY < -1) {
                 // Don't enter overscroll if we were recently scrolling through
                 // content — this upward event is momentum, not an intentional
-                // dismiss gesture. Let it pass harmlessly.
-                if (performance.now() - lastScrolledTime < 300) return;
+                // dismiss gesture.
+                if (
+                    performance.now() - lastContentScrollTimeRef.current <
+                    500
+                )
+                    return;
 
                 e.preventDefault();
                 inOverscroll = true;
@@ -286,56 +280,8 @@ export function GalleryItem({
                 return;
             }
 
-            // --- Horizontal page navigation (on text area) ---
-            // When cursor is over the container area, GalleryShell handles this
-            if (isOnText) {
-                const absX = Math.abs(e.deltaX);
-                const absY = Math.abs(e.deltaY);
-                if (hActive || (absX > absY && absX > 1)) {
-                    e.preventDefault();
-                    hActive = true;
-
-                    let delta = -e.deltaX;
-                    const isFirst = index === 0;
-                    const isLast = index === itemCount - 1;
-                    if (
-                        (isFirst && hAccum + delta > 0) ||
-                        (isLast && hAccum + delta < 0)
-                    )
-                        delta *= RUBBER_BAND_K;
-                    hAccum += delta;
-                    galleryDragX.jump(hAccum);
-
-                    const threshold = vw * GALLERY_PAGE_THRESHOLD;
-                    if (hAccum < -threshold) {
-                        hNavigated = true;
-                        goToPage(index + 1);
-                    } else if (hAccum > threshold) {
-                        hNavigated = true;
-                        goToPage(index - 1);
-                    }
-
-                    if (hIdleTimer) clearTimeout(hIdleTimer);
-                    hIdleTimer = setTimeout(
-                        () => {
-                            if (!hNavigated) {
-                                animate(galleryDragX, 0, {
-                                    type: "spring",
-                                    ...PAGE_SPRING,
-                                });
-                            }
-                            hActive = false;
-                            hAccum = 0;
-                            hNavigated = false;
-                        },
-                        hNavigated ? 500 : 150,
-                    );
-                    return;
-                }
-
-                // Vertical scroll on text — let native scroll handle it
-                return;
-            }
+            // --- Cursor over text — let native scroll handle vertical ---
+            if (isOnText) return;
 
             // --- Cursor over image/spacer — forward vertical to portal ---
             if (Math.abs(e.deltaY) > 1) {
@@ -348,7 +294,6 @@ export function GalleryItem({
         return () => {
             window.removeEventListener("wheel", onWheel);
             if (idleTimer) clearTimeout(idleTimer);
-            if (hIdleTimer) clearTimeout(hIdleTimer);
         };
     }, [
         showPortal,
@@ -394,6 +339,10 @@ export function GalleryItem({
         if (!el) return;
         const onScroll = () => {
             const st = Math.max(0, el.scrollTop);
+            // Track when content was scrolled (for overscroll guard)
+            if (st > 5) {
+                lastContentScrollTimeRef.current = performance.now();
+            }
             if (galleryDragY.get() > 0) {
                 galleryDragY.jump(0);
                 openProgressRaw.set(1);
@@ -411,15 +360,18 @@ export function GalleryItem({
         updateThumb,
     ]);
 
-    // Touch swipe/dismiss on image for mobile (native touch events have implicit capture)
+    // Touch swipe/dismiss on spacer (image area) for mobile.
+    // On mobile, the portal has pointer-events:auto (from CSS) which blocks the image element.
+    // The spacer has touch-action:none so we get raw touch events for swipe/dismiss.
     useEffect(() => {
-        if (!isActive) return;
-        const el = imageElRef.current;
-        if (!el) return;
+        if (!isActive || !showPortal) return;
+        const el = spacerRef.current;
+        const portalEl = scrollContainerRef.current;
+        if (!el || !portalEl) return;
 
         const onTouchStart = (e: TouchEvent) => {
             const touch = e.touches[0];
-            imageSwipeRef.current = {
+            spacerSwipeRef.current = {
                 startX: touch.clientX,
                 startY: touch.clientY,
                 axis: null,
@@ -430,7 +382,7 @@ export function GalleryItem({
         };
 
         const onTouchMove = (e: TouchEvent) => {
-            const ref = imageSwipeRef.current;
+            const ref = spacerSwipeRef.current;
             if (!ref) return;
             const touch = e.touches[0];
             const dx = touch.clientX - ref.startX;
@@ -463,9 +415,9 @@ export function GalleryItem({
         };
 
         const onTouchEnd = (e: TouchEvent) => {
-            const ref = imageSwipeRef.current;
+            const ref = spacerSwipeRef.current;
             if (!ref) return;
-            imageSwipeRef.current = null;
+            spacerSwipeRef.current = null;
             if (!ref.axis) return;
             const touch = e.changedTouches[0];
             const dx = touch.clientX - ref.startX;
@@ -496,9 +448,9 @@ export function GalleryItem({
         };
 
         const onTouchCancel = () => {
-            const ref = imageSwipeRef.current;
+            const ref = spacerSwipeRef.current;
             if (!ref) return;
-            imageSwipeRef.current = null;
+            spacerSwipeRef.current = null;
             if (ref.axis === "x") {
                 animate(galleryDragX, 0, { type: "spring", ...PAGE_SPRING });
             } else if (ref.axis === "y") {
@@ -519,6 +471,7 @@ export function GalleryItem({
         };
     }, [
         isActive,
+        showPortal,
         index,
         itemCount,
         vw,
@@ -582,10 +535,15 @@ export function GalleryItem({
                         className="gallery-portal fixed inset-0 overflow-y-auto z-[52]"
                         style={{ pointerEvents: "none" }}
                     >
-                        {/* Spacer for image area */}
+                        {/* Spacer for image area — touch-action:none lets our
+                            spacer touch handler handle swipe/dismiss on mobile */}
                         <div
-                            style={{ height: imageBottom }}
-                            className="pointer-events-none select-none"
+                            ref={spacerRef}
+                            style={{
+                                height: imageBottom,
+                                touchAction: "none",
+                            }}
+                            className="select-none"
                         />
 
                         {/* Real text content — selectable, with working links */}

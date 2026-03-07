@@ -96,10 +96,9 @@ body {
     background-color: #fff;
 }
 
-/* Hide native scrollbar on gallery portal + prevent rubber-band overscroll */
+/* Hide native scrollbar on gallery portal */
 .gallery-portal {
     scrollbar-width: none;
-    overscroll-behavior: contain;
 }
 .gallery-portal::-webkit-scrollbar {
     display: none;

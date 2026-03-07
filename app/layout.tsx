@@ -66,6 +66,9 @@ export default function RootLayout({
                     dangerouslySetInnerHTML={{
                         __html: `
                             html, body { overflow: hidden; overscroll-behavior: none; height: 100%; }
+                            @media (any-pointer: coarse) {
+                                .gallery-portal { pointer-events: auto !important; touch-action: pan-y; }
+                            }
                         `,
                     }}
                 />
