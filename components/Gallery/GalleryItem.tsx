@@ -32,6 +32,11 @@ import {
     railLeftOf,
 } from "./utils";
 
+/** Minimum scrollTop to consider "scrolled through content" (avoids sub-pixel noise) */
+const CONTENT_SCROLL_THRESHOLD = 5;
+/** How long after the last content scroll before overscroll-to-dismiss is allowed (ms) */
+const OVERSCROLL_GUARD_COOLDOWN_MS = 500;
+
 
 export function GalleryItem({
     index,
@@ -267,7 +272,7 @@ export function GalleryItem({
                 // dismiss gesture.
                 if (
                     performance.now() - lastContentScrollTimeRef.current <
-                    500
+                    OVERSCROLL_GUARD_COOLDOWN_MS
                 )
                     return;
 
@@ -340,7 +345,7 @@ export function GalleryItem({
         const onScroll = () => {
             const st = Math.max(0, el.scrollTop);
             // Track when content was scrolled (for overscroll guard)
-            if (st > 5) {
+            if (st > CONTENT_SCROLL_THRESHOLD) {
                 lastContentScrollTimeRef.current = performance.now();
             }
             if (galleryDragY.get() > 0) {
