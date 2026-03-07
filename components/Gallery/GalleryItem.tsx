@@ -147,17 +147,28 @@ export function GalleryItem({
         },
     );
 
-    // Portal text opacity: fades in with spring, fades out fast on dismiss
+    // Portal text opacity: fades smoothly with spring on normal close,
+    // fades fast with rawProgress² during dismiss drag to avoid z-order conflict
     const portalTextOpacity = useTransform(
-        [galleryPageX, galleryDragX, openSpring, openProgressRaw] as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-        ([pageX, dragX, springProgress, rawProgress]: number[]) => {
+        [galleryPageX, galleryDragX, openSpring, openProgressRaw, galleryDragY] as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        ([pageX, dragX, springProgress, rawProgress, dragY]: number[]) => {
             const dist = Math.abs(pageX + dragX + index * vw);
             const proximity = Math.max(0, 1 - dist / (vw * 0.5));
-            // rawProgress² gives faster fade during dismiss drag so text
-            // is mostly invisible before the image overlaps it
-            return proximity * springProgress * rawProgress * rawProgress;
+            if (dragY > 0) {
+                // Dismiss drag: fade fast with rawProgress² so text clears
+                // before the image moves down over it
+                return proximity * springProgress * rawProgress * rawProgress;
+            }
+            // Normal open/close: smooth spring-animated fade
+            return proximity * springProgress;
         },
     );
+
+    // Portal text scale: scales in concert with the image during open/close
+    const portalTextScale = useTransform(openSpring, (progress) => {
+        const currentScale = sRail + progress * (galScale - sRail);
+        return currentScale / galScale;
+    });
 
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const thumbRef = useRef<HTMLDivElement>(null);
@@ -505,91 +516,6 @@ export function GalleryItem({
         closeGallery,
     ]);
 
-    // Mobile touch overscroll-to-dismiss on portal text area
-    useEffect(() => {
-        if (!showPortal || !isActive) return;
-        const textEl = textWrapperRef.current;
-        const portalEl = scrollContainerRef.current;
-        if (!textEl || !portalEl) return;
-
-        let startY = 0;
-        let inOverscroll = false;
-        let overscrollAccum = 0;
-        let closing = false;
-
-        const onTouchStart = (e: TouchEvent) => {
-            startY = e.touches[0].clientY;
-            inOverscroll = false;
-            overscrollAccum = 0;
-            closing = false;
-        };
-
-        const onTouchMove = (e: TouchEvent) => {
-            if (closing) return;
-            const touchY = e.touches[0].clientY;
-            const dy = touchY - startY; // positive = pulling down
-
-            if (inOverscroll) {
-                if (dy <= 0) {
-                    // Reversed direction, exit overscroll
-                    inOverscroll = false;
-                    overscrollAccum = 0;
-                    openProgressRaw.set(1);
-                    animate(galleryDragY, 0, {
-                        type: "spring",
-                        ...MAIN_SPRING,
-                    });
-                    return;
-                }
-                overscrollAccum = dy;
-                galleryDragY.jump(overscrollAccum);
-                openProgressRaw.jump(
-                    Math.max(0, 1 - overscrollAccum / (vh * 0.3)),
-                );
-                if (overscrollAccum > vh * 0.2) {
-                    closing = true;
-                    closeGallery();
-                }
-                return;
-            }
-
-            // Enter overscroll mode when at top and pulling down
-            if (portalEl.scrollTop <= 0 && dy > 10) {
-                inOverscroll = true;
-                overscrollAccum = dy;
-                galleryDragY.jump(overscrollAccum);
-                openProgressRaw.jump(
-                    Math.max(0, 1 - overscrollAccum / (vh * 0.3)),
-                );
-            }
-        };
-
-        const onTouchEnd = () => {
-            if (inOverscroll && !closing) {
-                if (overscrollAccum > vh * 0.15) {
-                    closeGallery();
-                } else {
-                    openProgressRaw.set(1);
-                    animate(galleryDragY, 0, {
-                        type: "spring",
-                        ...MAIN_SPRING,
-                    });
-                }
-                inOverscroll = false;
-                overscrollAccum = 0;
-            }
-        };
-
-        textEl.addEventListener("touchstart", onTouchStart, { passive: true });
-        textEl.addEventListener("touchmove", onTouchMove, { passive: true });
-        textEl.addEventListener("touchend", onTouchEnd, { passive: true });
-        return () => {
-            textEl.removeEventListener("touchstart", onTouchStart);
-            textEl.removeEventListener("touchmove", onTouchMove);
-            textEl.removeEventListener("touchend", onTouchEnd);
-        };
-    }, [isActive, showPortal, vh, closeGallery, openProgressRaw, galleryDragY]);
-
     return (
         <motion.div
             className={clsx(
@@ -654,6 +580,8 @@ export function GalleryItem({
                             style={{
                                 touchAction: "pan-y",
                                 opacity: portalTextOpacity,
+                                scale: portalTextScale,
+                                transformOrigin: "top center",
                                 pointerEvents: isActive ? "auto" : "none",
                             }}
                         >
