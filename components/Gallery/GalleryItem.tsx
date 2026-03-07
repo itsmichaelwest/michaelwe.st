@@ -651,8 +651,8 @@ export function GalleryItem({
                         {/* Real text content — selectable, with working links */}
                         <motion.div
                             ref={textWrapperRef}
-                            className="touch-pan-y"
                             style={{
+                                touchAction: "pan-y",
                                 opacity: portalTextOpacity,
                                 pointerEvents: isActive ? "auto" : "none",
                             }}
