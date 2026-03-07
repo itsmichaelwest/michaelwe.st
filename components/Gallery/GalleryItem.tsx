@@ -147,14 +147,15 @@ export function GalleryItem({
         },
     );
 
-    const textScale = 1 / galScale;
-
-    const textOpacity = useTransform(
-        [galleryPageX, galleryDragX, openSpring] as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-        ([pageX, dragX, progress]: number[]) => {
+    // Portal text opacity: fades in with spring, fades out fast on dismiss
+    const portalTextOpacity = useTransform(
+        [galleryPageX, galleryDragX, openSpring, openProgressRaw] as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+        ([pageX, dragX, springProgress, rawProgress]: number[]) => {
             const dist = Math.abs(pageX + dragX + index * vw);
             const proximity = Math.max(0, 1 - dist / (vw * 0.5));
-            return proximity * progress;
+            // rawProgress² gives faster fade during dismiss drag so text
+            // is mostly invisible before the image overlaps it
+            return proximity * springProgress * rawProgress * rawProgress;
         },
     );
 
@@ -174,30 +175,20 @@ export function GalleryItem({
         vx: number;
     } | null>(null);
 
-    // Measure text content height for portal spacer
     const textWrapperRef = useRef<HTMLDivElement>(null);
-    const [textHeight, setTextHeight] = useState(0);
-    useEffect(() => {
-        if (!open) return;
-        const el = textWrapperRef.current;
-        if (!el) return;
-        const ro = new ResizeObserver(() => {
-            setTextHeight(el.offsetHeight);
-        });
-        ro.observe(el);
-        return () => ro.disconnect();
-    }, [open]);
 
     const [showPortal, setShowPortal] = useState(false);
     useEffect(() => {
         if (isActive) {
-            const timer = setTimeout(() => setShowPortal(true), 350);
-            return () => clearTimeout(timer);
+            setShowPortal(true);
+            return;
         }
-        setShowPortal(false);
+        // Delay unmount to allow close/page-change animation to complete
+        const timer = setTimeout(() => setShowPortal(false), 500);
+        return () => clearTimeout(timer);
     }, [isActive]);
 
-    // Wheel handler on window: forwards deltaY to portal scrollTop + overscroll-to-dismiss
+    // Desktop wheel: native scroll on text, overscroll-to-dismiss, horizontal page nav
     useEffect(() => {
         if (!showPortal) return;
         const portalEl = scrollContainerRef.current;
@@ -207,6 +198,12 @@ export function GalleryItem({
         let inOverscroll = false;
         let closing = false;
         let idleTimer: ReturnType<typeof setTimeout> | null = null;
+
+        // Horizontal navigation state
+        let hAccum = 0;
+        let hActive = false;
+        let hNavigated = false;
+        let hIdleTimer: ReturnType<typeof setTimeout> | null = null;
 
         const resetIdle = () => {
             if (idleTimer) clearTimeout(idleTimer);
@@ -223,11 +220,14 @@ export function GalleryItem({
         };
 
         const onWheel = (e: WheelEvent) => {
-            e.preventDefault();
-
             if (closing) return;
 
+            const isOnText =
+                textWrapperRef.current?.contains(e.target as Node) ?? false;
+
+            // --- Overscroll-to-dismiss (any cursor position) ---
             if (inOverscroll) {
+                e.preventDefault();
                 if (e.deltaY > 2) {
                     inOverscroll = false;
                     accum = 0;
@@ -251,7 +251,8 @@ export function GalleryItem({
                 return;
             }
 
-            if (portalEl.scrollTop <= 0 && e.deltaY < 0) {
+            if (portalEl.scrollTop <= 0 && e.deltaY < -1) {
+                e.preventDefault();
                 inOverscroll = true;
                 accum = -e.deltaY;
                 galleryDragY.jump(accum);
@@ -260,17 +261,84 @@ export function GalleryItem({
                 return;
             }
 
-            portalEl.scrollTop += e.deltaY;
+            // --- Horizontal page navigation (on text area) ---
+            // When cursor is over the container area, GalleryShell handles this
+            if (isOnText) {
+                const absX = Math.abs(e.deltaX);
+                const absY = Math.abs(e.deltaY);
+                if (hActive || (absX > absY && absX > 1)) {
+                    e.preventDefault();
+                    hActive = true;
+
+                    let delta = -e.deltaX;
+                    const isFirst = index === 0;
+                    const isLast = index === itemCount - 1;
+                    if (
+                        (isFirst && hAccum + delta > 0) ||
+                        (isLast && hAccum + delta < 0)
+                    )
+                        delta *= RUBBER_BAND_K;
+                    hAccum += delta;
+                    galleryDragX.jump(hAccum);
+
+                    const threshold = vw * GALLERY_PAGE_THRESHOLD;
+                    if (hAccum < -threshold) {
+                        hNavigated = true;
+                        goToPage(index + 1);
+                    } else if (hAccum > threshold) {
+                        hNavigated = true;
+                        goToPage(index - 1);
+                    }
+
+                    if (hIdleTimer) clearTimeout(hIdleTimer);
+                    hIdleTimer = setTimeout(
+                        () => {
+                            if (!hNavigated) {
+                                animate(galleryDragX, 0, {
+                                    type: "spring",
+                                    ...PAGE_SPRING,
+                                });
+                            }
+                            hActive = false;
+                            hAccum = 0;
+                            hNavigated = false;
+                        },
+                        hNavigated ? 500 : 150,
+                    );
+                    return;
+                }
+
+                // Vertical scroll on text — let native scroll handle it
+                return;
+            }
+
+            // --- Cursor over image/spacer — forward vertical to portal ---
+            if (Math.abs(e.deltaY) > 1) {
+                e.preventDefault();
+                portalEl.scrollTop += e.deltaY;
+            }
         };
 
         window.addEventListener("wheel", onWheel, { passive: false });
         return () => {
             window.removeEventListener("wheel", onWheel);
             if (idleTimer) clearTimeout(idleTimer);
+            if (hIdleTimer) clearTimeout(hIdleTimer);
         };
-    }, [showPortal, vh, closeGallery, openProgressRaw, galleryDragY]);
+    }, [
+        showPortal,
+        vh,
+        vw,
+        index,
+        itemCount,
+        closeGallery,
+        openProgressRaw,
+        galleryDragY,
+        galleryDragX,
+        goToPage,
+    ]);
 
-    // Sync native scroll -> localScrollY + update custom scrollbar thumb
+    // Sync portal scroll → localScrollY + update custom scrollbar thumb
     const updateThumb = useCallback((el: HTMLElement) => {
         const thumb = thumbRef.current;
         if (!thumb) return;
@@ -300,21 +368,12 @@ export function GalleryItem({
         const el = scrollContainerRef.current;
         if (!el) return;
         const onScroll = () => {
-            const st = el.scrollTop;
-            if (st < 0) {
-                const pull = -st;
-                galleryDragY.jump(pull);
-                openProgressRaw.jump(Math.max(0, 1 - pull / (vh * 0.3)));
-                if (pull > vh * 0.15) {
-                    closeGallery();
-                }
-            } else {
-                if (galleryDragY.get() > 0) {
-                    galleryDragY.jump(0);
-                    openProgressRaw.set(1);
-                }
-                localScrollY.jump(st);
+            const st = Math.max(0, el.scrollTop);
+            if (galleryDragY.get() > 0) {
+                galleryDragY.jump(0);
+                openProgressRaw.set(1);
             }
+            localScrollY.jump(st);
             updateThumb(el);
         };
         el.addEventListener("scroll", onScroll, { passive: true });
@@ -322,10 +381,8 @@ export function GalleryItem({
     }, [
         showPortal,
         localScrollY,
-        vh,
         galleryDragY,
         openProgressRaw,
-        closeGallery,
         updateThumb,
     ]);
 
@@ -448,59 +505,32 @@ export function GalleryItem({
         closeGallery,
     ]);
 
-    // Touch scroll on text for mobile (mirrors wheel-scroll behavior on desktop)
+    // Mobile touch overscroll-to-dismiss on portal text area
     useEffect(() => {
-        if (!isActive || !showPortal) return;
+        if (!showPortal || !isActive) return;
         const textEl = textWrapperRef.current;
         const portalEl = scrollContainerRef.current;
         if (!textEl || !portalEl) return;
 
         let startY = 0;
-        let startScroll = 0;
-        let scrolling = false;
-        let lastY = 0;
-        let lastT = 0;
-        let vy = 0;
         let inOverscroll = false;
         let overscrollAccum = 0;
-        let momentumRaf: number | null = null;
         let closing = false;
 
         const onTouchStart = (e: TouchEvent) => {
-            if (momentumRaf) {
-                cancelAnimationFrame(momentumRaf);
-                momentumRaf = null;
-            }
-            const touch = e.touches[0];
-            startY = touch.clientY;
-            lastY = touch.clientY;
-            lastT = performance.now();
-            startScroll = portalEl.scrollTop;
-            scrolling = false;
+            startY = e.touches[0].clientY;
             inOverscroll = false;
             overscrollAccum = 0;
-            vy = 0;
             closing = false;
         };
 
         const onTouchMove = (e: TouchEvent) => {
             if (closing) return;
-            const touch = e.touches[0];
-            const dy = startY - touch.clientY; // positive = finger up = scroll down
-
-            const now = performance.now();
-            const dt = now - lastT;
-            if (dt > 0) vy = (lastY - touch.clientY) / dt;
-            lastY = touch.clientY;
-            lastT = now;
-
-            if (!scrolling && Math.abs(dy) > 8) {
-                scrolling = true;
-            }
-            if (!scrolling) return;
+            const touchY = e.touches[0].clientY;
+            const dy = touchY - startY; // positive = pulling down
 
             if (inOverscroll) {
-                if (dy > 0) {
+                if (dy <= 0) {
                     // Reversed direction, exit overscroll
                     inOverscroll = false;
                     overscrollAccum = 0;
@@ -509,11 +539,9 @@ export function GalleryItem({
                         type: "spring",
                         ...MAIN_SPRING,
                     });
-                    startScroll = 0;
-                    startY = touch.clientY;
                     return;
                 }
-                overscrollAccum = Math.max(0, -dy);
+                overscrollAccum = dy;
                 galleryDragY.jump(overscrollAccum);
                 openProgressRaw.jump(
                     Math.max(0, 1 - overscrollAccum / (vh * 0.3)),
@@ -525,18 +553,15 @@ export function GalleryItem({
                 return;
             }
 
-            const newScroll = startScroll + dy;
-            if (newScroll <= 0 && dy < 0) {
+            // Enter overscroll mode when at top and pulling down
+            if (portalEl.scrollTop <= 0 && dy > 10) {
                 inOverscroll = true;
-                portalEl.scrollTop = 0;
-                overscrollAccum = -newScroll;
+                overscrollAccum = dy;
                 galleryDragY.jump(overscrollAccum);
                 openProgressRaw.jump(
                     Math.max(0, 1 - overscrollAccum / (vh * 0.3)),
                 );
-                return;
             }
-            portalEl.scrollTop = newScroll;
         };
 
         const onTouchEnd = () => {
@@ -552,23 +577,6 @@ export function GalleryItem({
                 }
                 inOverscroll = false;
                 overscrollAccum = 0;
-                return;
-            }
-            if (!scrolling) return;
-            scrolling = false;
-            // Momentum
-            if (Math.abs(vy) > 0.3) {
-                let v = vy * 16;
-                const decel = () => {
-                    v *= 0.95;
-                    if (Math.abs(v) < 0.5) {
-                        momentumRaf = null;
-                        return;
-                    }
-                    portalEl.scrollTop += v;
-                    momentumRaf = requestAnimationFrame(decel);
-                };
-                momentumRaf = requestAnimationFrame(decel);
             }
         };
 
@@ -579,7 +587,6 @@ export function GalleryItem({
             textEl.removeEventListener("touchstart", onTouchStart);
             textEl.removeEventListener("touchmove", onTouchMove);
             textEl.removeEventListener("touchend", onTouchEnd);
-            if (momentumRaf) cancelAnimationFrame(momentumRaf);
         };
     }, [isActive, showPortal, vh, closeGallery, openProgressRaw, galleryDragY]);
 
@@ -626,78 +633,80 @@ export function GalleryItem({
                 )}
             </motion.div>
 
-            {/* Text anchored to item */}
-            <motion.div
-                className={clsx(
-                    "absolute top-full left-1/2 w-screen",
-                    isActive ? "pointer-events-auto" : "pointer-events-none",
-                )}
-                onPointerDown={
-                    isActive ? (e) => e.stopPropagation() : undefined
-                }
-                style={{
-                    transform: `translateX(-50%) scale(${textScale})`,
-                    transformOrigin: "top center",
-                    opacity: textOpacity,
-                }}
-            >
-                {open && (
-                    <div
-                        ref={textWrapperRef}
-                        className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6"
-                    >
-                        <div className="space-y-2">
-                            {year && (
-                                <p className="text-sm text-muted">{year}</p>
-                            )}
-                            <h2 className="font-bold text-2xl">{title}</h2>
-                            <p className="text-muted">{subtitle}</p>
-                            {officialURL && (
-                                <a
-                                    href={officialURL}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 text-sm font-medium rounded-full bg-[#EEE]/80 no-underline text-[#333] hover:bg-[#DDD] transition-colors"
-                                >
-                                    {officialURLText ?? "View project"}
-                                    <svg
-                                        width="12"
-                                        height="12"
-                                        viewBox="0 0 12 12"
-                                        fill="none"
-                                    >
-                                        <path
-                                            d="M3.5 2.5H9.5V8.5M9.5 2.5L2.5 9.5"
-                                            stroke="currentColor"
-                                            strokeWidth="1.5"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                        />
-                                    </svg>
-                                </a>
-                            )}
-                        </div>
-                        {noMSFT && <NoMSFTDisclaimer title={title} />}
-                        {mdxSource && !("error" in mdxSource) && (
-                            <MDXClient {...mdxSource} components={components} />
-                        )}
-                        <Footer />
-                    </div>
-                )}
-            </motion.div>
-
-            {/* Transparent portal scroll track */}
+            {/* Portal scroll container with real text content */}
             {showPortal &&
                 typeof document !== "undefined" &&
                 createPortal(
                     <div
                         ref={scrollContainerRef}
-                        className="gallery-portal fixed inset-0 overflow-y-auto z-[52] pointer-events-none"
+                        className="gallery-portal fixed inset-0 overflow-y-auto z-[52]"
+                        style={{ pointerEvents: "none" }}
                     >
+                        {/* Spacer for image area */}
                         <div
-                            style={{ height: imageBottom + textHeight }}
+                            style={{ height: imageBottom }}
                             className="pointer-events-none select-none"
                         />
+
+                        {/* Real text content — selectable, with working links */}
+                        <motion.div
+                            ref={textWrapperRef}
+                            className="touch-pan-y"
+                            style={{
+                                opacity: portalTextOpacity,
+                                pointerEvents: isActive ? "auto" : "none",
+                            }}
+                        >
+                            <div className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6">
+                                <div className="space-y-2">
+                                    {year && (
+                                        <p className="text-sm text-muted">
+                                            {year}
+                                        </p>
+                                    )}
+                                    <h2 className="font-bold text-2xl">
+                                        {title}
+                                    </h2>
+                                    <p className="text-muted">{subtitle}</p>
+                                    {officialURL && (
+                                        <a
+                                            href={officialURL}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 text-sm font-medium rounded-full bg-[#EEE]/80 no-underline text-[#333] hover:bg-[#DDD] transition-colors"
+                                        >
+                                            {officialURLText ??
+                                                "View project"}
+                                            <svg
+                                                width="12"
+                                                height="12"
+                                                viewBox="0 0 12 12"
+                                                fill="none"
+                                            >
+                                                <path
+                                                    d="M3.5 2.5H9.5V8.5M9.5 2.5L2.5 9.5"
+                                                    stroke="currentColor"
+                                                    strokeWidth="1.5"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                />
+                                            </svg>
+                                        </a>
+                                    )}
+                                </div>
+                                {noMSFT && (
+                                    <NoMSFTDisclaimer title={title} />
+                                )}
+                                {mdxSource &&
+                                    !("error" in mdxSource) && (
+                                        <MDXClient
+                                            {...mdxSource}
+                                            components={components}
+                                        />
+                                    )}
+                                <Footer />
+                            </div>
+                        </motion.div>
                     </div>,
                     document.body,
                 )}
