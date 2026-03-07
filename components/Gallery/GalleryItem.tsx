@@ -209,6 +209,9 @@ export function GalleryItem({
         let inOverscroll = false;
         let closing = false;
         let idleTimer: ReturnType<typeof setTimeout> | null = null;
+        // Track when scrollTop was last > 0 to prevent scroll momentum
+        // from accidentally triggering overscroll-to-dismiss
+        let lastScrolledTime = 0;
 
         // Horizontal navigation state
         let hAccum = 0;
@@ -232,6 +235,12 @@ export function GalleryItem({
 
         const onWheel = (e: WheelEvent) => {
             if (closing) return;
+
+            // Track when portal had content scrolled (scrollTop > 0)
+            // to distinguish intentional dismiss from scroll momentum
+            if (portalEl.scrollTop > 0) {
+                lastScrolledTime = performance.now();
+            }
 
             const isOnText =
                 textWrapperRef.current?.contains(e.target as Node) ?? false;
@@ -263,6 +272,11 @@ export function GalleryItem({
             }
 
             if (portalEl.scrollTop <= 0 && e.deltaY < -1) {
+                // Don't enter overscroll if we were recently scrolling through
+                // content — this upward event is momentum, not an intentional
+                // dismiss gesture. Let it pass harmlessly.
+                if (performance.now() - lastScrolledTime < 300) return;
+
                 e.preventDefault();
                 inOverscroll = true;
                 accum = -e.deltaY;
