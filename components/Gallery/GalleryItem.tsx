@@ -32,10 +32,11 @@ import {
     railLeftOf,
 } from "./utils";
 
-/** Minimum scrollTop to consider "scrolled through content" (avoids sub-pixel noise) */
-const CONTENT_SCROLL_THRESHOLD = 5;
-/** How long after the last content scroll before overscroll-to-dismiss is allowed (ms) */
-const OVERSCROLL_GUARD_COOLDOWN_MS = 500;
+/** How recently a native scroll event must have fired to consider scroll "active" (ms).
+ *  While native scroll is active (momentum still settling), overscroll-to-dismiss is blocked.
+ *  When the user is already at scrollTop=0 and scrolls up, no scroll events fire, so the
+ *  guard isn't active and overscroll-to-dismiss works immediately. */
+const SCROLL_SETTLE_MS = 200;
 
 
 export function GalleryItem({
@@ -194,9 +195,9 @@ export function GalleryItem({
 
     const textWrapperRef = useRef<HTMLDivElement>(null);
 
-    // Track when portal was last scrolled through content (scrollTop > 0)
-    // Used to prevent scroll momentum from accidentally triggering overscroll-to-dismiss
-    const lastContentScrollTimeRef = useRef(0);
+    // Track when the last native scroll event fired (any scrollTop value).
+    // Used to detect scroll momentum and block overscroll-to-dismiss.
+    const lastScrollEventTimeRef = useRef(0);
 
     const [showPortal, setShowPortal] = useState(false);
     useEffect(() => {
@@ -267,12 +268,15 @@ export function GalleryItem({
             }
 
             if (portalEl.scrollTop <= 0 && e.deltaY < -1) {
-                // Don't enter overscroll if we were recently scrolling through
-                // content — this upward event is momentum, not an intentional
-                // dismiss gesture.
+                // If native scroll fired recently, momentum is still active —
+                // this upward wheel event is residual momentum, not an
+                // intentional dismiss gesture. When the user is already at the
+                // top and starts scrolling up, no scroll events fire (nothing
+                // to scroll), so this guard is inactive and dismiss works
+                // immediately.
                 if (
-                    performance.now() - lastContentScrollTimeRef.current <
-                    OVERSCROLL_GUARD_COOLDOWN_MS
+                    performance.now() - lastScrollEventTimeRef.current <
+                    SCROLL_SETTLE_MS
                 )
                     return;
 
@@ -343,11 +347,8 @@ export function GalleryItem({
         const el = scrollContainerRef.current;
         if (!el) return;
         const onScroll = () => {
+            lastScrollEventTimeRef.current = performance.now();
             const st = Math.max(0, el.scrollTop);
-            // Track when content was scrolled (for overscroll guard)
-            if (st > CONTENT_SCROLL_THRESHOLD) {
-                lastContentScrollTimeRef.current = performance.now();
-            }
             if (galleryDragY.get() > 0) {
                 galleryDragY.jump(0);
                 openProgressRaw.set(1);
@@ -536,33 +537,36 @@ export function GalleryItem({
                 typeof document !== "undefined" &&
                 createPortal(
                     <div
-                        ref={scrollContainerRef}
-                        className="gallery-portal fixed inset-0 overflow-y-auto z-[52]"
+                        className="fixed inset-0 z-[52]"
                         style={{ pointerEvents: "none" }}
                     >
-                        {/* Spacer for image area — touch-action:none lets our
-                            spacer touch handler handle swipe/dismiss on mobile */}
                         <div
-                            ref={spacerRef}
-                            style={{
-                                height: imageBottom,
-                                touchAction: "none",
-                            }}
-                            className="select-none"
-                        />
-
-                        {/* Real text content — selectable, with working links */}
-                        <motion.div
-                            ref={textWrapperRef}
-                            style={{
-                                touchAction: "pan-y",
-                                opacity: portalTextOpacity,
-                                scale: portalTextScale,
-                                transformOrigin: "top center",
-                                pointerEvents: isActive ? "auto" : "none",
-                            }}
+                            ref={scrollContainerRef}
+                            className="gallery-portal w-full h-full overflow-y-auto"
                         >
-                            <div className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6">
+                            {/* Spacer for image area — touch-action:none lets our
+                                spacer touch handler handle swipe/dismiss on mobile */}
+                            <div
+                                ref={spacerRef}
+                                style={{
+                                    height: imageBottom,
+                                    touchAction: "none",
+                                }}
+                                className="select-none"
+                            />
+
+                            {/* Real text content — selectable, with working links */}
+                            <motion.div
+                                ref={textWrapperRef}
+                                style={{
+                                    touchAction: "pan-y",
+                                    opacity: portalTextOpacity,
+                                    scale: portalTextScale,
+                                    transformOrigin: "top center",
+                                    pointerEvents: isActive ? "auto" : "none",
+                                }}
+                            >
+                                <div className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6">
                                 <div className="space-y-2">
                                     {year && (
                                         <p className="text-sm text-muted">
@@ -612,6 +616,7 @@ export function GalleryItem({
                                 <Footer />
                             </div>
                         </motion.div>
+                        </div>
                     </div>,
                     document.body,
                 )}
