@@ -348,12 +348,12 @@ export function GalleryItem({
         if (!el) return;
         const onScroll = () => {
             lastScrollEventTimeRef.current = performance.now();
-            const st = Math.max(0, el.scrollTop);
+            const scrollTop = Math.max(0, el.scrollTop);
             if (galleryDragY.get() > 0) {
                 galleryDragY.jump(0);
                 openProgressRaw.set(1);
             }
-            localScrollY.jump(st);
+            localScrollY.jump(scrollTop);
             updateThumb(el);
         };
         el.addEventListener("scroll", onScroll, { passive: true });
