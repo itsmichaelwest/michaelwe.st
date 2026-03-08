@@ -537,36 +537,33 @@ export function GalleryItem({
                 typeof document !== "undefined" &&
                 createPortal(
                     <div
-                        className="fixed inset-0 z-[52]"
+                        ref={scrollContainerRef}
+                        className="gallery-portal fixed inset-0 overflow-y-auto z-[52]"
                         style={{ pointerEvents: "none" }}
                     >
+                        {/* Spacer for image area — touch-action:none lets our
+                            spacer touch handler handle swipe/dismiss on mobile */}
                         <div
-                            ref={scrollContainerRef}
-                            className="gallery-portal w-full h-full overflow-y-auto"
-                        >
-                            {/* Spacer for image area — touch-action:none lets our
-                                spacer touch handler handle swipe/dismiss on mobile */}
-                            <div
-                                ref={spacerRef}
-                                style={{
-                                    height: imageBottom,
-                                    touchAction: "none",
-                                }}
-                                className="select-none"
-                            />
+                            ref={spacerRef}
+                            style={{
+                                height: imageBottom,
+                                touchAction: "none",
+                            }}
+                            className="select-none"
+                        />
 
-                            {/* Real text content — selectable, with working links */}
-                            <motion.div
-                                ref={textWrapperRef}
-                                style={{
-                                    touchAction: "pan-y",
-                                    opacity: portalTextOpacity,
-                                    scale: portalTextScale,
-                                    transformOrigin: "top center",
-                                    pointerEvents: isActive ? "auto" : "none",
-                                }}
-                            >
-                                <div className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6">
+                        {/* Real text content — selectable, with working links */}
+                        <motion.div
+                            ref={textWrapperRef}
+                            style={{
+                                touchAction: "pan-y",
+                                opacity: portalTextOpacity,
+                                scale: portalTextScale,
+                                transformOrigin: "top center",
+                                pointerEvents: isActive ? "auto" : "none",
+                            }}
+                        >
+                            <div className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6">
                                 <div className="space-y-2">
                                     {year && (
                                         <p className="text-sm text-muted">
@@ -616,7 +613,6 @@ export function GalleryItem({
                                 <Footer />
                             </div>
                         </motion.div>
-                        </div>
                     </div>,
                     document.body,
                 )}
