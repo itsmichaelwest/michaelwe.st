@@ -563,7 +563,7 @@ export function GalleryItem({
                                 pointerEvents: isActive ? "auto" : "none",
                             }}
                         >
-                            <div className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6">
+                            <div className="max-w-[80ch] mx-auto px-6 pt-16 space-y-6" style={{ paddingBottom: "calc(2rem + env(safe-area-inset-bottom, 0px))" }}>
                                 <div className="space-y-2">
                                     {year && (
                                         <p className="text-sm text-muted">

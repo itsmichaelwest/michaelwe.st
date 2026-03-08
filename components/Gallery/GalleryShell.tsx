@@ -664,10 +664,14 @@ export function GalleryShell({
                 {/* Back button */}
                 <motion.button
                     className={clsx(
-                        "fixed top-4 left-4 z-[53] size-10 flex items-center justify-center p-0 rounded-full bg-[#EEE]/80 backdrop-blur-2xl border-none cursor-pointer",
+                        "fixed z-[53] size-10 flex items-center justify-center p-0 rounded-full bg-[#EEE]/80 backdrop-blur-2xl border-none cursor-pointer",
                         open ? "pointer-events-auto" : "pointer-events-none",
                     )}
-                    style={{ opacity: openSpring }}
+                    style={{
+                        opacity: openSpring,
+                        top: "calc(1rem + env(safe-area-inset-top, 0px))",
+                        left: "calc(1rem + env(safe-area-inset-left, 0px))",
+                    }}
                     onPointerDown={(e) => e.stopPropagation()}
                     onClick={closeGallery}
                 >

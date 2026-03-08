@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Inter } from "next/font/google";
@@ -10,6 +10,10 @@ const inter = Inter({
     display: "swap",
     variable: "--font-inter",
 });
+
+export const viewport: Viewport = {
+    viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
     title: siteMetadata.title,
