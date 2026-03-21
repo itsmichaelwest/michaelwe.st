@@ -74,7 +74,6 @@ export function GalleryShell({
     const galleryPageX = useMotionValue(0);
     const galleryDragX = useMotionValue(0);
     const galleryDragY = useMotionValue(0);
-
     const openProgress = useMotionValue(0);
     const openSpring = useSpring(openProgress, MAIN_SPRING);
 
@@ -188,12 +187,11 @@ export function GalleryShell({
     );
 
     const closeGallery = useCallback(() => {
-        detailScrollRef.current?.scrollTo(0, 0);
+        window.scrollTo(0, 0);
         setOpen(false);
         openRef.current = false;
         openProgress.set(0);
         galleryDragX.jump(0);
-        galleryDragY.jump(0);
         centerRailOn(currentRef.current);
         if (directNavRef.current) {
             directNavRef.current = false;
@@ -201,7 +199,7 @@ export function GalleryShell({
         } else {
             history.back();
         }
-    }, [openProgress, galleryDragX, galleryDragY, centerRailOn]);
+    }, [openProgress, galleryDragX, centerRailOn]);
 
     const openAbout = useCallback(() => {
         setAboutOpen(true);
@@ -446,22 +444,7 @@ export function GalleryShell({
                 }
             }
 
-            if (openRef.current) {
-                if (dragAxisRef.current === "x" && dragOnImageRef.current) {
-                    let offsetX = dx;
-                    const isFirst = currentRef.current === 0;
-                    const isLast = currentRef.current === items.length - 1;
-                    if ((isFirst && dx > 0) || (isLast && dx < 0))
-                        offsetX = dx * RUBBER_BAND_K;
-                    galleryDragX.jump(offsetX);
-                }
-                if (dragAxisRef.current === "y") {
-                    if (dragOnImageRef.current && dy > 0) {
-                        galleryDragY.jump(dy);
-                        openProgress.jump(1 - Math.min(dy / (vh * 0.3), 1));
-                    }
-                }
-            } else {
+            if (!openRef.current) {
                 if (dragAxisRef.current === "x") {
                     const max = maxRailScroll(
                         items,
@@ -474,14 +457,10 @@ export function GalleryShell({
                         delta *= RUBBER_BAND_K;
                     railOffset.jump(cur + delta);
                 }
-                if (dragAxisRef.current === "y" && dy < 0) {
-                    openProgress.jump(Math.min(Math.abs(dy) / (vh * 0.3), 1));
-                }
             }
         },
         [
             galleryDragX,
-            galleryDragY,
             openProgress,
             railOffset,
             vw,
@@ -537,59 +516,9 @@ export function GalleryShell({
                         }
                     }
                 }
-            } else if (openRef.current) {
-                if (dragAxisRef.current === "x" && dragOnImageRef.current) {
-                    const threshold = vw * GALLERY_PAGE_THRESHOLD;
-                    if (dx < -threshold || vx < -DRAG_UP_VELOCITY_THRESHOLD)
-                        goToPage(currentRef.current + 1);
-                    else if (dx > threshold || vx > DRAG_UP_VELOCITY_THRESHOLD)
-                        goToPage(currentRef.current - 1);
-                    else
-                        animate(galleryDragX, 0, {
-                            type: "spring",
-                            ...PAGE_SPRING,
-                        });
-                } else if (dragAxisRef.current === "y") {
-                    if (dragOnImageRef.current) {
-                        if (dy > vh * 0.2 || vy > GALLERY_DISMISS_VELOCITY) {
-                            closeGallery();
-                        } else {
-                            openProgress.set(1);
-                            animate(galleryDragY, 0, {
-                                type: "spring",
-                                ...MAIN_SPRING,
-                            });
-                        }
-                    }
-                }
-            } else {
+            } else if (!openRef.current) {
                 if (dragAxisRef.current === "x") {
                     startMomentum(vx * 16);
-                } else if (dragAxisRef.current === "y" && dy < 0) {
-                    const prog = Math.abs(dy) / (vh * 0.3);
-                    if (
-                        prog > DRAG_UP_DISTANCE_RATIO ||
-                        Math.abs(vy) > DRAG_UP_VELOCITY_THRESHOLD
-                    ) {
-                        const nearest = findTappedItem(
-                            dragStartRef.current.x,
-                            dragStartRef.current.y,
-                            railOffset.get(),
-                        );
-                        if (nearest >= 0) {
-                            const canonical = items[nearest].canonical;
-                            if (canonical) {
-                                openProgress.set(0);
-                                window.open(canonical, "_blank", "noopener");
-                            } else {
-                                openGallery(nearest);
-                            }
-                        }
-                    } else {
-                        openProgress.set(0);
-                    }
-                } else {
-                    openProgress.set(0);
                 }
             }
             dragAxisRef.current = null;
@@ -597,12 +526,10 @@ export function GalleryShell({
         [
             vw,
             vh,
-            goToPage,
             closeGallery,
             openGallery,
             openProgress,
             galleryDragX,
-            galleryDragY,
             startMomentum,
             railOffset,
         ],
@@ -614,121 +541,110 @@ export function GalleryShell({
         <GalleryContext.Provider
             value={{ open, openSpring, aboutOpen, openAbout, closeAbout }}
         >
-            <div className="relative max-w-[80ch] w-full h-[80vh] md:h-[60vh] mx-auto px-4 flex flex-col">
-                {children}
+            {/* Back button — fixed, outside both views */}
+            <motion.button
+                className={clsx(
+                    "fixed top-4 left-4 z-[53] size-10 flex items-center justify-center p-0 rounded-full bg-[#EEE]/80 backdrop-blur-2xl border-none cursor-pointer active:scale-96 transition-transform duration-100",
+                    open ? "pointer-events-auto" : "pointer-events-none",
+                )}
+                tabIndex={open ? 0 : -1}
+                aria-label="Back"
+                style={{ opacity: openSpring }}
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={closeGallery}
+            >
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <path
+                        d="M11 3L5 9L11 15"
+                        stroke="#333"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    />
+                </svg>
+            </motion.button>
 
-                {/* Back button */}
-                <motion.button
-                    className={clsx(
-                        "fixed top-4 left-4 z-[53] size-10 flex items-center justify-center p-0 rounded-full bg-[#EEE]/80 backdrop-blur-2xl border-none cursor-pointer active:scale-96 transition-transform duration-100",
-                        open ? "pointer-events-auto" : "pointer-events-none",
-                    )}
-                    tabIndex={open ? 0 : -1}
-                    aria-label="Back"
-                    style={{ opacity: openSpring }}
-                    onPointerDown={(e) => e.stopPropagation()}
-                    onClick={closeGallery}
-                >
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                        <path
-                            d="M11 3L5 9L11 15"
-                            stroke="#333"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                    </svg>
-                </motion.button>
+            {/* Home view — centered viewport, goes invisible when detail is active */}
+            <div
+                className={clsx(
+                    "w-full h-screen flex items-center justify-center",
+                    showDetail && "invisible absolute overflow-hidden",
+                )}
+                inert={showDetail || undefined}
+            >
+                <div className="relative max-w-[80ch] w-full h-[80vh] md:h-[60vh] mx-auto px-4 flex flex-col">
+                    {children}
 
-                {/* Rail / Gallery container — always mounted for animation continuity */}
-                <div
-                    ref={containerRef}
-                    className={clsx(
-                        "absolute bottom-0 inset-x-0 h-1/2 overflow-visible touch-none",
-                        open ? "z-51" : "z-auto",
-                        showDetail && "invisible",
-                    )}
-                    inert={showDetail || undefined}
-                    onPointerDownCapture={() => {
-                        dragOnImageRef.current = false;
-                    }}
-                    onPointerDown={onPointerDown}
-                    onPointerMove={onPointerMove}
-                    onPointerUp={onPointerUp}
-                >
-                    {items.map((item, i) => (
-                        <GalleryItem
-                            key={item.id}
-                            index={i}
-                            items={items}
-                            current={current}
-                            color={item.color}
-                            label={item.label}
-                            title={item.title}
-                            img={item.img}
-                            imgAlt={item.imgAlt}
-                            open={open}
-                            vw={vw}
-                            vh={vh}
-                            openSpring={openSpring}
-                            railScroll={railOffset}
-                            galleryPageX={galleryPageX}
-                            galleryDragX={galleryDragX}
-                            galleryDragY={galleryDragY}
-                            dragOnImageRef={dragOnImageRef}
-                            containerRectRef={containerRectRef}
-                            onFocusItem={() => centerRailOn(i, true)}
-                            onActivate={() => {
-                                const canonical = item.canonical;
-                                if (canonical) {
-                                    window.open(
-                                        canonical,
-                                        "_blank",
-                                        "noopener",
-                                    );
-                                } else {
-                                    openGallery(i);
-                                }
-                            }}
-                        />
-                    ))}
-
-                    {/* Gallery backdrop */}
-                    <motion.div
-                        className={clsx(
-                            "fixed inset-0 z-0 select-none",
-                            open
-                                ? "pointer-events-auto"
-                                : "pointer-events-none",
-                        )}
-                        style={{
-                            opacity: openSpring,
+                    {/* Rail / Gallery container */}
+                    <div
+                        ref={containerRef}
+                        className="absolute bottom-0 inset-x-0 h-1/2 overflow-visible touch-none"
+                        onPointerDownCapture={() => {
+                            dragOnImageRef.current = false;
                         }}
+                        onPointerDown={onPointerDown}
+                        onPointerMove={onPointerMove}
+                        onPointerUp={onPointerUp}
+                    >
+                        {items.map((item, i) => (
+                            <GalleryItem
+                                key={item.id}
+                                index={i}
+                                items={items}
+                                current={current}
+                                color={item.color}
+                                label={item.label}
+                                title={item.title}
+                                img={item.img}
+                                imgAlt={item.imgAlt}
+                                open={open}
+                                vw={vw}
+                                vh={vh}
+                                openSpring={openSpring}
+                                railScroll={railOffset}
+                                galleryPageX={galleryPageX}
+                                galleryDragX={galleryDragX}
+                                galleryDragY={galleryDragY}
+                                dragOnImageRef={dragOnImageRef}
+                                containerRectRef={containerRectRef}
+                                onFocusItem={() => centerRailOn(i, true)}
+                                onActivate={() => {
+                                    const canonical = item.canonical;
+                                    if (canonical) {
+                                        window.open(
+                                            canonical,
+                                            "_blank",
+                                            "noopener",
+                                        );
+                                    } else {
+                                        openGallery(i);
+                                    }
+                                }}
+                            />
+                        ))}
+                    </div>
+
+                    <AboutModal
+                        open={aboutOpen}
+                        onClose={closeAbout}
+                        directNav={isAboutDirectNav}
                     />
                 </div>
-
-                {/* Full-screen content overlay */}
-                {showDetail && (
-                    <GalleryDetail
-                        items={items}
-                        current={current}
-                        open={open}
-                        vw={vw}
-                        vh={vh}
-                        openSpring={openSpring}
-                        galleryDragY={galleryDragY}
-                        openProgressRaw={openProgress}
-                        closeGallery={closeGallery}
-                        scrollRef={detailScrollRef}
-                    />
-                )}
-
-                <AboutModal
-                    open={aboutOpen}
-                    onClose={closeAbout}
-                    directNav={isAboutDirectNav}
-                />
             </div>
+
+            {/* Detail view — normal document flow, browser owns the scroll */}
+            {showDetail && (
+                <GalleryDetail
+                    items={items}
+                    current={current}
+                    open={open}
+                    vw={vw}
+                    vh={vh}
+                    openSpring={openSpring}
+                    closeGallery={closeGallery}
+                    scrollRef={detailScrollRef}
+                />
+            )}
         </GalleryContext.Provider>
     );
 }

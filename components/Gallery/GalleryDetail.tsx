@@ -1,12 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import {
-    motion,
-    animate,
-    useReducedMotion,
-    type MotionValue,
-} from "motion/react";
+import { useEffect } from "react";
+import { motion, useReducedMotion, type MotionValue } from "motion/react";
 import Image from "next/image";
 import clsx from "clsx";
 import { MDXClient } from "next-mdx-remote-client";
@@ -14,7 +9,7 @@ import { components } from "../MDXComponents";
 import NoMSFTDisclaimer from "../NoMSFTDisclaimer";
 import Footer from "../Footer";
 import type { ItemData } from "./types";
-import { GALLERY_H, MAIN_SPRING } from "./constants";
+import { GALLERY_H } from "./constants";
 import { itemFullW, itemGalleryScale } from "./utils";
 
 export function GalleryDetail({
@@ -24,8 +19,6 @@ export function GalleryDetail({
     vw,
     vh,
     openSpring,
-    galleryDragY,
-    openProgressRaw,
     closeGallery,
     scrollRef,
 }: {
@@ -35,8 +28,6 @@ export function GalleryDetail({
     vw: number;
     vh: number;
     openSpring: MotionValue<number>;
-    galleryDragY: MotionValue<number>;
-    openProgressRaw: MotionValue<number>;
     closeGallery: () => void;
     scrollRef: React.RefObject<HTMLDivElement | null>;
 }) {
@@ -53,99 +44,20 @@ export function GalleryDetail({
     // Center vertically on desktop, anchor to top on mobile
     const imageMarginTop = isMobile ? 80 : (vh - imageHeight) / 2;
 
-    // Reset scroll on page change
+    // Scroll to top on mount and page change
     useEffect(() => {
-        scrollRef.current?.scrollTo(0, 0);
-    }, [current, scrollRef]);
-
-    // ── Touch dismiss on image (pull down to close) ─────────────
-    const imageRef = useRef<HTMLDivElement>(null);
-    const swipeRef = useRef<{
-        startY: number;
-        active: boolean;
-    } | null>(null);
-
-    useEffect(() => {
-        const el = imageRef.current;
-        if (!el) return;
-
-        const onTouchStart = (e: TouchEvent) => {
-            swipeRef.current = {
-                startY: e.touches[0].clientY,
-                active: false,
-            };
-        };
-
-        const onTouchMove = (e: TouchEvent) => {
-            const ref = swipeRef.current;
-            if (!ref) return;
-            const dy = e.touches[0].clientY - ref.startY;
-
-            if (!ref.active && Math.abs(dy) > 8) ref.active = true;
-            if (!ref.active || dy <= 0) return;
-
-            galleryDragY.jump(dy);
-            openProgressRaw.jump(1 - Math.min(dy / (vh * 0.3), 1));
-        };
-
-        const onTouchEnd = (e: TouchEvent) => {
-            const ref = swipeRef.current;
-            if (!ref || !ref.active) {
-                swipeRef.current = null;
-                return;
-            }
-            swipeRef.current = null;
-            const dy = e.changedTouches[0].clientY - ref.startY;
-
-            if (dy > vh * 0.2) {
-                closeGallery();
-            } else {
-                openProgressRaw.set(1);
-                animate(galleryDragY, 0, {
-                    type: "spring",
-                    ...MAIN_SPRING,
-                });
-            }
-        };
-
-        const onTouchCancel = () => {
-            if (swipeRef.current?.active) {
-                openProgressRaw.set(1);
-                animate(galleryDragY, 0, { type: "spring", ...MAIN_SPRING });
-            }
-            swipeRef.current = null;
-        };
-
-        el.addEventListener("touchstart", onTouchStart, { passive: true });
-        el.addEventListener("touchmove", onTouchMove, { passive: true });
-        el.addEventListener("touchend", onTouchEnd, { passive: true });
-        el.addEventListener("touchcancel", onTouchCancel, { passive: true });
-        return () => {
-            el.removeEventListener("touchstart", onTouchStart);
-            el.removeEventListener("touchmove", onTouchMove);
-            el.removeEventListener("touchend", onTouchEnd);
-            el.removeEventListener("touchcancel", onTouchCancel);
-        };
-    }, [vh, galleryDragY, openProgressRaw, closeGallery]);
+        window.scrollTo(0, 0);
+    }, [current]);
 
     return (
-        <motion.div
-            ref={scrollRef}
-            className={clsx(
-                "fixed inset-0 z-[52] overflow-y-auto",
-                open ? "pointer-events-auto" : "pointer-events-none",
-            )}
-            style={{ y: galleryDragY }}
-        >
+        <div ref={scrollRef} className="min-h-screen bg-white overflow-x-hidden">
             {/* Hero image */}
             <div
-                ref={imageRef}
                 className="relative mx-auto rounded-2xl ring ring-black/10 select-none overflow-hidden"
                 style={{
                     width: imageWidth,
                     height: imageHeight,
                     marginTop: imageMarginTop,
-                    touchAction: "none",
                     background: !item.img
                         ? (item.color ?? undefined)
                         : undefined,
@@ -212,6 +124,6 @@ export function GalleryDetail({
                 )}
                 <Footer />
             </motion.div>
-        </motion.div>
+        </div>
     );
 }

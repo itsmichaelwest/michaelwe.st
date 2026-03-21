@@ -62,17 +62,10 @@ export default function RootLayout({
                         __html: JSON.stringify(jsonLd),
                     }}
                 />
-                <style
-                    dangerouslySetInnerHTML={{
-                        __html: `
-                            html, body { overflow: hidden; overscroll-behavior: none; height: 100%; }
-                        `,
-                    }}
-                />
             </head>
             <body>
                 <div
-                    className={`w-screen h-screen flex items-center justify-center overflow-visible ${inter.className} ${inter.variable} font-sans`}
+                    className={`overflow-x-hidden ${inter.className} ${inter.variable} font-sans`}
                 >
                     {children}
                 </div>
