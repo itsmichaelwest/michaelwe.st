@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
 import clsx from "clsx";
 import Face from "../public/images/michael-face.jpg";
@@ -9,6 +9,7 @@ import Link from "next/link";
 
 export function HeroBio() {
     const { open, openAbout } = useGallery();
+    const reducedMotion = useReducedMotion();
 
     return (
         <motion.div
@@ -16,10 +17,18 @@ export function HeroBio() {
                 "grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-4",
                 !open ? "pointer-events-auto" : "pointer-events-none",
             )}
-            animate={{
-                opacity: open ? 0 : 1,
-                filter: open ? "blur(4px)" : "blur(0px)",
-            }}
+            aria-hidden={open || undefined}
+            inert={open || undefined}
+            animate={
+                reducedMotion
+                    ? { opacity: open ? 0 : 1 }
+                    : {
+                          opacity: open ? 0 : 1,
+                          scale: open ? 0.96 : 1,
+                          filter: open ? "blur(4px)" : "blur(0px)",
+                      }
+            }
+            transition={open ? {} : { delay: 0.15 }}
         >
             <div className="space-y-6">
                 <div className="flex gap-4 items-center">
@@ -29,7 +38,9 @@ export function HeroBio() {
                         alt="Photo of Michael"
                     />
                     <div className="-space-y-1">
-                        <h1 className="font-semibold">Michael West</h1>
+                        <h1 className="font-semibold text-balance">
+                            Michael West
+                        </h1>
                         <p className="font-medium text-muted">
                             Senior Designer at Microsoft
                         </p>
@@ -39,7 +50,7 @@ export function HeroBio() {
                     <p className="text-muted italic">
                         Designer, engineer, builder.
                     </p>
-                    <p>
+                    <p className="text-pretty">
                         I currently work on Windows, where our team focuses on
                         making your PC experience more powerful and delightful
                         with AI, while also scaling new tooling across the

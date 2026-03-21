@@ -9,14 +9,19 @@ import {
     useMemo,
     type ReactNode,
 } from "react";
-import { motion, useMotionValue, useSpring, animate } from "motion/react";
+import {
+    motion,
+    useMotionValue,
+    useMotionValueEvent,
+    useSpring,
+    animate,
+} from "motion/react";
 import clsx from "clsx";
 import { useWindowSize } from "../../hooks/useWindowSize";
 import { GalleryContext } from "./GalleryContext";
 import type { ItemData } from "./types";
 import { SAMPLE_ITEMS } from "./types";
 import {
-    GALLERY_H,
     MAIN_SPRING,
     PAGE_SPRING,
     DRAG_UP_VELOCITY_THRESHOLD,
@@ -28,6 +33,7 @@ import {
 } from "./constants";
 import { railItemW, railLeftOf, maxRailScroll } from "./utils";
 import { GalleryItem } from "./GalleryItem";
+import { GalleryDetail } from "./GalleryDetail";
 import { AboutModal } from "../AboutModal";
 
 export function GalleryShell({
@@ -45,7 +51,10 @@ export function GalleryShell({
     const [open, setOpen] = useState(isDirectNav);
     const [aboutOpen, setAboutOpen] = useState(isAboutDirectNav);
     const aboutDirectNavRef = useRef(isAboutDirectNav);
+
     const [current, setCurrent] = useState(0);
+    const [showDetail, setShowDetail] = useState(isDirectNav);
+    const detailScrollRef = useRef<HTMLDivElement>(null);
     const { w: vw, h: vh } = useWindowSize();
     const items = useMemo(
         () =>
@@ -179,18 +188,20 @@ export function GalleryShell({
     );
 
     const closeGallery = useCallback(() => {
+        detailScrollRef.current?.scrollTo(0, 0);
         setOpen(false);
         openRef.current = false;
         openProgress.set(0);
         galleryDragX.jump(0);
-        centerRailOn(currentRef.current, true);
+        galleryDragY.jump(0);
+        centerRailOn(currentRef.current);
         if (directNavRef.current) {
             directNavRef.current = false;
             history.replaceState(null, "", "/");
         } else {
             history.back();
         }
-    }, [openProgress, galleryDragX, centerRailOn]);
+    }, [openProgress, galleryDragX, galleryDragY, centerRailOn]);
 
     const openAbout = useCallback(() => {
         setAboutOpen(true);
@@ -296,102 +307,47 @@ export function GalleryShell({
         }
     }, [vw, vh, galleryPageX, galleryDragX, railOffset, items]);
 
-    // Non-passive wheel: rail scroll (closed) + horizontal gallery swipe (open)
+    // Show overlay once the opening spring settles; hide immediately on close.
+    useEffect(() => {
+        if (open && directNavRef.current) {
+            setShowDetail(true);
+        } else if (!open) {
+            setShowDetail(false);
+        }
+    }, [open]);
+
+    useMotionValueEvent(openSpring, "change", (v) => {
+        if (openRef.current && v > 0.99 && !showDetail) {
+            setShowDetail(true);
+        }
+    });
+
+    // Unmount home view (HeroBio + rail) when fully in gallery view.
+    // During animations both views coexist for smooth transitions.
+    const showHomeView = !(open && showDetail);
+
+    // Rail scroll wheel handler (only when closed — overlay handles wheel when open)
     useEffect(() => {
         const el = containerRef.current;
         if (!el) return;
 
-        let hAccum = 0;
-        let hActive = false;
-        let navigated = false;
-        let idleTimer: ReturnType<typeof setTimeout> | null = null;
-
         const onWheel = (e: WheelEvent) => {
-            if (!openRef.current) {
-                hActive = false;
-                hAccum = 0;
-                navigated = false;
-                const delta =
-                    Math.abs(e.deltaX) > Math.abs(e.deltaY)
-                        ? e.deltaX
-                        : e.deltaY;
-                if (Math.abs(delta) < 1) return;
-                const max = maxRailScroll(
-                    items,
-                    containerRectRef.current.height,
-                    containerRectRef.current.width,
-                );
-                const cur = railOffset.get();
-                railOffset.jump(Math.max(-max, Math.min(0, cur - delta)));
-                return;
-            }
-
-            if (navigated) {
-                e.preventDefault();
-                e.stopPropagation();
-                if (idleTimer) clearTimeout(idleTimer);
-                idleTimer = setTimeout(() => {
-                    hActive = false;
-                    hAccum = 0;
-                    navigated = false;
-                }, 300);
-                return;
-            }
-
-            if (
-                hActive ||
-                (Math.abs(e.deltaX) > Math.abs(e.deltaY) &&
-                    Math.abs(e.deltaX) > 1)
-            ) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                hActive = true;
-
-                let delta = -e.deltaX;
-                const isFirst = currentRef.current === 0;
-                const isLast = currentRef.current === items.length - 1;
-                if (
-                    (isFirst && hAccum + delta > 0) ||
-                    (isLast && hAccum + delta < 0)
-                ) {
-                    delta *= RUBBER_BAND_K;
-                }
-                hAccum += delta;
-                galleryDragX.jump(hAccum);
-
-                const threshold = vw * GALLERY_PAGE_THRESHOLD;
-                if (hAccum < -threshold) {
-                    navigated = true;
-                    goToPage(currentRef.current + 1);
-                } else if (hAccum > threshold) {
-                    navigated = true;
-                    goToPage(currentRef.current - 1);
-                }
-
-                if (idleTimer) clearTimeout(idleTimer);
-                idleTimer = setTimeout(
-                    () => {
-                        if (!navigated) {
-                            animate(galleryDragX, 0, {
-                                type: "spring",
-                                ...PAGE_SPRING,
-                            });
-                        }
-                        hActive = false;
-                        hAccum = 0;
-                        navigated = false;
-                    },
-                    navigated ? 500 : 150,
-                );
-                return;
-            }
+            if (openRef.current) return;
+            const delta =
+                Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+            if (Math.abs(delta) < 1) return;
+            const max = maxRailScroll(
+                items,
+                containerRectRef.current.height,
+                containerRectRef.current.width,
+            );
+            const cur = railOffset.get();
+            railOffset.jump(Math.max(-max, Math.min(0, cur - delta)));
         };
 
         el.addEventListener("wheel", onWheel, { passive: false });
         return () => {
             el.removeEventListener("wheel", onWheel);
-            if (idleTimer) clearTimeout(idleTimer);
         };
     }, [vw, railOffset, galleryDragX, goToPage, items]);
 
@@ -664,9 +620,11 @@ export function GalleryShell({
                 {/* Back button */}
                 <motion.button
                     className={clsx(
-                        "fixed top-4 left-4 z-[53] size-10 flex items-center justify-center p-0 rounded-full bg-[#EEE]/80 backdrop-blur-2xl border-none cursor-pointer",
+                        "fixed top-4 left-4 z-[53] size-10 flex items-center justify-center p-0 rounded-full bg-[#EEE]/80 backdrop-blur-2xl border-none cursor-pointer active:scale-96 transition-transform duration-100",
                         open ? "pointer-events-auto" : "pointer-events-none",
                     )}
+                    tabIndex={open ? 0 : -1}
+                    aria-label="Back"
                     style={{ opacity: openSpring }}
                     onPointerDown={(e) => e.stopPropagation()}
                     onClick={closeGallery}
@@ -682,73 +640,15 @@ export function GalleryShell({
                     </svg>
                 </motion.button>
 
-                {/* Left nav */}
-                <motion.button
-                    className={clsx(
-                        "group fixed top-1/2 -translate-y-1/2 left-4 z-[53] size-10 flex items-center justify-center p-0 border-none cursor-pointer",
-                        open && current > 0
-                            ? "pointer-events-auto"
-                            : "pointer-events-none",
-                    )}
-                    style={{ opacity: openSpring }}
-                    onPointerDown={(e) => e.stopPropagation()}
-                    onClick={() => goToPage(current - 1)}
-                >
-                    <span className="size-10 rounded-full bg-[#EEE]/80 backdrop-blur-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <svg
-                            width="18"
-                            height="18"
-                            viewBox="0 0 18 18"
-                            fill="none"
-                        >
-                            <path
-                                d="M11 3L5 9L11 15"
-                                stroke="#333"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            />
-                        </svg>
-                    </span>
-                </motion.button>
-
-                {/* Right nav */}
-                <motion.button
-                    className={clsx(
-                        "group fixed top-1/2 -translate-y-1/2 right-4 z-[53] size-10 flex items-center justify-center p-0 border-none cursor-pointer",
-                        open && current < items.length - 1
-                            ? "pointer-events-auto"
-                            : "pointer-events-none",
-                    )}
-                    style={{ opacity: openSpring }}
-                    onPointerDown={(e) => e.stopPropagation()}
-                    onClick={() => goToPage(current + 1)}
-                >
-                    <span className="size-10 rounded-full bg-[#EEE]/80 backdrop-blur-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <svg
-                            width="18"
-                            height="18"
-                            viewBox="0 0 18 18"
-                            fill="none"
-                        >
-                            <path
-                                d="M7 3L13 9L7 15"
-                                stroke="#333"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            />
-                        </svg>
-                    </span>
-                </motion.button>
-
-                {/* Rail / Gallery container */}
+                {/* Rail / Gallery container — always mounted for animation continuity */}
                 <div
                     ref={containerRef}
                     className={clsx(
                         "absolute bottom-0 inset-x-0 h-1/2 overflow-visible touch-none",
                         open ? "z-51" : "z-auto",
+                        showDetail && "invisible",
                     )}
+                    inert={showDetail || undefined}
                     onPointerDownCapture={() => {
                         dragOnImageRef.current = false;
                     }}
@@ -761,19 +661,12 @@ export function GalleryShell({
                             key={item.id}
                             index={i}
                             items={items}
-                            itemCount={items.length}
                             current={current}
                             color={item.color}
                             label={item.label}
                             title={item.title}
-                            subtitle={item.subtitle}
                             img={item.img}
                             imgAlt={item.imgAlt}
-                            noMSFT={item.noMSFT}
-                            officialURL={item.officialURL}
-                            officialURLText={item.officialURLText}
-                            year={item.year}
-                            mdxSource={item.mdxSource}
                             open={open}
                             vw={vw}
                             vh={vh}
@@ -782,11 +675,21 @@ export function GalleryShell({
                             galleryPageX={galleryPageX}
                             galleryDragX={galleryDragX}
                             galleryDragY={galleryDragY}
-                            closeGallery={closeGallery}
-                            goToPage={goToPage}
-                            openProgressRaw={openProgress}
                             dragOnImageRef={dragOnImageRef}
                             containerRectRef={containerRectRef}
+                            onFocusItem={() => centerRailOn(i, true)}
+                            onActivate={() => {
+                                const canonical = item.canonical;
+                                if (canonical) {
+                                    window.open(
+                                        canonical,
+                                        "_blank",
+                                        "noopener",
+                                    );
+                                } else {
+                                    openGallery(i);
+                                }
+                            }}
                         />
                     ))}
 
@@ -803,6 +706,23 @@ export function GalleryShell({
                         }}
                     />
                 </div>
+
+                {/* Full-screen content overlay */}
+                {showDetail && (
+                    <GalleryDetail
+                        items={items}
+                        current={current}
+                        open={open}
+                        vw={vw}
+                        vh={vh}
+                        openSpring={openSpring}
+                        galleryDragY={galleryDragY}
+                        openProgressRaw={openProgress}
+                        closeGallery={closeGallery}
+                        scrollRef={detailScrollRef}
+                    />
+                )}
+
                 <AboutModal
                     open={aboutOpen}
                     onClose={closeAbout}

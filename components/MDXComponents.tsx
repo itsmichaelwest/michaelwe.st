@@ -4,10 +4,10 @@ import Image from "next/image";
 
 export const components: MDXComponents = {
     h1: ({ children }) => (
-        <h1 className="text-4xl font-semibold">{children}</h1>
+        <h1 className="text-4xl font-semibold text-balance">{children}</h1>
     ),
     h2: ({ children }) => (
-        <h2 className="text-3xl font-semibold">{children}</h2>
+        <h2 className="text-3xl font-semibold text-balance">{children}</h2>
     ),
     strong: ({ children }) => (
         <strong className="font-semibold text-black">{children}</strong>

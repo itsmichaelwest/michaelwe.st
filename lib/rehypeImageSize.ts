@@ -9,7 +9,8 @@ import { visit } from "unist-util-visit";
  */
 export function rehypeImageSize() {
     return (tree: Parameters<typeof visit>[0]) => {
-        visit(tree, "element", (node: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+        visit(tree, "element", (node: any) => {
+            // eslint-disable-line @typescript-eslint/no-explicit-any
             if (node.tagName !== "img") return;
             const src = node.properties?.src as string | undefined;
             if (!src || !src.startsWith("/")) return;
