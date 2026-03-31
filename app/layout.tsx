@@ -62,6 +62,12 @@ export default function RootLayout({
                         __html: JSON.stringify(jsonLd),
                     }}
                 />
+                <link
+                    rel="alternate"
+                    type="application/rss+xml"
+                    title="Michael — Writing"
+                    href="/writing/feed.xml"
+                />
             </head>
             <body>
                 <div

@@ -67,6 +67,12 @@ export function HeroBio() {
             <div className="flex flex-col items-start md:items-end text-muted">
                 <Link
                     className="hover:underline cursor-pointer bg-transparent border-none p-0 font-inherit text-inherit"
+                    href="/writing"
+                >
+                    Writing
+                </Link>
+                <Link
+                    className="hover:underline cursor-pointer bg-transparent border-none p-0 font-inherit text-inherit"
                     href="https://x.com/itsmichaelwest"
                     target="_blank"
                     rel="noopener noreferrer me"

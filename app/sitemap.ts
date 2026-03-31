@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getSortedWorkData } from "../lib/work";
+import { getSortedWritingData } from "../lib/writing";
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const baseUrl = "https://www.michaelwe.st";
@@ -11,9 +12,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
             lastModified: p.date ? new Date(p.date) : undefined,
         }));
 
+    const writingItems = getSortedWritingData().map((p) => ({
+        url: `${baseUrl}/writing/${p.slug}`,
+        lastModified: p.date ? new Date(p.date) : undefined,
+    }));
+
     return [
         { url: baseUrl, lastModified: new Date() },
         { url: `${baseUrl}/about`, lastModified: new Date() },
+        { url: `${baseUrl}/writing`, lastModified: new Date() },
         ...workItems,
+        ...writingItems,
     ];
 }
