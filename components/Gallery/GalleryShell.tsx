@@ -18,7 +18,7 @@ import {
 } from "motion/react";
 import clsx from "clsx";
 import { useWindowSize } from "../../hooks/useWindowSize";
-import { GalleryContext } from "./GalleryContext";
+import { GalleryContext, type ContainerRect } from "./GalleryContext";
 import type { ItemData } from "./types";
 import { SAMPLE_ITEMS } from "./types";
 import {
@@ -85,35 +85,32 @@ export function GalleryShell({
     const lastPointerRef = useRef({ x: 0, y: 0, t: 0 });
     const velocityRef = useRef({ x: 0, y: 0 });
     const dragOnImageRef = useRef(false);
-    const containerRef = useRef<HTMLDivElement>(null);
-    const containerRectRef = useRef({
+    const containerElRef = useRef<HTMLDivElement | null>(null);
+    const [rect, setRect] = useState<ContainerRect>({
         left: 0,
         bottom: 0,
         width: 0,
         height: 0,
     });
-    const [, setRectVersion] = useState(0);
 
-    useLayoutEffect(() => {
-        const el = containerRef.current;
+    const containerRef = useCallback((el: HTMLDivElement | null) => {
+        containerElRef.current = el;
         if (!el) return;
         const measure = () => {
             const r = el.getBoundingClientRect();
-            const prev = containerRectRef.current;
-            if (
-                prev.height !== r.height ||
-                prev.width !== r.width ||
-                prev.left !== r.left ||
-                prev.bottom !== r.bottom
-            ) {
-                containerRectRef.current = {
-                    left: r.left,
-                    bottom: r.bottom,
-                    width: r.width,
-                    height: r.height,
-                };
-                setRectVersion((v) => v + 1);
-            }
+            setRect((prev) =>
+                prev.height === r.height &&
+                prev.width === r.width &&
+                prev.left === r.left &&
+                prev.bottom === r.bottom
+                    ? prev
+                    : {
+                          left: r.left,
+                          bottom: r.bottom,
+                          width: r.width,
+                          height: r.height,
+                      },
+            );
         };
         measure();
         const ro = new ResizeObserver(measure);
@@ -175,15 +172,15 @@ export function GalleryShell({
     const centerRailOn = useCallback(
         (idx: number, smooth = false) => {
             if (vw <= 0 || vh <= 0) return;
-            const cH = containerRectRef.current.height;
+            const cH = rect.height;
             const w = railItemW(items, idx, cH);
             const center = railLeftOf(items, idx, cH) + w / 2;
             const max = maxRailScroll(
                 items,
                 cH,
-                containerRectRef.current.width,
+                rect.width,
             );
-            const vpCenter = vw / 2 - containerRectRef.current.left;
+            const vpCenter = vw / 2 - rect.left;
             const target = Math.max(-max, Math.min(0, vpCenter - center));
             if (smooth) {
                 animate(railOffset, target, {
@@ -194,7 +191,7 @@ export function GalleryShell({
                 railOffset.jump(target);
             }
         },
-        [railOffset, vw, vh, items],
+        [railOffset, vw, vh, items, rect],
     );
 
     const closeGallery = useCallback(() => {
@@ -309,14 +306,14 @@ export function GalleryShell({
         } else {
             const max = maxRailScroll(
                 items,
-                containerRectRef.current.height,
-                containerRectRef.current.width,
+                rect.height,
+                rect.width,
             );
             const cur = railOffset.get();
             if (cur < -max) railOffset.jump(-max);
             if (cur > 0) railOffset.jump(0);
         }
-    }, [vw, vh, galleryPageX, galleryDragX, railOffset, items]);
+    }, [vw, vh, galleryPageX, galleryDragX, railOffset, items, rect]);
 
     // Show overlay once the opening spring settles; close paths set showDetail
     // to false inline (see closeGallery and the popstate handler).
@@ -328,7 +325,7 @@ export function GalleryShell({
 
     // Rail scroll wheel handler (only when closed — overlay handles wheel when open)
     useEffect(() => {
-        const el = containerRef.current;
+        const el = containerElRef.current;
         if (!el) return;
 
         const onWheel = (e: WheelEvent) => {
@@ -338,8 +335,8 @@ export function GalleryShell({
             if (Math.abs(delta) < 1) return;
             const max = maxRailScroll(
                 items,
-                containerRectRef.current.height,
-                containerRectRef.current.width,
+                rect.height,
+                rect.width,
             );
             const cur = railOffset.get();
             railOffset.jump(Math.max(-max, Math.min(0, cur - delta)));
@@ -349,7 +346,7 @@ export function GalleryShell({
         return () => {
             el.removeEventListener("wheel", onWheel);
         };
-    }, [vw, railOffset, galleryDragX, goToPage, items]);
+    }, [vw, railOffset, galleryDragX, goToPage, items, rect]);
 
     const startMomentum = useCallback(
         (velocity: number) => {
@@ -360,8 +357,8 @@ export function GalleryShell({
                     momentumRef.current = null;
                     const max = maxRailScroll(
                         items,
-                        containerRectRef.current.height,
-                        containerRectRef.current.width,
+                        rect.height,
+                        rect.width,
                     );
                     const cur = railOffset.get();
                     if (cur > 0)
@@ -379,8 +376,8 @@ export function GalleryShell({
                 railOffset.set(railOffset.get() + v);
                 const max = maxRailScroll(
                     items,
-                    containerRectRef.current.height,
-                    containerRectRef.current.width,
+                    rect.height,
+                    rect.width,
                 );
                 const cur = railOffset.get();
                 if (cur > 0 || cur < -max) v *= 1 - RUBBER_BAND_K;
@@ -388,7 +385,7 @@ export function GalleryShell({
             };
             momentumRef.current = requestAnimationFrame(tick);
         },
-        [railOffset, items],
+        [railOffset, items, rect],
     );
 
     const stopMomentum = useCallback(() => {
@@ -450,8 +447,8 @@ export function GalleryShell({
                 if (dragAxisRef.current === "x") {
                     const max = maxRailScroll(
                         items,
-                        containerRectRef.current.height,
-                        containerRectRef.current.width,
+                        rect.height,
+                        rect.width,
                     );
                     const cur = railOffset.get();
                     let delta = e.movementX || 0;
@@ -461,19 +458,19 @@ export function GalleryShell({
                 }
             }
         },
-        [railOffset, centerRailOn, items],
+        [railOffset, centerRailOn, items, rect],
     );
 
     const findTappedItem = useCallback(
         (screenX: number, screenY: number, scrollOff: number) => {
-            const rect = containerRef.current?.getBoundingClientRect();
+            const rect = containerElRef.current?.getBoundingClientRect();
             if (!rect) return -1;
-            const localX = screenX - containerRectRef.current.left;
+            const localX = screenX - rect.left;
             const localY = screenY - rect.top;
             for (let i = 0; i < items.length; i++) {
-                const left = railLeftOf(items, i, containerRectRef.current.height) + scrollOff;
-                const w = railItemW(items, i, containerRectRef.current.height);
-                const itemTop = containerRectRef.current.height * (1 - items[i].railH);
+                const left = railLeftOf(items, i, rect.height) + scrollOff;
+                const w = railItemW(items, i, rect.height);
+                const itemTop = rect.height * (1 - items[i].railH);
                 if (localX >= left && localX <= left + w && localY >= itemTop)
                     return i;
             }
@@ -526,7 +523,7 @@ export function GalleryShell({
                 aboutOpen,
                 openAbout,
                 closeAbout,
-                containerRectRef,
+                rect,
             }}
         >
             {/* Back button — fixed, outside both views */}
