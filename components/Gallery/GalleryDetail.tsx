@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { motion, useReducedMotion, type MotionValue } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
-import clsx from "clsx";
 import { MDXClient } from "next-mdx-remote-client";
 import { components } from "../MDXComponents";
 import NoMSFTDisclaimer from "../NoMSFTDisclaimer";
@@ -15,20 +14,14 @@ import { itemFullW, itemGalleryScale } from "./utils";
 export function GalleryDetail({
     items,
     current,
-    open,
     vw,
     vh,
-    openSpring,
-    closeGallery,
     scrollRef,
 }: {
     items: ItemData[];
     current: number;
-    open: boolean;
     vw: number;
     vh: number;
-    openSpring: MotionValue<number>;
-    closeGallery: () => void;
     scrollRef: React.RefObject<HTMLDivElement | null>;
 }) {
     const item = items[current];

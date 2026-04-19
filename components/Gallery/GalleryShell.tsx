@@ -24,10 +24,6 @@ import { SAMPLE_ITEMS } from "./types";
 import {
     MAIN_SPRING,
     PAGE_SPRING,
-    DRAG_UP_VELOCITY_THRESHOLD,
-    DRAG_UP_DISTANCE_RATIO,
-    GALLERY_PAGE_THRESHOLD,
-    GALLERY_DISMISS_VELOCITY,
     RUBBER_BAND_K,
     DRAG_DECAY,
 } from "./constants";
@@ -320,10 +316,6 @@ export function GalleryShell({
         }
     });
 
-    // Unmount home view (HeroBio + rail) when fully in gallery view.
-    // During animations both views coexist for smooth transitions.
-    const showHomeView = !(open && showDetail);
-
     // Rail scroll wheel handler (only when closed — overlay handles wheel when open)
     useEffect(() => {
         const el = containerRef.current;
@@ -496,7 +488,6 @@ export function GalleryShell({
             const dx = e.clientX - dragStartRef.current.x;
             const dy = e.clientY - dragStartRef.current.y;
             const vx = velocityRef.current.x;
-            const vy = velocityRef.current.y;
 
             if (!didDragRef.current) {
                 if (openRef.current) {
@@ -637,11 +628,8 @@ export function GalleryShell({
                 <GalleryDetail
                     items={items}
                     current={current}
-                    open={open}
                     vw={vw}
                     vh={vh}
-                    openSpring={openSpring}
-                    closeGallery={closeGallery}
                     scrollRef={detailScrollRef}
                 />
             )}
