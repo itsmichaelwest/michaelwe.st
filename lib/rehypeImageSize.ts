@@ -1,6 +1,7 @@
 import path from "path";
 import { readFileSync } from "fs";
 import { imageSize } from "image-size";
+import type { Element, Root } from "hast";
 import { visit } from "unist-util-visit";
 
 /**
@@ -8,9 +9,8 @@ import { visit } from "unist-util-visit";
  * Reads dimensions from public/ so next/image always gets explicit props.
  */
 export function rehypeImageSize() {
-    return (tree: Parameters<typeof visit>[0]) => {
-        visit(tree, "element", (node: any) => {
-            // eslint-disable-line @typescript-eslint/no-explicit-any
+    return (tree: Root) => {
+        visit(tree, "element", (node: Element) => {
             if (node.tagName !== "img") return;
             const src = node.properties?.src as string | undefined;
             if (!src || !src.startsWith("/")) return;
