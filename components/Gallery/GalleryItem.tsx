@@ -5,6 +5,7 @@ import Image from "next/image";
 import clsx from "clsx";
 import type { ItemData } from "./types";
 import { GALLERY_H } from "./constants";
+import { useGallery } from "./GalleryContext";
 import {
     itemFullW,
     itemGalleryScale,
@@ -29,8 +30,6 @@ export function GalleryItem({
     galleryDragX,
     galleryDragY,
     dragOnImageRef,
-    containerRectRef,
-    cH,
     onActivate,
     onFocusItem,
     title,
@@ -54,17 +53,17 @@ export function GalleryItem({
     onActivate: () => void;
     onFocusItem: () => void;
     title: string;
-    cH: number;
-    containerRectRef: React.RefObject<{
-        left: number;
-        bottom: number;
-        height: number;
-    }>;
 }) {
+    const { containerRectRef } = useGallery();
+    const cH = containerRectRef.current.height;
     const naturalW = itemFullW(items, index, vh);
     const galScale = itemGalleryScale(items, index, vw, vh);
+    // Render-phase reads of cH are safe: GalleryShell's ResizeObserver
+    // bumps setRectVersion on change, re-rendering this component.
+    // eslint-disable-next-line react-hooks/refs
     const sRail = itemRailScale(items, index, cH, vh);
     const originOff = (naturalW * (1 - sRail)) / 2;
+    // eslint-disable-next-line react-hooks/refs
     const myRailLeft = railLeftOf(items, index, cH);
     const isActive = open && index === current;
     const isNearby = !open || Math.abs(index - current) <= 1;

@@ -95,25 +95,37 @@ export function GalleryShell({
     const [, setRectVersion] = useState(0);
 
     useLayoutEffect(() => {
-        if (containerRef.current) {
-            const r = containerRef.current.getBoundingClientRect();
+        const el = containerRef.current;
+        if (!el) return;
+        const measure = () => {
+            const r = el.getBoundingClientRect();
             const prev = containerRectRef.current;
-            containerRectRef.current = {
-                left: r.left,
-                bottom: r.bottom,
-                width: r.width,
-                height: r.height,
-            };
             if (
                 prev.height !== r.height ||
                 prev.width !== r.width ||
                 prev.left !== r.left ||
                 prev.bottom !== r.bottom
             ) {
+                containerRectRef.current = {
+                    left: r.left,
+                    bottom: r.bottom,
+                    width: r.width,
+                    height: r.height,
+                };
                 setRectVersion((v) => v + 1);
             }
-        }
-    });
+        };
+        measure();
+        const ro = new ResizeObserver(measure);
+        ro.observe(el);
+        window.addEventListener("resize", measure);
+        window.addEventListener("scroll", measure, { passive: true });
+        return () => {
+            ro.disconnect();
+            window.removeEventListener("resize", measure);
+            window.removeEventListener("scroll", measure);
+        };
+    }, []);
 
     // Direct navigation — wait for vw so positions are correct before first paint
     const directNavChecked = useRef(false);
@@ -125,9 +137,12 @@ export function GalleryShell({
         const idx = idToIndex.get(match[1]);
         if (idx == null) return;
         directNavRef.current = true;
+        /* eslint-disable react-hooks/set-state-in-effect -- initial URL-to-state hydration */
         setCurrent(idx);
         currentRef.current = idx;
         setOpen(true);
+        setShowDetail(true);
+        /* eslint-enable react-hooks/set-state-in-effect */
         openRef.current = true;
         openProgress.jump(1);
         openSpring.jump(1);
@@ -185,6 +200,7 @@ export function GalleryShell({
     const closeGallery = useCallback(() => {
         window.scrollTo(0, 0);
         setOpen(false);
+        setShowDetail(false);
         openRef.current = false;
         openProgress.set(0);
         galleryDragX.jump(0);
@@ -262,6 +278,7 @@ export function GalleryShell({
                 if (idx != null && !openRef.current) openGallery(idx);
             } else if (openRef.current) {
                 setOpen(false);
+                setShowDetail(false);
                 openRef.current = false;
                 openProgress.set(0);
                 galleryDragX.jump(0);
@@ -301,15 +318,8 @@ export function GalleryShell({
         }
     }, [vw, vh, galleryPageX, galleryDragX, railOffset, items]);
 
-    // Show overlay once the opening spring settles; hide immediately on close.
-    useEffect(() => {
-        if (open && directNavRef.current) {
-            setShowDetail(true);
-        } else if (!open) {
-            setShowDetail(false);
-        }
-    }, [open]);
-
+    // Show overlay once the opening spring settles; close paths set showDetail
+    // to false inline (see closeGallery and the popstate handler).
     useMotionValueEvent(openSpring, "change", (v) => {
         if (openRef.current && v > 0.99 && !showDetail) {
             setShowDetail(true);
@@ -378,7 +388,7 @@ export function GalleryShell({
             };
             momentumRef.current = requestAnimationFrame(tick);
         },
-        [railOffset, vw, vh, items],
+        [railOffset, items],
     );
 
     const stopMomentum = useCallback(() => {
@@ -451,42 +461,31 @@ export function GalleryShell({
                 }
             }
         },
-        [
-            galleryDragX,
-            openProgress,
-            railOffset,
-            vw,
-            vh,
-            centerRailOn,
-            items,
-        ],
+        [railOffset, centerRailOn, items],
     );
 
-    function findTappedItem(
-        screenX: number,
-        screenY: number,
-        scrollOff: number,
-    ) {
-        const rect = containerRef.current?.getBoundingClientRect();
-        if (!rect) return -1;
-        const localX = screenX - rect.left;
-        const localY = screenY - rect.top;
-        for (let i = 0; i < items.length; i++) {
-            const left = railLeftOf(items, i, rect.height) + scrollOff;
-            const w = railItemW(items, i, rect.height);
-            const itemTop = rect.height * (1 - items[i].railH);
-            if (localX >= left && localX <= left + w && localY >= itemTop)
-                return i;
-        }
-        return -1;
-    }
+    const findTappedItem = useCallback(
+        (screenX: number, screenY: number, scrollOff: number) => {
+            const rect = containerRef.current?.getBoundingClientRect();
+            if (!rect) return -1;
+            const localX = screenX - containerRectRef.current.left;
+            const localY = screenY - rect.top;
+            for (let i = 0; i < items.length; i++) {
+                const left = railLeftOf(items, i, containerRectRef.current.height) + scrollOff;
+                const w = railItemW(items, i, containerRectRef.current.height);
+                const itemTop = containerRectRef.current.height * (1 - items[i].railH);
+                if (localX >= left && localX <= left + w && localY >= itemTop)
+                    return i;
+            }
+            return -1;
+        },
+        [items],
+    );
 
     const onPointerUp = useCallback(
         (e: React.PointerEvent) => {
             if (!isDraggingRef.current) return;
             isDraggingRef.current = false;
-            const dx = e.clientX - dragStartRef.current.x;
-            const dy = e.clientY - dragStartRef.current.y;
             const vx = velocityRef.current.x;
 
             if (!didDragRef.current) {
@@ -514,23 +513,21 @@ export function GalleryShell({
             }
             dragAxisRef.current = null;
         },
-        [
-            vw,
-            vh,
-            closeGallery,
-            openGallery,
-            openProgress,
-            galleryDragX,
-            startMomentum,
-            railOffset,
-        ],
+        [openGallery, startMomentum, railOffset, items, findTappedItem],
     );
 
     if (!vw) return <div />;
 
     return (
         <GalleryContext.Provider
-            value={{ open, openSpring, aboutOpen, openAbout, closeAbout }}
+            value={{
+                open,
+                openSpring,
+                aboutOpen,
+                openAbout,
+                closeAbout,
+                containerRectRef,
+            }}
         >
             {/* Back button — fixed, outside both views */}
             <motion.button
@@ -597,8 +594,6 @@ export function GalleryShell({
                                 galleryDragX={galleryDragX}
                                 galleryDragY={galleryDragY}
                                 dragOnImageRef={dragOnImageRef}
-                                containerRectRef={containerRectRef}
-                                cH={containerRectRef.current.height}
                                 onFocusItem={() => centerRailOn(i, true)}
                                 onActivate={() => {
                                     const canonical = item.canonical;
