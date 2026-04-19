@@ -598,6 +598,7 @@ export function GalleryShell({
                                 galleryDragY={galleryDragY}
                                 dragOnImageRef={dragOnImageRef}
                                 containerRectRef={containerRectRef}
+                                cH={containerRectRef.current.height}
                                 onFocusItem={() => centerRailOn(i, true)}
                                 onActivate={() => {
                                     const canonical = item.canonical;

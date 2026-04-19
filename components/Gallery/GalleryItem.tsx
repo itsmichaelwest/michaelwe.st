@@ -30,6 +30,7 @@ export function GalleryItem({
     galleryDragY,
     dragOnImageRef,
     containerRectRef,
+    cH,
     onActivate,
     onFocusItem,
     title,
@@ -53,13 +54,13 @@ export function GalleryItem({
     onActivate: () => void;
     onFocusItem: () => void;
     title: string;
+    cH: number;
     containerRectRef: React.RefObject<{
         left: number;
         bottom: number;
         height: number;
     }>;
 }) {
-    const cH = containerRectRef.current.height;
     const naturalW = itemFullW(items, index, vh);
     const galScale = itemGalleryScale(items, index, vw, vh);
     const sRail = itemRailScale(items, index, cH, vh);

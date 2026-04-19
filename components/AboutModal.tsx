@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -46,14 +46,11 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
         return () => window.removeEventListener("keydown", onKey);
     }, [open, onClose]);
 
-    const sectionRef = useRef<HTMLElement>(null);
     const [scrollMask, setScrollMask] = useState<
         "none" | "bottom" | "top" | "both"
     >("none");
 
-    const updateMask = useCallback(() => {
-        const el = sectionRef.current;
-        if (!el) return;
+    const updateMask = useCallback((el: HTMLElement) => {
         const top = el.scrollTop > 2;
         const bottom = el.scrollTop + el.clientHeight < el.scrollHeight - 2;
         setScrollMask(
@@ -61,13 +58,16 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
         );
     }, []);
 
-    useEffect(() => {
-        const el = sectionRef.current;
-        if (!el) return;
-        updateMask();
-        el.addEventListener("scroll", updateMask, { passive: true });
-        return () => el.removeEventListener("scroll", updateMask);
-    }, [open, updateMask]);
+    const sectionRef = useCallback(
+        (el: HTMLElement | null) => {
+            if (!el) return;
+            const handler = () => updateMask(el);
+            updateMask(el);
+            el.addEventListener("scroll", handler, { passive: true });
+            return () => el.removeEventListener("scroll", handler);
+        },
+        [updateMask],
+    );
 
     const maskImage =
         scrollMask === "both"
