@@ -22,10 +22,12 @@ export const components: MDXComponents = {
         <p className="my-6 leading-relaxed text-secondary">{children}</p>
     ),
     strong: ({ children }) => (
-        <strong className="font-semibold text-black">{children}</strong>
+        <strong className="font-semibold text-black dark:text-white">
+            {children}
+        </strong>
     ),
     blockquote: ({ children }) => (
-        <blockquote className="my-8 border-l-4 border-gray-200 pl-4 italic text-muted">
+        <blockquote className="my-8 border-l-4 border-gray-200 dark:border-gray-700 pl-4 italic text-muted">
             {children}
         </blockquote>
     ),
@@ -41,12 +43,12 @@ export const components: MDXComponents = {
     ),
     li: ({ children }) => <li className="pl-1">{children}</li>,
     code: ({ children }) => (
-        <code className="text-sm font-medium bg-gray-50 px-1.5 py-0.5 rounded">
+        <code className="text-sm font-medium bg-gray-50 dark:bg-gray-800 px-1.5 py-0.5 rounded">
             {children}
         </code>
     ),
     pre: ({ children }) => (
-        <pre className="my-8 overflow-x-auto rounded-lg bg-gray-50 p-4 text-sm leading-relaxed">
+        <pre className="my-8 overflow-x-auto rounded-lg bg-gray-50 dark:bg-gray-800 p-4 text-sm leading-relaxed">
             {children}
         </pre>
     ),
@@ -55,7 +57,7 @@ export const components: MDXComponents = {
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-medium text-blue-600 hover:text-blue-700"
+            className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
         >
             {children}
         </Link>
@@ -63,5 +65,7 @@ export const components: MDXComponents = {
     img: ({ src, alt, height, width }) => (
         <MDXImage src={src} alt={alt} height={height} width={width} />
     ),
-    hr: () => <hr className="my-12 border-gray-100" />,
+    hr: () => (
+        <hr className="my-12 border-gray-100 dark:border-gray-800" />
+    ),
 };

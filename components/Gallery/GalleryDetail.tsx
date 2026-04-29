@@ -50,10 +50,10 @@ export function GalleryDetail({
     }, [current]);
 
     return (
-        <div ref={scrollRef} className="min-h-screen bg-white overflow-x-hidden">
+        <div ref={scrollRef} className="min-h-screen bg-white dark:bg-[#0a0a0a] overflow-x-hidden">
             {/* Hero image */}
             <div
-                className="relative mx-auto rounded-2xl ring ring-black/10 select-none overflow-hidden"
+                className="relative mx-auto rounded-2xl ring ring-black/10 dark:ring-white/10 select-none overflow-hidden"
                 style={{
                     width: imageWidth,
                     height: imageHeight,
@@ -100,7 +100,7 @@ export function GalleryDetail({
                             href={item.officialURL}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 font-mono text-sm font-medium rounded-full bg-[#EEE]/80 no-underline text-[#333] hover:bg-[#DDD] transition-colors"
+                            className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 font-mono text-sm font-medium rounded-full bg-[#EEE]/80 dark:bg-gray-800 no-underline text-[#333] dark:text-gray-200 hover:bg-[#DDD] dark:hover:bg-gray-700 transition-colors"
                         >
                             {item.officialURLText ?? "View project"}
                             <svg

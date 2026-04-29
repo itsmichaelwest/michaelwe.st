@@ -544,7 +544,7 @@ export function GalleryShell({
             {/* Back button — fixed, outside both views */}
             <motion.button
                 className={clsx(
-                    "fixed top-4 left-4 z-[53] size-10 flex items-center justify-center p-0 rounded-full bg-[#EEE]/80 backdrop-blur-2xl border-none cursor-pointer active:scale-96 transition-transform duration-100",
+                    "fixed top-4 left-4 z-[53] size-10 flex items-center justify-center p-0 rounded-full bg-[#EEE]/80 dark:bg-gray-800/80 backdrop-blur-2xl border-none cursor-pointer active:scale-96 transition-transform duration-100 text-[#333] dark:text-gray-200",
                     open ? "pointer-events-auto" : "pointer-events-none",
                 )}
                 tabIndex={open ? 0 : -1}
@@ -556,7 +556,7 @@ export function GalleryShell({
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                     <path
                         d="M11 3L5 9L11 15"
-                        stroke="#333"
+                        stroke="currentColor"
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"

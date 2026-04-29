@@ -79,12 +79,12 @@ export function WritingArticle({
             </article>
 
             {(prev || next) && (
-                <nav className="mt-24 grid grid-cols-2 gap-6 border-t border-gray-100 pt-8">
+                <nav className="mt-24 grid grid-cols-2 gap-6 border-t border-gray-100 dark:border-gray-800 pt-8">
                     {next && (
                         <TransitionLink
                             href={`/writing/${next.slug}`}
                             direction="forward"
-                            className="group col-start-1 -mx-3 block rounded-lg px-3 py-3 transition-[background-color,transform] duration-200 ease-out hover:bg-gray-50 active:scale-[0.99] active:bg-gray-100"
+                            className="group col-start-1 -mx-3 block rounded-lg px-3 py-3 transition-[background-color,transform] duration-200 ease-out hover:bg-gray-50 dark:hover:bg-gray-800/60 active:scale-[0.99] active:bg-gray-100 dark:active:bg-gray-700/60"
                         >
                             <p className="font-mono text-xs text-muted">
                                 Newer
@@ -98,7 +98,7 @@ export function WritingArticle({
                         <TransitionLink
                             href={`/writing/${prev.slug}`}
                             direction="forward"
-                            className="group col-start-2 -mx-3 block rounded-lg px-3 py-3 text-right transition-[background-color,transform] duration-200 ease-out hover:bg-gray-50 active:scale-[0.99] active:bg-gray-100"
+                            className="group col-start-2 -mx-3 block rounded-lg px-3 py-3 text-right transition-[background-color,transform] duration-200 ease-out hover:bg-gray-50 dark:hover:bg-gray-800/60 active:scale-[0.99] active:bg-gray-100 dark:active:bg-gray-700/60"
                         >
                             <p className="font-mono text-xs text-muted">
                                 Older

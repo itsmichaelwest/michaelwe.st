@@ -20,7 +20,7 @@ export function MDXImage({ src, alt = "", height, width }: MDXImageProps) {
     }, []);
 
     const animClasses = clsx(
-        "rounded-xl ring ring-black/5 transition-[filter,opacity] duration-700 ease-out",
+        "rounded-xl ring ring-black/5 dark:ring-white/10 transition-[filter,opacity] duration-700 ease-out",
         loaded
             ? "opacity-100 blur-0"
             : "opacity-0 blur-md scale-[1.01]",

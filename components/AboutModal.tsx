@@ -23,8 +23,7 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
     const backdropBlur = useTransform(aboutSpring, (v) => `blur(${v * 4}px)`);
     const backdropBg = useTransform(
         aboutSpring,
-        [0, 1],
-        ["rgb(255 255 255 / 0)", "rgb(255 255 255 / 0.95)"],
+        (v) => `rgb(var(--backdrop-rgb) / ${v * 0.95})`,
     );
 
     useEffect(() => {
@@ -102,7 +101,7 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
                 style={{ opacity: aboutSpring, scale: contentScale }}
             >
                 <article className="w-full md:h-full grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 px-4 pt-24 pb-16 md:pt-0 md:pb-0">
-                    <div className="relative md:h-full md:min-h-0 rounded-xl border border-black/5 overflow-hidden">
+                    <div className="relative md:h-full md:min-h-0 rounded-xl border border-black/5 dark:border-white/10 overflow-hidden">
                         <Image
                             className="md:absolute md:inset-0 md:h-full md:w-full md:object-cover"
                             src={PortraitTall}
@@ -192,7 +191,7 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
             {/* Close button */}
             <motion.button
                 className={clsx(
-                    "fixed top-4 right-4 z-200 size-10 flex items-center justify-center rounded-full bg-[#EEE]/80 backdrop-blur-2xl border-none cursor-pointer",
+                    "fixed top-4 right-4 z-200 size-10 flex items-center justify-center rounded-full bg-[#EEE]/80 dark:bg-gray-800/80 backdrop-blur-2xl border-none cursor-pointer text-black dark:text-white",
                     open ? "pointer-events-auto" : "pointer-events-none",
                 )}
                 style={{ opacity: aboutSpring }}

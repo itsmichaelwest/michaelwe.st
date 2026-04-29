@@ -5,7 +5,7 @@ interface NoMSFTDisclaimerProps {
 }
 
 const NoMSFTDisclaimer: React.FC<NoMSFTDisclaimerProps> = ({ title }) => (
-    <div className="p-6 mb-16 space-y-2 rounded-xl ring ring-black/5 bg-black/1">
+    <div className="p-6 mb-16 space-y-2 rounded-xl ring ring-black/5 dark:ring-white/10 bg-black/1 dark:bg-white/2">
         <h4 className="text-heading font-medium flex items-center gap-1.5">
             <span className="inline-block size-5">
                 <svg

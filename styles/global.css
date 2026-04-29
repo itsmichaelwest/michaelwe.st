@@ -1,5 +1,5 @@
 @import "tailwindcss";
-/* Custom content styles below; @tailwindcss/typography not installed. */
+/* Custom content styles below; typography plugin is not installed. */
 
 /* Tailwind v4 theme tokens migrated from tailwind.config.js */
 @theme {
@@ -73,31 +73,45 @@
     color: var(--semantic-text-muted);
 }
 
-/* @media (prefers-color-scheme: dark) {
-  .text-heading { color: var(--semantic-text-heading-dark); }
-  .text-primary { color: var(--semantic-text-primary-dark); }
-  .text-secondary { color: var(--semantic-text-secondary-dark); }
-  .text-muted { color: var(--semantic-text-muted-dark); }
+@media (prefers-color-scheme: dark) {
+    .text-heading {
+        color: var(--semantic-text-heading-dark);
+    }
+    .text-primary {
+        color: var(--semantic-text-primary-dark);
+    }
+    .text-secondary {
+        color: var(--semantic-text-secondary-dark);
+    }
+    .text-muted {
+        color: var(--semantic-text-muted-dark);
+    }
 }
 
-@media (prefers-color-scheme: light) {
-    html,
-    body {
-        background-color: #fff;
+:root {
+    color-scheme: light dark;
+    --backdrop-rgb: 255 255 255;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --backdrop-rgb: 10 10 10;
     }
+}
+
+html,
+body {
+    background-color: #fff;
+    color: var(--color-gray-900);
+    overflow-x: hidden;
 }
 
 @media (prefers-color-scheme: dark) {
     html,
     body {
-        background-color: #000;
+        background-color: #0a0a0a;
+        color: var(--color-gray-100);
     }
-} */
-
-html,
-body {
-    background-color: #fff;
-    overflow-x: hidden;
 }
 
 /* Page transitions for the writing section.
