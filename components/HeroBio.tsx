@@ -6,6 +6,7 @@ import clsx from "clsx";
 import Face from "../public/images/michael-face.jpg";
 import { useGallery } from "./Gallery/GalleryContext";
 import Link from "next/link";
+import { TransitionLink } from "./TransitionLink";
 
 export function HeroBio() {
     const { open, openAbout } = useGallery();
@@ -65,12 +66,13 @@ export function HeroBio() {
                 </div>
             </div>
             <div className="flex flex-col items-start md:items-end font-mono text-sm text-muted">
-                <Link
+                <TransitionLink
                     className="hover:underline cursor-pointer bg-transparent border-none p-0 text-inherit"
                     href="/writing"
+                    direction="fade"
                 >
                     Writing
-                </Link>
+                </TransitionLink>
                 <Link
                     className="hover:underline cursor-pointer bg-transparent border-none p-0 text-inherit"
                     href="https://x.com/itsmichaelwest"

@@ -73,7 +73,7 @@ export default function RootLayout({
             </head>
             <body>
                 <div
-                    className={`overflow-x-hidden ${inter.className} ${inter.variable} font-sans`}
+                    className={`overflow-x-clip ${inter.className} ${inter.variable} font-sans`}
                 >
                     {children}
                 </div>

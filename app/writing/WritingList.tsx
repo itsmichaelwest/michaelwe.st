@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { format } from "date-fns";
 import { TransitionLink } from "../../components/TransitionLink";
 import type { IWritingPost } from "../../lib/writing";
@@ -50,13 +49,14 @@ export function WritingList({ posts }: { posts: IWritingPost[] }) {
 
     return (
         <main className="mx-auto max-w-[80ch] px-6 py-16">
-            <Link
+            <TransitionLink
                 href="/"
+                direction="fade"
                 className="group inline-flex items-center gap-1.5 font-mono text-sm text-muted transition-colors duration-200 ease-out hover:text-secondary active:scale-[0.97]"
             >
                 <BackArrow />
                 Home
-            </Link>
+            </TransitionLink>
 
             <h1 className="mt-4 font-mono text-3xl font-semibold tracking-tight text-heading">
                 Writing

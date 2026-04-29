@@ -8,7 +8,7 @@ import type { ComponentProps, MouseEvent } from "react";
 type LinkProps = ComponentProps<typeof Link>;
 
 interface TransitionLinkProps extends LinkProps {
-    direction?: "forward" | "back";
+    direction?: "forward" | "back" | "fade";
 }
 
 type DocWithVT = Document & {

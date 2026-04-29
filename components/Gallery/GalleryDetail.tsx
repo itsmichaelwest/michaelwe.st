@@ -50,7 +50,7 @@ export function GalleryDetail({
     }, [current]);
 
     return (
-        <div ref={scrollRef} className="min-h-screen bg-white dark:bg-[#0a0a0a] overflow-x-hidden">
+        <div ref={scrollRef} className="min-h-screen bg-white dark:bg-[#0a0a0a] overflow-x-clip">
             {/* Hero image */}
             <div
                 className="relative mx-auto rounded-2xl ring ring-black/10 dark:ring-white/10 select-none overflow-hidden"

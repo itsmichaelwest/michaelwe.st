@@ -101,9 +101,9 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
                 style={{ opacity: aboutSpring, scale: contentScale }}
             >
                 <article className="w-full md:h-full grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 px-4 pt-24 pb-16 md:pt-0 md:pb-0">
-                    <div className="relative md:h-full md:min-h-0 rounded-xl border border-black/5 dark:border-white/10 overflow-hidden">
+                    <div className="relative md:self-start rounded-xl border border-black/5 dark:border-white/10 overflow-hidden">
                         <Image
-                            className="md:absolute md:inset-0 md:h-full md:w-full md:object-cover"
+                            className="w-full h-auto"
                             src={PortraitTall}
                             alt="Photo of Michael"
                         />
@@ -147,21 +147,21 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
                             around the world. Check them out:{" "}
                             <Link
                                 href="/work/surface-duo"
-                                className="font-medium text-blue-600 hover:text-blue-700"
+                                className="font-medium text-blue-700 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                             >
                                 Surface Duo
                             </Link>
                             ,{" "}
                             <Link
                                 href="/work/swiftkey-design-system"
-                                className="font-medium text-blue-600 hover:text-blue-700"
+                                className="font-medium text-blue-700 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                             >
                                 SwiftKey
                             </Link>
                             ,{" "}
                             <Link
                                 href="/work/fluent-icons"
-                                className="font-medium text-blue-600 hover:text-blue-700"
+                                className="font-medium text-blue-700 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                             >
                                 Fluent Icons
                             </Link>
@@ -175,7 +175,7 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
                             Awarded 2018-19{" "}
                             <Link
                                 href="https://mvp.microsoft.com/"
-                                className="font-medium text-blue-600 hover:text-blue-700"
+                                className="font-medium text-blue-700 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                             >
                                 Microsoft MVP
                             </Link>{" "}

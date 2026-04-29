@@ -28,7 +28,7 @@ export default function NotFound() {
             </h1>
             <p className="my-2 text-primary">
                 That page doesn&apos;t exist. Try going to the{" "}
-                <Link href="/" className="text-blue-500 hover:text-blue-700">
+                <Link href="/" className="text-blue-700 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
                     homepage
                 </Link>
                 .

@@ -57,7 +57,7 @@ export const components: MDXComponents = {
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            className="font-medium text-blue-700 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
         >
             {children}
         </Link>
