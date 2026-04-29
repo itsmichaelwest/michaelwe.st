@@ -38,10 +38,10 @@ export function HeroBio() {
                         alt="Photo of Michael"
                     />
                     <div className="-space-y-1">
-                        <h1 className="font-semibold text-balance">
+                        <h1 className="font-mono font-semibold tracking-tight text-balance">
                             Michael West
                         </h1>
-                        <p className="font-medium text-muted">
+                        <p className="font-mono text-sm text-muted">
                             Senior Designer at Microsoft
                         </p>
                     </div>
@@ -64,15 +64,15 @@ export function HeroBio() {
                     </p>
                 </div>
             </div>
-            <div className="flex flex-col items-start md:items-end text-muted">
+            <div className="flex flex-col items-start md:items-end font-mono text-sm text-muted">
                 <Link
-                    className="hover:underline cursor-pointer bg-transparent border-none p-0 font-inherit text-inherit"
+                    className="hover:underline cursor-pointer bg-transparent border-none p-0 text-inherit"
                     href="/writing"
                 >
                     Writing
                 </Link>
                 <Link
-                    className="hover:underline cursor-pointer bg-transparent border-none p-0 font-inherit text-inherit"
+                    className="hover:underline cursor-pointer bg-transparent border-none p-0 text-inherit"
                     href="https://x.com/itsmichaelwest"
                     target="_blank"
                     rel="noopener noreferrer me"
@@ -80,7 +80,7 @@ export function HeroBio() {
                     X
                 </Link>
                 <Link
-                    className="hover:underline cursor-pointer bg-transparent border-none p-0 font-inherit text-inherit"
+                    className="hover:underline cursor-pointer bg-transparent border-none p-0 text-inherit"
                     href="https://www.linkedin.com/in/itsmichaelwest"
                     target="_blank"
                     rel="noopener noreferrer me"
@@ -88,7 +88,7 @@ export function HeroBio() {
                     LinkedIn
                 </Link>
                 <Link
-                    className="hover:underline cursor-pointer bg-transparent border-none p-0 font-inherit text-inherit"
+                    className="hover:underline cursor-pointer bg-transparent border-none p-0 text-inherit"
                     href="https://github.com/itsmichaelwest"
                     target="_blank"
                     rel="noopener noreferrer me"

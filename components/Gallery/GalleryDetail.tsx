@@ -87,9 +87,11 @@ export function GalleryDetail({
             >
                 <div className="space-y-2">
                     {item.year && (
-                        <p className="text-sm text-muted">{item.year}</p>
+                        <p className="font-mono text-sm text-muted tabular-nums">
+                            {item.year}
+                        </p>
                     )}
-                    <h2 className="font-bold text-2xl text-balance">
+                    <h2 className="font-mono font-semibold tracking-tight text-2xl text-balance">
                         {item.title}
                     </h2>
                     <p className="text-muted text-pretty">{item.subtitle}</p>
@@ -98,7 +100,7 @@ export function GalleryDetail({
                             href={item.officialURL}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 text-sm font-medium rounded-full bg-[#EEE]/80 no-underline text-[#333] hover:bg-[#DDD] transition-colors"
+                            className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 font-mono text-sm font-medium rounded-full bg-[#EEE]/80 no-underline text-[#333] hover:bg-[#DDD] transition-colors"
                         >
                             {item.officialURLText ?? "View project"}
                             <svg

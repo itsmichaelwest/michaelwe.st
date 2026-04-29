@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import {
     getAllWritingSlugs,
     getWritingPost,
+    getWritingNeighbors,
 } from "../../../lib/writing";
 import { WritingArticle } from "./WritingArticle";
 import type { Metadata } from "next";
@@ -39,12 +40,16 @@ export default async function WritingPostPage({ params }: PageProps) {
         notFound();
     }
 
+    const neighbors = getWritingNeighbors(slug);
+
     return (
         <WritingArticle
             title={post.title}
             date={post.date}
             readingTime={post.readingTime}
             mdxSource={post.mdxSource}
+            prev={neighbors.prev}
+            next={neighbors.next}
         />
     );
 }

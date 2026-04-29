@@ -69,6 +69,30 @@ export function getAllWritingSlugs(): { params: { slug: string } }[] {
         }));
 }
 
+export interface WritingNeighbors {
+    prev?: { slug: string; title: string };
+    next?: { slug: string; title: string };
+}
+
+export function getWritingNeighbors(slug: string): WritingNeighbors {
+    const posts = getSortedWritingData();
+    const i = posts.findIndex((p) => p.slug === slug);
+    if (i === -1) return {};
+
+    // Posts are sorted newest-first. "next" = newer = lower index.
+    const newer = i > 0 ? posts[i - 1] : undefined;
+    const older = i < posts.length - 1 ? posts[i + 1] : undefined;
+
+    return {
+        next: newer
+            ? { slug: newer.slug, title: newer.title }
+            : undefined,
+        prev: older
+            ? { slug: older.slug, title: older.title }
+            : undefined,
+    };
+}
+
 export async function getWritingPost(slug: string) {
     const fullPath = path.join(writingDirectory, `${slug}.md`);
     const fileContents = fs.readFileSync(fullPath, "utf8");

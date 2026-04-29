@@ -1,6 +1,6 @@
 import { MDXComponents } from "next-mdx-remote-client/csr";
 import Link from "next/link";
-import Image from "next/image";
+import { MDXImage } from "./MDXImage";
 
 export const components: MDXComponents = {
     h1: ({ children }) => (
@@ -61,29 +61,7 @@ export const components: MDXComponents = {
         </Link>
     ),
     img: ({ src, alt, height, width }) => (
-        <figure className="my-16 space-y-4">
-            {height && width ? (
-                <Image
-                    src={src}
-                    alt={alt}
-                    height={height}
-                    width={width}
-                    sizes="(max-width: 768px) 100vw, min(80ch, 100vw)"
-                    className="rounded-xl ring ring-black/5"
-                />
-            ) : (
-                <div className="relative w-full aspect-video">
-                    <Image
-                        src={src}
-                        alt={alt}
-                        fill
-                        sizes="(max-width: 768px) 100vw, min(80ch, 100vw)"
-                        className="rounded-xl ring ring-black/5 object-contain"
-                    />
-                </div>
-            )}
-            <figcaption className="text-sm opacity-50">{alt}</figcaption>
-        </figure>
+        <MDXImage src={src} alt={alt} height={height} width={width} />
     ),
     hr: () => <hr className="my-12 border-gray-100" />,
 };

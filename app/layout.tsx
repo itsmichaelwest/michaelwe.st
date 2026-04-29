@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Inter } from "next/font/google";
+import "@fontsource/commit-mono/400.css";
+import "@fontsource/commit-mono/600.css";
 import siteMetadata from "../siteMetadata";
 import "../styles/global.css";
 
