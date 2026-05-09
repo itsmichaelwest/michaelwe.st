@@ -72,8 +72,16 @@ export default function RootLayout({
                 />
             </head>
             <body>
+                <a
+                    href="#content"
+                    className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-md focus:bg-black focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-white dark:focus:bg-white dark:focus:text-black"
+                >
+                    Skip to content
+                </a>
                 <div
-                    className={`overflow-x-clip ${inter.className} ${inter.variable} font-sans`}
+                    id="content"
+                    tabIndex={-1}
+                    className={`overflow-x-clip outline-none ${inter.className} ${inter.variable} font-sans`}
                 >
                     {children}
                 </div>

@@ -6,7 +6,7 @@ export interface TOCHeading {
     level: number;
 }
 
-function slugify(text: string): string {
+export function slugify(text: string): string {
     return text
         .trim()
         .toLowerCase()
@@ -18,50 +18,107 @@ function slugify(text: string): string {
 function nodeToText(node: { children?: unknown[] }): string {
     let out = "";
     for (const child of node.children ?? []) {
-        const c = child as { type?: string; value?: string; children?: unknown[] };
+        const c = child as {
+            type?: string;
+            value?: string;
+            children?: unknown[];
+        };
         if (c.type === "text" && typeof c.value === "string") out += c.value;
         else if (c.children) out += nodeToText(c);
     }
     return out;
 }
 
-interface HastElement {
+// Lightweight markdown heading scan for the TOC. Avoids running the full MDX
+// pipeline twice. Mirrors the slug + collision logic of the rehype pass so the
+// generated ids match between the TOC links and the rendered article.
+export function collectMarkdownHeadings(content: string): TOCHeading[] {
+    const lines = content.split(/\r?\n/);
+    const headings: TOCHeading[] = [];
+    const used = new Map<string, number>();
+    let inFence = false;
+    let fenceMarker = "";
+    for (const raw of lines) {
+        const line = raw.replace(/\t/g, "    ");
+        const fence = line.match(/^(?:\s{0,3})(`{3,}|~{3,})/);
+        if (fence) {
+            const marker = fence[1][0];
+            if (!inFence) {
+                inFence = true;
+                fenceMarker = marker;
+            } else if (marker === fenceMarker) {
+                inFence = false;
+                fenceMarker = "";
+            }
+            continue;
+        }
+        if (inFence) continue;
+        const m = line.match(/^\s{0,3}(#{1,3})\s+(.+?)(?:\s+#+\s*)?$/);
+        if (!m) continue;
+        const level = m[1].length;
+        const text = m[2].trim();
+        if (!text) continue;
+        const base = slugify(text);
+        if (!base) continue;
+        const count = used.get(base) ?? 0;
+        const id = count === 0 ? base : `${base}-${count}`;
+        used.set(base, count + 1);
+        headings.push({ id, text, level });
+    }
+    return headings;
+}
+
+interface ElementNode {
+    type: "element";
     tagName?: string;
-    properties?: Record<string, unknown>;
+    properties?: Record<string, unknown> & { id?: string };
     children?: unknown[];
 }
 
-/**
- * Adds stable ids to h1/h2/h3 elements and collects them into the provided
- * array so the writing layout can render a sidebar table of contents.
- */
-export function rehypeWritingHeadings(headings: TOCHeading[]) {
+// Rehype plugin that:
+// - Shifts h1/h2/h3 down by one (h1→h2, etc.) so the page only has one h1
+//   (the article title rendered by the page shell).
+// - Adds stable ids for in-page anchors. Pre-walks the tree first so explicit
+//   ids set in MDX never collide with auto-generated ones.
+export function rehypeWritingHeadings() {
     return () => {
-        const used = new Map<string, number>();
         return (tree: Parameters<typeof visit>[0]) => {
-            visit(tree, "element", (node) => {
-                const el = node as HastElement;
-                const tag = el.tagName;
+            const used = new Map<string, number>();
+            visit(tree, "element", (node: ElementNode) => {
+                const id = node.properties?.id;
+                if (typeof id === "string" && id) {
+                    used.set(id, (used.get(id) ?? 0) + 1);
+                }
+            });
+
+            visit(tree, "element", (node: ElementNode) => {
+                const tag = node.tagName;
                 if (!tag || !/^h[1-3]$/.test(tag)) return;
 
-                const text = nodeToText(el).trim();
-                if (!text) return;
+                const sourceLevel = Number(tag[1]);
+                const shiftedLevel = sourceLevel + 1;
+                node.tagName = `h${shiftedLevel}`;
 
+                node.properties = node.properties ?? {};
+                if (node.properties.id) return;
+
+                const text = nodeToText(node).trim();
+                if (!text) return;
                 const base = slugify(text);
                 if (!base) return;
 
-                const count = used.get(base) ?? 0;
-                const id = count === 0 ? base : `${base}-${count}`;
-                used.set(base, count + 1);
-
-                el.properties = el.properties ?? {};
-                if (!el.properties.id) el.properties.id = id;
-
-                headings.push({
-                    id: el.properties.id as string,
-                    text,
-                    level: Number(tag[1]),
-                });
+                let candidate = base;
+                let count = used.get(base) ?? 0;
+                while (used.has(candidate) && count > 0) {
+                    candidate = `${base}-${count}`;
+                    count += 1;
+                }
+                if (used.has(candidate)) {
+                    candidate = `${base}-${count}`;
+                }
+                used.set(base, (used.get(base) ?? 0) + 1);
+                used.set(candidate, (used.get(candidate) ?? 0) + 1);
+                node.properties.id = candidate;
             });
         };
     };

@@ -21,9 +21,25 @@ export async function generateMetadata({
     const { slug } = await params;
     try {
         const post = await getWritingPost(slug);
+        const title = `${post.title} — Michael`;
         return {
-            title: `${post.title} — Michael`,
+            title,
             description: post.description,
+            alternates: {
+                canonical: `/writing/${slug}`,
+            },
+            openGraph: {
+                title,
+                description: post.description,
+                type: "article",
+                url: `/writing/${slug}`,
+                ...(post.date && { publishedTime: post.date }),
+            },
+            twitter: {
+                card: "summary_large_image",
+                title,
+                description: post.description,
+            },
         };
     } catch {
         return {};
@@ -47,7 +63,7 @@ export default async function WritingPostPage({ params }: PageProps) {
             title={post.title}
             date={post.date}
             readingTime={post.readingTime}
-            mdxSource={post.mdxSource}
+            content={post.content}
             headings={post.headings}
             prev={neighbors.prev}
             next={neighbors.next}

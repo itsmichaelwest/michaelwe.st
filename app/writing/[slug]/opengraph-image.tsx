@@ -3,6 +3,7 @@ import { readFileSync } from "fs";
 import path from "path";
 import { format } from "date-fns";
 import { getWritingPost } from "../../../lib/writing";
+import { parseCalendarDate } from "../../../lib/date";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -23,11 +24,13 @@ const commitMonoSemiBold = readFileSync(
 export default async function OGImage({
     params,
 }: {
-    params: { slug: string };
+    params: Promise<{ slug: string }>;
 }) {
-    const post = await getWritingPost(params.slug);
-    const formattedDate = post.date
-        ? format(new Date(post.date), "MMM d, yyyy")
+    const { slug } = await params;
+    const post = await getWritingPost(slug);
+    const parsedDate = parseCalendarDate(post.date);
+    const formattedDate = parsedDate
+        ? format(parsedDate, "MMM d, yyyy")
         : "";
 
     return new ImageResponse(

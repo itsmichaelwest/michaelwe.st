@@ -1,10 +1,31 @@
-"use client";
-
-import { MDXClient } from "next-mdx-remote-client/csr";
+import { MDXRemote } from "next-mdx-remote-client/rsc";
+import rehypeUnwrapImages from "rehype-unwrap-images";
 import { components } from "../../../components/MDXComponents";
-import type { SerializeResult } from "next-mdx-remote-client/serialize";
+import { rehypeImageSize } from "../../../lib/rehypeImageSize";
+import { rehypeWritingHeadings } from "../../../lib/rehypeWritingHeadings";
 
-export function WritingBody({ source }: { source: SerializeResult }) {
-    if ("error" in source) return null;
-    return <MDXClient {...source} components={components} />;
+function MDXErrorBoundary({ error }: { error: Error }): never {
+    // Surface the failure during static generation so a malformed post fails
+    // the build instead of silently shipping an empty article.
+    throw error;
+}
+
+export function WritingBody({ source }: { source: string }) {
+    return (
+        <MDXRemote
+            source={source}
+            options={{
+                disableImports: true,
+                mdxOptions: {
+                    rehypePlugins: [
+                        rehypeUnwrapImages,
+                        rehypeImageSize,
+                        rehypeWritingHeadings(),
+                    ],
+                },
+            }}
+            components={components}
+            onError={MDXErrorBoundary}
+        />
+    );
 }

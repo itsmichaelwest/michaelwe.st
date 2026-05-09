@@ -63,6 +63,10 @@ export function TransitionLink({
 
         transition.finished.finally(() => {
             delete root.dataset.viewTransition;
+            // Restore focus to the page content so screen reader / keyboard
+            // users land on the new page rather than on an unmounted node.
+            const target = document.getElementById("content");
+            if (target) target.focus({ preventScroll: true });
         });
     };
 

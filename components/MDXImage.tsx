@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useId, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import {
     motion,
     AnimatePresence,
@@ -18,34 +18,48 @@ interface MDXImageProps {
     width?: number | string;
 }
 
-const subscribeNoop = () => () => {};
-
 export function MDXImage({ src, alt = "", height, width }: MDXImageProps) {
     const [loaded, setLoaded] = useState(false);
     const [lightboxLoaded, setLightboxLoaded] = useState(false);
     const [open, setOpen] = useState(false);
-    // Defer portal rendering until after hydration. SSR/first-client render
-    // returns false to keep markup identical; subsequent renders return true.
-    const mounted = useSyncExternalStore(
-        subscribeNoop,
-        () => true,
-        () => false,
-    );
+    const [mounted, setMounted] = useState(false);
+    const fallbackRef = useRef<HTMLImageElement>(null);
+    const lightboxRef = useRef<HTMLImageElement>(null);
     const reducedMotion = useReducedMotion();
     const id = useId();
     const layoutId = `mdx-image-${id}`;
 
-    // Callback refs handle the "image was cached and already complete before
-    // onLoad fired" case without needing a setState-in-effect.
-    const fallbackRef = useCallback((el: HTMLImageElement | null) => {
-        if (el && el.complete) setLoaded(true);
+    // Canonical "render after mount" pattern — needed so the portal target
+    // (document.body) is only used on the client.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    useEffect(() => setMounted(true), []);
+
+    useEffect(() => {
+        // The Image's `onLoad` doesn't fire when the browser has the image
+        // cached, so we mirror its `complete` flag once after mount.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        if (fallbackRef.current?.complete) setLoaded(true);
     }, []);
-    const lightboxRef = useCallback((el: HTMLImageElement | null) => {
-        if (el && el.complete) setLightboxLoaded(true);
-    }, []);
+
+    const triggerRef = useRef<HTMLButtonElement>(null);
+    const closeRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
         if (!open) return;
+        // Same cached-image dance as the inline thumbnail above.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        if (lightboxRef.current?.complete) setLightboxLoaded(true);
+        const previouslyFocused =
+            document.activeElement instanceof HTMLElement
+                ? document.activeElement
+                : null;
+        // Capture the trigger node now so the cleanup doesn't read a stale
+        // ref after the component re-renders.
+        const triggerNode = triggerRef.current;
+        // Move focus into the dialog. Tab inside the lightbox is naturally
+        // trapped because there is exactly one focusable element (the close
+        // button); a Tab loop would just reselect it.
+        closeRef.current?.focus();
         const onKey = (e: KeyboardEvent) => {
             if (e.key === "Escape") setOpen(false);
         };
@@ -55,6 +69,8 @@ export function MDXImage({ src, alt = "", height, width }: MDXImageProps) {
         return () => {
             document.removeEventListener("keydown", onKey);
             document.body.style.overflow = prevOverflow;
+            const target = previouslyFocused ?? triggerNode;
+            target?.focus({ preventScroll: true });
         };
     }, [open]);
 
@@ -81,6 +97,7 @@ export function MDXImage({ src, alt = "", height, width }: MDXImageProps) {
     return (
         <figure className="my-16 space-y-4">
             <motion.button
+                ref={triggerRef}
                 type="button"
                 onClick={() => setOpen(true)}
                 layoutId={layoutId}
@@ -114,7 +131,11 @@ export function MDXImage({ src, alt = "", height, width }: MDXImageProps) {
                 createPortal(
                     <AnimatePresence>
                         {open && (
-                            <>
+                            <div
+                                role="dialog"
+                                aria-modal="true"
+                                aria-label={alt || "Image"}
+                            >
                                 <motion.div
                                     key="mdx-scrim"
                                     className="fixed inset-0 z-[99]"
@@ -138,8 +159,10 @@ export function MDXImage({ src, alt = "", height, width }: MDXImageProps) {
                                         ease: "easeOut",
                                     }}
                                     onClick={() => setOpen(false)}
+                                    aria-hidden="true"
                                 />
                                 <motion.button
+                                    ref={closeRef}
                                     key="mdx-lightbox"
                                     type="button"
                                     onClick={() => setOpen(false)}
@@ -167,7 +190,7 @@ export function MDXImage({ src, alt = "", height, width }: MDXImageProps) {
                                         }
                                     />
                                 </motion.button>
-                            </>
+                            </div>
                         )}
                     </AnimatePresence>,
                     document.body,

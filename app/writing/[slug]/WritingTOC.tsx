@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useReducedMotion } from "motion/react";
 import { TransitionLink } from "../../../components/TransitionLink";
 import type { TOCHeading } from "../../../lib/rehypeWritingHeadings";
 
@@ -45,6 +46,10 @@ export function WritingTOC({ title, headings }: WritingTOCProps) {
     const [pastHeader, setPastHeader] = useState(false);
     const [hovered, setHovered] = useState(false);
     const [mode, setMode] = useState<Mode>("wide");
+    const reducedMotion = useReducedMotion();
+    const animDuration = reducedMotion ? 0 : DURATION;
+    const transitionTriple = (delay = 0) =>
+        `max-width ${animDuration}ms ${EASE} ${delay}ms, margin-left ${animDuration}ms ${EASE} ${delay}ms, opacity ${animDuration}ms ${EASE} ${delay}ms`;
 
     // Detect viewport mode. Wide >= 1280 keeps labels always visible.
     // Mid 768–1280 shows the collapsed minimap and expands on hover.
@@ -64,9 +69,10 @@ export function WritingTOC({ title, headings }: WritingTOCProps) {
         };
     }, []);
 
-    // Active section tracking via IntersectionObserver. Falls back to the
-    // closest heading above the band so a section "stays" active while
-    // scrolling its body.
+    // Active section tracking via IntersectionObserver. Picks the lowest
+    // heading currently inside the active band so a later section overtakes
+    // an earlier one as soon as it enters; falls back to the closest heading
+    // above the band when nothing is in view.
     useEffect(() => {
         if (headings.length === 0) return;
         const ids = headings.map((h) => h.id);
@@ -78,8 +84,9 @@ export function WritingTOC({ title, headings }: WritingTOCProps) {
         const visible = new Set<string>();
         const update = () => {
             if (visible.size > 0) {
-                const ordered = ids.find((id) => visible.has(id));
-                if (ordered) setActiveId(ordered);
+                let chosen: string | null = null;
+                for (const id of ids) if (visible.has(id)) chosen = id;
+                if (chosen) setActiveId(chosen);
                 return;
             }
             let last: string | null = null;
@@ -127,12 +134,35 @@ export function WritingTOC({ title, headings }: WritingTOCProps) {
         e: React.MouseEvent<HTMLAnchorElement>,
         id: string,
     ) => {
+        // Let the browser handle modifier clicks (open in new tab/window).
+        if (
+            e.metaKey ||
+            e.ctrlKey ||
+            e.shiftKey ||
+            e.altKey ||
+            e.button !== 0
+        ) {
+            return;
+        }
         e.preventDefault();
         const el = document.getElementById(id);
         if (!el) return;
         const top = el.getBoundingClientRect().top + window.scrollY - 80;
-        window.scrollTo({ top, behavior: "smooth" });
+        window.scrollTo({
+            top,
+            behavior: reducedMotion ? "auto" : "smooth",
+        });
         history.replaceState(null, "", `#${id}`);
+        // Move keyboard focus to the heading so subsequent Tabs land in the
+        // article body, not back inside the TOC.
+        const previousTabIndex = el.getAttribute("tabindex");
+        el.setAttribute("tabindex", "-1");
+        el.focus({ preventScroll: true });
+        if (previousTabIndex === null) {
+            // Clean up so the heading isn't permanently focusable.
+            const cleanup = () => el.removeAttribute("tabindex");
+            el.addEventListener("blur", cleanup, { once: true });
+        }
     };
 
     return (
@@ -148,14 +178,26 @@ export function WritingTOC({ title, headings }: WritingTOCProps) {
                     maskImage:
                         "linear-gradient(to right, black 0%, black 65%, transparent 100%)",
                     opacity: showFade ? 1 : 0,
-                    transition: `opacity ${DURATION}ms ${EASE}`,
+                    transition: `opacity ${animDuration}ms ${EASE}`,
                 }}
             />
             <aside
                 onMouseEnter={() => mode === "mid" && setHovered(true)}
                 onMouseLeave={() => mode === "mid" && setHovered(false)}
+                onFocusCapture={() =>
+                    mode === "mid" && setHovered(true)
+                }
+                onBlurCapture={(e) => {
+                    if (
+                        mode === "mid" &&
+                        !e.currentTarget.contains(
+                            e.relatedTarget as Node | null,
+                        )
+                    ) {
+                        setHovered(false);
+                    }
+                }}
                 className="fixed top-16 left-6 z-30 hidden flex-col items-start md:flex"
-                aria-label="Table of contents"
             >
                 <TransitionLink
                     href="/writing"
@@ -169,7 +211,7 @@ export function WritingTOC({ title, headings }: WritingTOCProps) {
                             maxWidth: open ? 80 : 0,
                             marginLeft: open ? 6 : 0,
                             opacity: open ? 1 : 0,
-                            transition: `max-width ${DURATION}ms ${EASE}, margin-left ${DURATION}ms ${EASE}, opacity ${DURATION}ms ${EASE}`,
+                            transition: transitionTriple(),
                         }}
                     >
                         Writing
@@ -177,14 +219,14 @@ export function WritingTOC({ title, headings }: WritingTOCProps) {
                 </TransitionLink>
 
                 {showNav && (
-                    <nav className="mt-7">
+                    <nav className="mt-7" aria-label="Table of contents">
                         <p
                             className="font-mono text-[13px] leading-tight text-muted whitespace-nowrap overflow-hidden"
                             style={{
                                 opacity: showTitle ? 1 : 0,
                                 maxHeight: pastHeader ? 32 : 0,
                                 marginBottom: pastHeader ? 14 : 0,
-                                transition: `opacity ${DURATION}ms ${EASE}, max-height ${DURATION}ms ${EASE}, margin-bottom ${DURATION}ms ${EASE}`,
+                                transition: `opacity ${animDuration}ms ${EASE}, max-height ${animDuration}ms ${EASE}, margin-bottom ${animDuration}ms ${EASE}`,
                                 pointerEvents: showTitle ? "auto" : "none",
                             }}
                             aria-hidden={!showTitle}
@@ -202,6 +244,11 @@ export function WritingTOC({ title, headings }: WritingTOCProps) {
                                             href={`#${h.id}`}
                                             onClick={(e) =>
                                                 handleClick(e, h.id)
+                                            }
+                                            aria-current={
+                                                isActive
+                                                    ? "location"
+                                                    : undefined
                                             }
                                             className={`flex items-center py-[5px] ${
                                                 isActive
@@ -226,16 +273,19 @@ export function WritingTOC({ title, headings }: WritingTOCProps) {
                                                     opacity: isActive
                                                         ? 1
                                                         : 0.55,
-                                                    transition: `width ${DURATION}ms ${EASE}, opacity ${DURATION}ms ${EASE}`,
+                                                    transition: `width ${animDuration}ms ${EASE}, opacity ${animDuration}ms ${EASE}`,
                                                 }}
                                             />
                                             <span
-                                                className="overflow-hidden whitespace-nowrap font-mono text-[13px] leading-tight tracking-tight"
+                                                className="overflow-hidden text-ellipsis whitespace-nowrap font-mono text-[13px] leading-tight tracking-tight"
                                                 style={{
                                                     maxWidth: open ? 220 : 0,
                                                     marginLeft: open ? 12 : 0,
                                                     opacity: open ? 1 : 0,
-                                                    transition: `max-width ${DURATION}ms ${EASE} ${delay}ms, margin-left ${DURATION}ms ${EASE} ${delay}ms, opacity ${DURATION}ms ${EASE} ${delay}ms`,
+                                                    transition:
+                                                        transitionTriple(
+                                                            delay,
+                                                        ),
                                                 }}
                                             >
                                                 {h.text}

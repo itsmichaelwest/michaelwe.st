@@ -1,16 +1,11 @@
-import { MDXComponents } from "next-mdx-remote-client/csr";
 import Link from "next/link";
+import type { MDXComponents } from "next-mdx-remote-client/rsc";
 import { MDXImage } from "./MDXImage";
 
+// MDX content uses `#` as the top-level heading. The article shell renders the
+// post title as <h1>, so the rehype pipeline shifts content headings down by
+// one (h1→h2, h2→h3, h3→h4). Only h2-h4 ever reach this map.
 export const components: MDXComponents = {
-    h1: ({ children, id }) => (
-        <h1
-            id={id}
-            className="scroll-mt-24 text-4xl font-semibold tracking-tight text-balance mt-12 mb-4"
-        >
-            {children}
-        </h1>
-    ),
     h2: ({ children, id }) => (
         <h2
             id={id}
@@ -26,6 +21,14 @@ export const components: MDXComponents = {
         >
             {children}
         </h3>
+    ),
+    h4: ({ children, id }) => (
+        <h4
+            id={id}
+            className="scroll-mt-24 text-base font-semibold text-heading mt-6 mb-2"
+        >
+            {children}
+        </h4>
     ),
     p: ({ children }) => (
         <p className="my-6 leading-relaxed text-secondary">{children}</p>
@@ -61,16 +64,35 @@ export const components: MDXComponents = {
             {children}
         </pre>
     ),
-    a: ({ href, children }) => (
-        <Link
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-medium text-blue-700 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-        >
-            {children}
-        </Link>
-    ),
+    a: ({ href = "", children }) => {
+        const isExternal = /^https?:\/\//i.test(href);
+        const isInPage = href.startsWith("#");
+        const isInternal = href.startsWith("/") || isInPage;
+        const isMail = href.startsWith("mailto:") || href.startsWith("tel:");
+        if (!isExternal && !isInternal && !isMail) {
+            // Drop unsafe protocols (e.g. javascript:) — render as plain text.
+            return <span>{children}</span>;
+        }
+        const linkClass =
+            "font-medium text-blue-700 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300";
+        if (isExternal) {
+            return (
+                <Link
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={linkClass}
+                >
+                    {children}
+                </Link>
+            );
+        }
+        return (
+            <Link href={href} className={linkClass}>
+                {children}
+            </Link>
+        );
+    },
     img: ({ src, alt, height, width }) => (
         <MDXImage src={src} alt={alt} height={height} width={width} />
     ),

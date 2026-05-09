@@ -1,13 +1,8 @@
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
-import { serialize } from "next-mdx-remote-client/serialize";
-import rehypeUnwrapImages from "rehype-unwrap-images";
-import { rehypeImageSize } from "./rehypeImageSize";
-import {
-    rehypeWritingHeadings,
-    type TOCHeading,
-} from "./rehypeWritingHeadings";
+import { collectMarkdownHeadings } from "./rehypeWritingHeadings";
+import type { TOCHeading } from "./rehypeWritingHeadings";
 
 const writingDirectory = path.join(process.cwd(), "content/writing");
 
@@ -86,27 +81,24 @@ export function getWritingNeighbors(slug: string): WritingNeighbors {
     };
 }
 
-export async function getWritingPost(slug: string) {
+export interface WritingPost {
+    slug: string;
+    title: string;
+    description: string;
+    date: string;
+    readingTime: number;
+    heroImage?: string;
+    heroImageAlt?: string;
+    content: string;
+    headings: TOCHeading[];
+}
+
+export async function getWritingPost(slug: string): Promise<WritingPost> {
     const fullPath = path.join(writingDirectory, `${slug}.md`);
     const fileContents = fs.readFileSync(fullPath, "utf8");
     const { content, data } = matter(fileContents);
 
-    const headings: TOCHeading[] = [];
-
-    const mdxSource = await serialize({
-        source: content,
-        options: {
-            disableImports: true,
-            mdxOptions: {
-                rehypePlugins: [
-                    rehypeUnwrapImages,
-                    rehypeImageSize,
-                    rehypeWritingHeadings(headings),
-                ],
-            },
-            parseFrontmatter: true,
-        },
-    });
+    const headings = collectMarkdownHeadings(content);
 
     return {
         slug,
@@ -116,7 +108,7 @@ export async function getWritingPost(slug: string) {
         readingTime: getReadingTime(content),
         heroImage: data.heroImage,
         heroImageAlt: data.heroImageAlt,
-        mdxSource,
+        content,
         headings,
     };
 }

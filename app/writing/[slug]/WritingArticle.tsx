@@ -1,10 +1,8 @@
-"use client";
-
 import { format } from "date-fns";
 import { TransitionLink } from "../../../components/TransitionLink";
 import { WritingBody } from "./WritingBody";
 import { WritingTOC } from "./WritingTOC";
-import type { SerializeResult } from "next-mdx-remote-client/serialize";
+import { parseCalendarDate } from "../../../lib/date";
 import type { TOCHeading } from "../../../lib/rehypeWritingHeadings";
 
 interface NeighborPost {
@@ -37,7 +35,7 @@ interface WritingArticleProps {
     title: string;
     date: string;
     readingTime: number;
-    mdxSource: SerializeResult;
+    content: string;
     headings: TOCHeading[];
     prev?: NeighborPost;
     next?: NeighborPost;
@@ -47,7 +45,7 @@ export function WritingArticle({
     title,
     date,
     readingTime,
-    mdxSource,
+    content,
     headings,
     prev,
     next,
@@ -70,18 +68,23 @@ export function WritingArticle({
                         {title}
                     </h1>
                     <p className="mt-3 font-mono text-sm text-muted tabular-nums">
-                        {date && (
-                            <time dateTime={date}>
-                                {format(new Date(date), "MMM d, yyyy")}
-                            </time>
-                        )}
-                        {" · "}
+                        {(() => {
+                            const d = parseCalendarDate(date);
+                            return d ? (
+                                <>
+                                    <time dateTime={date}>
+                                        {format(d, "MMM d, yyyy")}
+                                    </time>
+                                    {" · "}
+                                </>
+                            ) : null;
+                        })()}
                         {readingTime} min read
                     </p>
                 </header>
 
             <article className="mt-12">
-                <WritingBody source={mdxSource} />
+                <WritingBody source={content} />
             </article>
 
             {(prev || next) && (

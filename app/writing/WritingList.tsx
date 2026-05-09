@@ -3,28 +3,34 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { TransitionLink } from "../../components/TransitionLink";
+import { parseCalendarDate } from "../../lib/date";
 import type { IWritingPost } from "../../lib/writing";
 
 const EASE = "cubic-bezier(0.32, 0.72, 0, 1)";
 const DURATION = 280;
 
 interface YearGroup {
-    year: number;
+    year: number | "undated";
     posts: IWritingPost[];
 }
 
 function groupByYear(posts: IWritingPost[]): YearGroup[] {
-    const groups = new Map<number, IWritingPost[]>();
+    const groups = new Map<number | "undated", IWritingPost[]>();
     for (const post of posts) {
-        const year = post.date
-            ? new Date(post.date).getFullYear()
-            : new Date().getFullYear();
-        if (!groups.has(year)) groups.set(year, []);
-        groups.get(year)!.push(post);
+        const parsed = parseCalendarDate(post.date);
+        const key: number | "undated" = parsed
+            ? parsed.getFullYear()
+            : "undated";
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key)!.push(post);
     }
     return Array.from(groups.entries())
         .map(([year, posts]) => ({ year, posts }))
-        .sort((a, b) => b.year - a.year);
+        .sort((a, b) => {
+            if (a.year === "undated") return 1;
+            if (b.year === "undated") return -1;
+            return b.year - a.year;
+        });
 }
 
 function BackArrow() {
@@ -109,7 +115,9 @@ export function WritingList({ posts }: { posts: IWritingPost[] }) {
                             className="grid grid-cols-[auto_1fr] gap-x-8 sm:gap-x-12"
                         >
                             <h2 className="pt-4 font-mono text-sm text-muted tabular-nums">
-                                {group.year}
+                                {group.year === "undated"
+                                    ? "Undated"
+                                    : group.year}
                             </h2>
                             <ul>
                                 {group.posts.map((post) => (
@@ -128,15 +136,27 @@ export function WritingList({ posts }: { posts: IWritingPost[] }) {
                                                 </p>
                                             )}
                                             <p className="mt-1 font-mono text-sm text-muted tabular-nums">
-                                                {post.date && (
-                                                    <time dateTime={post.date}>
-                                                        {format(
-                                                            new Date(post.date),
-                                                            "MMM d",
-                                                        )}
-                                                    </time>
-                                                )}
-                                                {" · "}
+                                                {(() => {
+                                                    const d =
+                                                        parseCalendarDate(
+                                                            post.date,
+                                                        );
+                                                    return d ? (
+                                                        <>
+                                                            <time
+                                                                dateTime={
+                                                                    post.date
+                                                                }
+                                                            >
+                                                                {format(
+                                                                    d,
+                                                                    "MMM d",
+                                                                )}
+                                                            </time>
+                                                            {" · "}
+                                                        </>
+                                                    ) : null;
+                                                })()}
                                                 {post.readingTime} min read
                                             </p>
                                         </TransitionLink>
