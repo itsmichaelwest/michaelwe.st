@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useState, useSyncExternalStore } from "react";
 import {
     motion,
     AnimatePresence,
@@ -18,28 +18,34 @@ interface MDXImageProps {
     width?: number | string;
 }
 
+const subscribeNoop = () => () => {};
+
 export function MDXImage({ src, alt = "", height, width }: MDXImageProps) {
     const [loaded, setLoaded] = useState(false);
     const [lightboxLoaded, setLightboxLoaded] = useState(false);
     const [open, setOpen] = useState(false);
-    const [mounted, setMounted] = useState(false);
-    const fallbackRef = useRef<HTMLImageElement>(null);
-    const lightboxRef = useRef<HTMLImageElement>(null);
+    // Defer portal rendering until after hydration. SSR/first-client render
+    // returns false to keep markup identical; subsequent renders return true.
+    const mounted = useSyncExternalStore(
+        subscribeNoop,
+        () => true,
+        () => false,
+    );
     const reducedMotion = useReducedMotion();
     const id = useId();
     const layoutId = `mdx-image-${id}`;
 
-    useEffect(() => setMounted(true), []);
-
-    useEffect(() => {
-        if (fallbackRef.current?.complete) setLoaded(true);
+    // Callback refs handle the "image was cached and already complete before
+    // onLoad fired" case without needing a setState-in-effect.
+    const fallbackRef = useCallback((el: HTMLImageElement | null) => {
+        if (el && el.complete) setLoaded(true);
+    }, []);
+    const lightboxRef = useCallback((el: HTMLImageElement | null) => {
+        if (el && el.complete) setLightboxLoaded(true);
     }, []);
 
     useEffect(() => {
         if (!open) return;
-        if (lightboxRef.current?.complete) {
-            setLightboxLoaded(true);
-        }
         const onKey = (e: KeyboardEvent) => {
             if (e.key === "Escape") setOpen(false);
         };

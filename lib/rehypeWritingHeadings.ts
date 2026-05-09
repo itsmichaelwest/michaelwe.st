@@ -25,6 +25,12 @@ function nodeToText(node: { children?: unknown[] }): string {
     return out;
 }
 
+interface HastElement {
+    tagName?: string;
+    properties?: Record<string, unknown>;
+    children?: unknown[];
+}
+
 /**
  * Adds stable ids to h1/h2/h3 elements and collects them into the provided
  * array so the writing layout can render a sidebar table of contents.
@@ -33,26 +39,26 @@ export function rehypeWritingHeadings(headings: TOCHeading[]) {
     return () => {
         const used = new Map<string, number>();
         return (tree: Parameters<typeof visit>[0]) => {
-            visit(tree, "element", (node: any) => {
-                // eslint-disable-line @typescript-eslint/no-explicit-any
-                const tag = node.tagName as string | undefined;
+            visit(tree, "element", (node) => {
+                const el = node as HastElement;
+                const tag = el.tagName;
                 if (!tag || !/^h[1-3]$/.test(tag)) return;
 
-                const text = nodeToText(node).trim();
+                const text = nodeToText(el).trim();
                 if (!text) return;
 
-                let base = slugify(text);
+                const base = slugify(text);
                 if (!base) return;
 
                 const count = used.get(base) ?? 0;
                 const id = count === 0 ? base : `${base}-${count}`;
                 used.set(base, count + 1);
 
-                node.properties = node.properties ?? {};
-                if (!node.properties.id) node.properties.id = id;
+                el.properties = el.properties ?? {};
+                if (!el.properties.id) el.properties.id = id;
 
                 headings.push({
-                    id: node.properties.id as string,
+                    id: el.properties.id as string,
                     text,
                     level: Number(tag[1]),
                 });

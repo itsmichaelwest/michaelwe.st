@@ -15,16 +15,7 @@ import { useWindowSize } from "../../hooks/useWindowSize";
 import { GalleryContext } from "./GalleryContext";
 import type { ItemData } from "./types";
 import { SAMPLE_ITEMS } from "./types";
-import {
-    MAIN_SPRING,
-    PAGE_SPRING,
-    DRAG_UP_VELOCITY_THRESHOLD,
-    DRAG_UP_DISTANCE_RATIO,
-    GALLERY_PAGE_THRESHOLD,
-    GALLERY_DISMISS_VELOCITY,
-    RUBBER_BAND_K,
-    DRAG_DECAY,
-} from "./constants";
+import { MAIN_SPRING, PAGE_SPRING, RUBBER_BAND_K, DRAG_DECAY } from "./constants";
 import { railItemW, railLeftOf, maxRailScroll } from "./utils";
 import { GalleryItem } from "./GalleryItem";
 import { GalleryDetail } from "./GalleryDetail";
@@ -104,25 +95,37 @@ export function GalleryShell({
     const [, setRectVersion] = useState(0);
 
     useLayoutEffect(() => {
-        if (containerRef.current) {
-            const r = containerRef.current.getBoundingClientRect();
+        const el = containerRef.current;
+        if (!el) return;
+        const measure = () => {
+            const r = el.getBoundingClientRect();
             const prev = containerRectRef.current;
-            containerRectRef.current = {
-                left: r.left,
-                bottom: r.bottom,
-                width: r.width,
-                height: r.height,
-            };
             if (
                 prev.height !== r.height ||
                 prev.width !== r.width ||
                 prev.left !== r.left ||
                 prev.bottom !== r.bottom
             ) {
+                containerRectRef.current = {
+                    left: r.left,
+                    bottom: r.bottom,
+                    width: r.width,
+                    height: r.height,
+                };
                 setRectVersion((v) => v + 1);
             }
-        }
-    });
+        };
+        measure();
+        const ro = new ResizeObserver(measure);
+        ro.observe(el);
+        window.addEventListener("resize", measure);
+        window.addEventListener("scroll", measure, { passive: true });
+        return () => {
+            ro.disconnect();
+            window.removeEventListener("resize", measure);
+            window.removeEventListener("scroll", measure);
+        };
+    }, []);
 
     // For direct nav (initialItem set), once vw resolves position the
     // page-level x offset so the correct item is centered. openProgress
@@ -274,6 +277,7 @@ export function GalleryShell({
                 if (idx != null && !openRef.current) openGallery(idx);
             } else if (openRef.current) {
                 setOpen(false);
+                setShowDetail(false);
                 openRef.current = false;
                 openProgress.set(0);
                 galleryDragX.jump(0);
@@ -313,14 +317,9 @@ export function GalleryShell({
         }
     }, [vw, vh, galleryPageX, galleryDragX, railOffset, items]);
 
-    // Show overlay once the opening spring settles; hide immediately on close.
-    useEffect(() => {
-        if (open && directNavRef.current) {
-            setShowDetail(true);
-        } else if (!open) {
-            setShowDetail(false);
-        }
-    }, [open]);
+    // showDetail is set true via animate's onComplete in openGallery (animated
+    // open) or initialized true via useState(isWorkDirectNav) (direct nav).
+    // Close paths set it false inline (closeGallery and the popstate handler).
 
     // Swap the home view (with the morphing rail item) for the gallery
     // detail (with the hero at its final position) once the spring is
@@ -331,10 +330,6 @@ export function GalleryShell({
     // showDetail is now driven by animate's onComplete (in openGallery).
     // For direct nav, the openProgress is initialized to 1 and showDetail
     // to true so we never need a threshold-based swap here.
-
-    // Unmount home view (HeroBio + rail) when fully in gallery view.
-    // During animations both views coexist for smooth transitions.
-    const showHomeView = !(open && showDetail);
 
     // Rail scroll wheel handler (only when closed — overlay handles wheel when open)
     useEffect(() => {
@@ -401,7 +396,7 @@ export function GalleryShell({
             };
             momentumRef.current = requestAnimationFrame(tick);
         },
-        [railOffset, vw, vh, items],
+        [railOffset, items],
     );
 
     const stopMomentum = useCallback(() => {
@@ -474,36 +469,32 @@ export function GalleryShell({
                 }
             }
         },
-        [galleryDragX, openProgress, railOffset, vw, vh, centerRailOn, items],
+        [railOffset, centerRailOn, items],
     );
 
-    function findTappedItem(
-        screenX: number,
-        screenY: number,
-        scrollOff: number,
-    ) {
-        const rect = containerRef.current?.getBoundingClientRect();
-        if (!rect) return -1;
-        const localX = screenX - rect.left;
-        const localY = screenY - rect.top;
-        for (let i = 0; i < items.length; i++) {
-            const left = railLeftOf(items, i, rect.height) + scrollOff;
-            const w = railItemW(items, i, rect.height);
-            const itemTop = rect.height * (1 - items[i].railH);
-            if (localX >= left && localX <= left + w && localY >= itemTop)
-                return i;
-        }
-        return -1;
-    }
+    const findTappedItem = useCallback(
+        (screenX: number, screenY: number, scrollOff: number) => {
+            const rect = containerRef.current?.getBoundingClientRect();
+            if (!rect) return -1;
+            const localX = screenX - rect.left;
+            const localY = screenY - rect.top;
+            for (let i = 0; i < items.length; i++) {
+                const left = railLeftOf(items, i, rect.height) + scrollOff;
+                const w = railItemW(items, i, rect.height);
+                const itemTop = rect.height * (1 - items[i].railH);
+                if (localX >= left && localX <= left + w && localY >= itemTop)
+                    return i;
+            }
+            return -1;
+        },
+        [items],
+    );
 
     const onPointerUp = useCallback(
         (e: React.PointerEvent) => {
             if (!isDraggingRef.current) return;
             isDraggingRef.current = false;
-            const dx = e.clientX - dragStartRef.current.x;
-            const dy = e.clientY - dragStartRef.current.y;
             const vx = velocityRef.current.x;
-            const vy = velocityRef.current.y;
 
             if (!didDragRef.current) {
                 if (openRef.current) {
@@ -530,21 +521,19 @@ export function GalleryShell({
             }
             dragAxisRef.current = null;
         },
-        [
-            vw,
-            vh,
-            closeGallery,
-            openGallery,
-            openProgress,
-            galleryDragX,
-            startMomentum,
-            railOffset,
-        ],
+        [openGallery, startMomentum, railOffset, items, findTappedItem],
     );
 
     return (
         <GalleryContext.Provider
-            value={{ open, openSpring, aboutOpen, openAbout, closeAbout }}
+            value={{
+                open,
+                openSpring,
+                aboutOpen,
+                openAbout,
+                closeAbout,
+                containerRectRef,
+            }}
         >
             {/* Back button — fixed, outside both views */}
             <motion.button
@@ -620,7 +609,6 @@ export function GalleryShell({
                                 galleryDragX={galleryDragX}
                                 galleryDragY={galleryDragY}
                                 dragOnImageRef={dragOnImageRef}
-                                containerRectRef={containerRectRef}
                                 onFocusItem={() => centerRailOn(i, true)}
                                 onActivate={() => {
                                     const canonical = item.canonical;
@@ -641,7 +629,7 @@ export function GalleryShell({
                     <AboutModal
                         open={aboutOpen}
                         onClose={closeAbout}
-                        directNav={aboutDirectNavRef.current}
+                        directNav={initialAbout}
                     />
                 </div>
             </div>
