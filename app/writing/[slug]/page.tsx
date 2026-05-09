@@ -48,6 +48,7 @@ export default async function WritingPostPage({ params }: PageProps) {
             date={post.date}
             readingTime={post.readingTime}
             mdxSource={post.mdxSource}
+            headings={post.headings}
             prev={neighbors.prev}
             next={neighbors.next}
         />

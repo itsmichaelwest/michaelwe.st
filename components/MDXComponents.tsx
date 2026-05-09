@@ -3,18 +3,27 @@ import Link from "next/link";
 import { MDXImage } from "./MDXImage";
 
 export const components: MDXComponents = {
-    h1: ({ children }) => (
-        <h1 className="text-4xl font-semibold tracking-tight text-balance mt-12 mb-4">
+    h1: ({ children, id }) => (
+        <h1
+            id={id}
+            className="scroll-mt-24 text-4xl font-semibold tracking-tight text-balance mt-12 mb-4"
+        >
             {children}
         </h1>
     ),
-    h2: ({ children }) => (
-        <h2 className="text-3xl font-semibold tracking-tight text-balance mt-10 mb-3">
+    h2: ({ children, id }) => (
+        <h2
+            id={id}
+            className="scroll-mt-24 text-3xl font-semibold tracking-tight text-balance mt-10 mb-3"
+        >
             {children}
         </h2>
     ),
-    h3: ({ children }) => (
-        <h3 className="text-lg font-semibold text-heading mt-8 mb-2">
+    h3: ({ children, id }) => (
+        <h3
+            id={id}
+            className="scroll-mt-24 text-lg font-semibold text-heading mt-8 mb-2"
+        >
             {children}
         </h3>
     ),

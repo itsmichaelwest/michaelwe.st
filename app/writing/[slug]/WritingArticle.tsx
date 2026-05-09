@@ -3,7 +3,9 @@
 import { format } from "date-fns";
 import { TransitionLink } from "../../../components/TransitionLink";
 import { WritingBody } from "./WritingBody";
+import { WritingTOC } from "./WritingTOC";
 import type { SerializeResult } from "next-mdx-remote-client/serialize";
+import type { TOCHeading } from "../../../lib/rehypeWritingHeadings";
 
 interface NeighborPost {
     slug: string;
@@ -15,6 +17,7 @@ interface WritingArticleProps {
     date: string;
     readingTime: number;
     mdxSource: SerializeResult;
+    headings: TOCHeading[];
     prev?: NeighborPost;
     next?: NeighborPost;
 }
@@ -45,34 +48,40 @@ export function WritingArticle({
     date,
     readingTime,
     mdxSource,
+    headings,
     prev,
     next,
 }: WritingArticleProps) {
     return (
-        <main className="mx-auto max-w-[80ch] px-6 py-16">
-            <TransitionLink
-                href="/writing"
-                direction="back"
-                className="group inline-flex items-center gap-1.5 font-mono text-sm text-muted transition-colors duration-200 ease-out hover:text-secondary active:scale-[0.97]"
-            >
-                <BackArrow />
-                Writing
-            </TransitionLink>
+        <>
+            <WritingTOC title={title} headings={headings} />
+            <main className="mx-auto max-w-[80ch] px-6 py-16">
+                <TransitionLink
+                    href="/writing"
+                    direction="back"
+                    className="group inline-flex items-center gap-1.5 font-mono text-sm text-muted transition-colors duration-200 ease-out hover:text-secondary active:scale-[0.97] min-[1200px]:hidden"
+                >
+                    <BackArrow />
+                    Writing
+                </TransitionLink>
 
-            <header className="mt-8 mb-12">
-                <h1 className="font-mono text-3xl font-semibold tracking-tight text-heading text-balance">
-                    {title}
-                </h1>
-                <p className="mt-3 font-mono text-sm text-muted tabular-nums">
-                    {date && (
-                        <time dateTime={date}>
-                            {format(new Date(date), "MMM d, yyyy")}
-                        </time>
-                    )}
-                    {" · "}
-                    {readingTime} min read
-                </p>
-            </header>
+                <header
+                    id="writing-header"
+                    className="mt-8 mb-12 min-[1200px]:mt-0"
+                >
+                    <h1 className="font-mono text-3xl font-semibold tracking-tight text-heading text-balance">
+                        {title}
+                    </h1>
+                    <p className="mt-3 font-mono text-sm text-muted tabular-nums">
+                        {date && (
+                            <time dateTime={date}>
+                                {format(new Date(date), "MMM d, yyyy")}
+                            </time>
+                        )}
+                        {" · "}
+                        {readingTime} min read
+                    </p>
+                </header>
 
             <article className="mt-12">
                 <WritingBody source={mdxSource} />
@@ -110,6 +119,7 @@ export function WritingArticle({
                     )}
                 </nav>
             )}
-        </main>
+            </main>
+        </>
     );
 }
