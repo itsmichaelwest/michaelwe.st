@@ -100,20 +100,22 @@ export function GalleryShell({
         const measure = () => {
             const r = el.getBoundingClientRect();
             const prev = containerRectRef.current;
-            if (
-                prev.height !== r.height ||
-                prev.width !== r.width ||
-                prev.left !== r.left ||
-                prev.bottom !== r.bottom
-            ) {
-                containerRectRef.current = {
-                    left: r.left,
-                    bottom: r.bottom,
-                    width: r.width,
-                    height: r.height,
-                };
-                setRectVersion((v) => v + 1);
-            }
+            const sizeChanged =
+                prev.height !== r.height || prev.width !== r.width;
+            const positionChanged =
+                prev.left !== r.left || prev.bottom !== r.bottom;
+            if (!sizeChanged && !positionChanged) return;
+            containerRectRef.current = {
+                left: r.left,
+                bottom: r.bottom,
+                width: r.width,
+                height: r.height,
+            };
+            // Position-only changes (e.g. page scroll) are read live by
+            // motion's useTransform callbacks via the ref — they don't
+            // need a React re-render. Only re-render on size changes,
+            // which feed values consumed in GalleryItem's render body.
+            if (sizeChanged) setRectVersion((v) => v + 1);
         };
         measure();
         const ro = new ResizeObserver(measure);
@@ -609,6 +611,14 @@ export function GalleryShell({
                                 galleryDragX={galleryDragX}
                                 galleryDragY={galleryDragY}
                                 dragOnImageRef={dragOnImageRef}
+                                // LCP: on the home rail the leftmost item is
+                                // the LCP candidate; mark a few neighbors
+                                // eager so they don't lazy-defer above the
+                                // fold. On direct nav the rail is invisible
+                                // (the GalleryDetail hero owns LCP) so we
+                                // skip priority/eager hints here entirely.
+                                priority={!isWorkDirectNav && i === 0}
+                                eager={!isWorkDirectNav && i > 0 && i < 4}
                                 onFocusItem={() => centerRailOn(i, true)}
                                 onActivate={() => {
                                     const canonical = item.canonical;

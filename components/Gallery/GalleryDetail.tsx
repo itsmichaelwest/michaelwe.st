@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { motion, useReducedMotion, type MotionValue } from "motion/react";
 import Image from "next/image";
 import { MDXClient } from "next-mdx-remote-client";
@@ -31,6 +31,17 @@ export function GalleryDetail({
     useEffect(() => {
         window.scrollTo(0, 0);
     }, [current]);
+
+    // Memoize the MDXClient element so it's not rebuilt on every parent
+    // re-render. MDXClient calls runSync() each render, which returns a
+    // brand-new Content component reference — without memoization, any
+    // re-render of GalleryDetail (resize, state churn) unmounts and remounts
+    // the entire MDX subtree, restarting MDXImage's blur-up transition and
+    // visually flashing every image.
+    const mdxContent = useMemo(() => {
+        if (!item.mdxSource || "error" in item.mdxSource) return null;
+        return <MDXClient {...item.mdxSource} components={components} />;
+    }, [item.mdxSource]);
 
     return (
         <div
@@ -64,6 +75,7 @@ export function GalleryDetail({
                         alt={item.imgAlt ?? ""}
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+                        priority
                         className="object-cover pointer-events-none"
                     />
                 ) : (
@@ -116,9 +128,7 @@ export function GalleryDetail({
                     )}
                 </div>
                 {item.noMSFT && <NoMSFTDisclaimer title={item.title} />}
-                {item.mdxSource && !("error" in item.mdxSource) && (
-                    <MDXClient {...item.mdxSource} components={components} />
-                )}
+                {mdxContent}
                 <Footer />
             </motion.div>
         </div>
