@@ -1,8 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { format } from "date-fns";
 import { TransitionLink } from "../../components/TransitionLink";
 import type { IWritingPost } from "../../lib/writing";
+
+const EASE = "cubic-bezier(0.32, 0.72, 0, 1)";
+const DURATION = 280;
 
 interface YearGroup {
     year: number;
@@ -31,7 +35,6 @@ function BackArrow() {
             viewBox="0 0 12 12"
             fill="none"
             aria-hidden="true"
-            className="transition-transform duration-200 ease-out group-hover:-translate-x-0.5"
         >
             <path
                 d="M7.5 2.5L4 6L7.5 9.5"
@@ -44,23 +47,57 @@ function BackArrow() {
     );
 }
 
+function HomeBackLinkFixed() {
+    const [hovered, setHovered] = useState(false);
+    return (
+        <aside
+            className="fixed top-16 left-6 z-30 hidden md:block"
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+        >
+            <TransitionLink
+                href="/"
+                direction="fade"
+                className="inline-flex h-9 items-center font-mono text-[13px] text-muted transition-colors duration-200 ease-out hover:text-secondary"
+            >
+                <BackArrow />
+                <span
+                    className="overflow-hidden whitespace-nowrap"
+                    style={{
+                        maxWidth: hovered ? 80 : 0,
+                        marginLeft: hovered ? 6 : 0,
+                        opacity: hovered ? 1 : 0,
+                        transition: `max-width ${DURATION}ms ${EASE}, margin-left ${DURATION}ms ${EASE}, opacity ${DURATION}ms ${EASE}`,
+                    }}
+                >
+                    Home
+                </span>
+            </TransitionLink>
+        </aside>
+    );
+}
+
 export function WritingList({ posts }: { posts: IWritingPost[] }) {
     const groups = groupByYear(posts);
 
     return (
-        <main className="mx-auto max-w-[80ch] px-6 py-16">
-            <TransitionLink
-                href="/"
-                direction="fade"
-                className="group inline-flex items-center gap-1.5 font-mono text-sm text-muted transition-colors duration-200 ease-out hover:text-secondary active:scale-[0.97]"
-            >
-                <BackArrow />
-                Home
-            </TransitionLink>
+        <>
+            <HomeBackLinkFixed />
+            <main className="mx-auto max-w-[80ch] px-6 py-16 md:max-w-[64ch]">
+                <TransitionLink
+                    href="/"
+                    direction="fade"
+                    className="group mb-6 inline-flex items-center gap-1.5 font-mono text-sm text-muted transition-colors duration-200 ease-out hover:text-secondary md:hidden"
+                >
+                    <span className="transition-transform duration-200 ease-out group-hover:-translate-x-0.5">
+                        <BackArrow />
+                    </span>
+                    Home
+                </TransitionLink>
 
-            <h1 className="mt-4 font-mono text-3xl font-semibold tracking-tight text-heading">
-                Writing
-            </h1>
+                <h1 className="font-mono text-3xl font-semibold tracking-tight text-heading">
+                    Writing
+                </h1>
 
             {posts.length === 0 ? (
                 <p className="mt-8 text-muted">Nothing here yet.</p>
@@ -110,6 +147,7 @@ export function WritingList({ posts }: { posts: IWritingPost[] }) {
                     ))}
                 </div>
             )}
-        </main>
+            </main>
+        </>
     );
 }

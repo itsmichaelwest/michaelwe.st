@@ -12,16 +12,6 @@ interface NeighborPost {
     title: string;
 }
 
-interface WritingArticleProps {
-    title: string;
-    date: string;
-    readingTime: number;
-    mdxSource: SerializeResult;
-    headings: TOCHeading[];
-    prev?: NeighborPost;
-    next?: NeighborPost;
-}
-
 function BackArrow() {
     return (
         <svg
@@ -43,6 +33,16 @@ function BackArrow() {
     );
 }
 
+interface WritingArticleProps {
+    title: string;
+    date: string;
+    readingTime: number;
+    mdxSource: SerializeResult;
+    headings: TOCHeading[];
+    prev?: NeighborPost;
+    next?: NeighborPost;
+}
+
 export function WritingArticle({
     title,
     date,
@@ -55,20 +55,17 @@ export function WritingArticle({
     return (
         <>
             <WritingTOC title={title} headings={headings} />
-            <main className="mx-auto max-w-[80ch] px-6 py-16">
+            <main className="mx-auto max-w-[80ch] px-6 py-16 md:max-w-[64ch]">
                 <TransitionLink
                     href="/writing"
                     direction="back"
-                    className="group inline-flex items-center gap-1.5 font-mono text-sm text-muted transition-colors duration-200 ease-out hover:text-secondary active:scale-[0.97] min-[1200px]:hidden"
+                    className="group mb-6 inline-flex items-center gap-1.5 font-mono text-sm text-muted transition-colors duration-200 ease-out hover:text-secondary md:hidden"
                 >
                     <BackArrow />
                     Writing
                 </TransitionLink>
 
-                <header
-                    id="writing-header"
-                    className="mt-8 mb-12 min-[1200px]:mt-0"
-                >
+                <header id="writing-header" className="mb-12">
                     <h1 className="font-mono text-3xl font-semibold tracking-tight text-heading text-balance">
                         {title}
                     </h1>
