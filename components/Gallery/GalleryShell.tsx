@@ -459,15 +459,7 @@ export function GalleryShell({
                 }
             }
         },
-        [
-            galleryDragX,
-            openProgress,
-            railOffset,
-            vw,
-            vh,
-            centerRailOn,
-            items,
-        ],
+        [galleryDragX, openProgress, railOffset, vw, vh, centerRailOn, items],
     );
 
     function findTappedItem(
@@ -544,7 +536,7 @@ export function GalleryShell({
             {/* Back button — fixed, outside both views */}
             <motion.button
                 className={clsx(
-                    "fixed top-4 left-4 z-[53] size-10 flex items-center justify-center p-0 rounded-full bg-[#EEE]/80 dark:bg-gray-800/80 backdrop-blur-2xl border-none cursor-pointer active:scale-96 transition-transform duration-100 text-[#333] dark:text-gray-200",
+                    "group fixed top-6 left-6 z-[53] inline-flex h-9 items-center border-none bg-transparent p-0 font-mono text-[13px] text-muted transition-colors duration-200 ease-out hover:text-secondary",
                     open ? "pointer-events-auto" : "pointer-events-none",
                 )}
                 tabIndex={open ? 0 : -1}
@@ -553,15 +545,24 @@ export function GalleryShell({
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={closeGallery}
             >
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    aria-hidden="true"
+                >
                     <path
-                        d="M11 3L5 9L11 15"
+                        d="M7.5 2.5L4 6L7.5 9.5"
                         stroke="currentColor"
-                        strokeWidth="2"
+                        strokeWidth="1.5"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                     />
                 </svg>
+                <span className="ml-0 max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-[max-width,margin-left,opacity] duration-280 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:ml-1.5 group-hover:max-w-[60px] group-hover:opacity-100">
+                    Back
+                </span>
             </motion.button>
 
             {/* Home view — centered viewport, goes invisible when detail is active */}
