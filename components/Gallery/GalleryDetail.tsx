@@ -91,7 +91,7 @@ export function GalleryDetail({
                             {item.year}
                         </p>
                     )}
-                    <h2 className="font-mono font-semibold tracking-tight text-2xl text-balance">
+                    <h2 className="font-semibold tracking-tight text-2xl text-balance">
                         {item.title}
                     </h2>
                     <p className="text-muted text-pretty">{item.subtitle}</p>

@@ -39,10 +39,10 @@ export function HeroBio() {
                         alt="Photo of Michael"
                     />
                     <div className="-space-y-1">
-                        <h1 className="font-mono font-semibold tracking-tight text-balance">
+                        <h1 className="font-semibold tracking-tight text-balance">
                             Michael West
                         </h1>
-                        <p className="font-mono text-sm text-muted">
+                        <p className="text-sm text-muted">
                             Senior Designer at Microsoft
                         </p>
                     </div>

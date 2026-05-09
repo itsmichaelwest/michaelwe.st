@@ -95,7 +95,7 @@ export function WritingList({ posts }: { posts: IWritingPost[] }) {
                     Home
                 </TransitionLink>
 
-                <h1 className="font-mono text-3xl font-semibold tracking-tight text-heading">
+                <h1 className="text-3xl font-semibold tracking-tight text-heading">
                     Writing
                 </h1>
 
@@ -119,7 +119,7 @@ export function WritingList({ posts }: { posts: IWritingPost[] }) {
                                             direction="forward"
                                             className="group block -mx-3 rounded-lg px-3 py-4 transition-[background-color,transform] duration-200 ease-out hover:bg-gray-50 dark:hover:bg-gray-800/60 active:scale-[0.99] active:bg-gray-100 dark:active:bg-gray-700/60"
                                         >
-                                            <h3 className="font-mono font-medium text-heading text-balance">
+                                            <h3 className="font-medium text-heading text-balance">
                                                 {post.title}
                                             </h3>
                                             {post.description && (

@@ -66,7 +66,7 @@ export function WritingArticle({
                 </TransitionLink>
 
                 <header id="writing-header" className="mb-12">
-                    <h1 className="font-mono text-3xl font-semibold tracking-tight text-heading text-balance">
+                    <h1 className="text-3xl font-semibold tracking-tight text-heading text-balance">
                         {title}
                     </h1>
                     <p className="mt-3 font-mono text-sm text-muted tabular-nums">
@@ -95,7 +95,7 @@ export function WritingArticle({
                             <p className="font-mono text-xs text-muted">
                                 Newer
                             </p>
-                            <p className="mt-1 font-mono text-sm font-medium text-heading text-balance">
+                            <p className="mt-1 text-sm font-medium text-heading text-balance">
                                 {next.title}
                             </p>
                         </TransitionLink>
@@ -109,7 +109,7 @@ export function WritingArticle({
                             <p className="font-mono text-xs text-muted">
                                 Older
                             </p>
-                            <p className="mt-1 font-mono text-sm font-medium text-heading text-balance">
+                            <p className="mt-1 text-sm font-medium text-heading text-balance">
                                 {prev.title}
                             </p>
                         </TransitionLink>
