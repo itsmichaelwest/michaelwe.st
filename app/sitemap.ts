@@ -20,7 +20,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     return [
         { url: baseUrl, lastModified: new Date() },
         { url: `${baseUrl}/about`, lastModified: new Date() },
-        { url: `${baseUrl}/writing`, lastModified: new Date() },
+        ...(writingItems.length > 0
+            ? [{ url: `${baseUrl}/writing`, lastModified: new Date() }]
+            : []),
         ...workItems,
         ...writingItems,
     ];

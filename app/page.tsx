@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getGalleryItems } from "../lib/getGalleryProps";
 import { GalleryShell } from "../components/Gallery";
 import { HeroBio } from "../components/HeroBio";
+import { hasWritingPosts } from "../lib/writing";
 
 export const metadata: Metadata = {
     title: "Michael",
@@ -12,7 +13,7 @@ export default async function Home() {
     const items = await getGalleryItems();
     return (
         <GalleryShell items={items}>
-            <HeroBio />
+            <HeroBio showWriting={hasWritingPosts()} />
         </GalleryShell>
     );
 }

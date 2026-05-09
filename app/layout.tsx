@@ -5,6 +5,7 @@ import { Inter } from "next/font/google";
 import "@fontsource/commit-mono/400.css";
 import "@fontsource/commit-mono/600.css";
 import siteMetadata from "../siteMetadata";
+import { hasWritingPosts } from "../lib/writing";
 import "../styles/global.css";
 
 const inter = Inter({
@@ -64,12 +65,14 @@ export default function RootLayout({
                         __html: JSON.stringify(jsonLd),
                     }}
                 />
-                <link
-                    rel="alternate"
-                    type="application/rss+xml"
-                    title="Michael — Writing"
-                    href="/writing/feed.xml"
-                />
+                {hasWritingPosts() && (
+                    <link
+                        rel="alternate"
+                        type="application/rss+xml"
+                        title="Michael — Writing"
+                        href="/writing/feed.xml"
+                    />
+                )}
             </head>
             <body>
                 <a

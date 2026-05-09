@@ -27,6 +27,9 @@ function siteUrl(): string {
 export function GET() {
     const base = siteUrl();
     const posts = getSortedWritingData();
+    if (posts.length === 0) {
+        return new Response(null, { status: 404 });
+    }
     const { title, author } = siteMetadata;
 
     const items = posts

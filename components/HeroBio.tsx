@@ -8,7 +8,11 @@ import { useGallery } from "./Gallery/GalleryContext";
 import Link from "next/link";
 import { TransitionLink } from "./TransitionLink";
 
-export function HeroBio() {
+interface HeroBioProps {
+    showWriting?: boolean;
+}
+
+export function HeroBio({ showWriting = false }: HeroBioProps) {
     const { open, openAbout } = useGallery();
     const reducedMotion = useReducedMotion();
 
@@ -66,13 +70,15 @@ export function HeroBio() {
                 </div>
             </div>
             <div className="flex flex-col items-start md:items-end font-mono text-sm text-muted">
-                <TransitionLink
-                    className="hover:underline cursor-pointer bg-transparent border-none p-0 text-inherit"
-                    href="/writing"
-                    direction="fade"
-                >
-                    Writing
-                </TransitionLink>
+                {showWriting && (
+                    <TransitionLink
+                        className="hover:underline cursor-pointer bg-transparent border-none p-0 text-inherit"
+                        href="/writing"
+                        direction="fade"
+                    >
+                        Writing
+                    </TransitionLink>
+                )}
                 <Link
                     className="hover:underline cursor-pointer bg-transparent border-none p-0 text-inherit"
                     href="https://x.com/itsmichaelwest"

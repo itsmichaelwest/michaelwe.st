@@ -6,6 +6,19 @@ import type { TOCHeading } from "./rehypeWritingHeadings";
 
 const writingDirectory = path.join(process.cwd(), "content/writing");
 
+function readWritingFileNames(): string[] {
+    try {
+        return fs.readdirSync(writingDirectory);
+    } catch (err) {
+        if ((err as NodeJS.ErrnoException).code === "ENOENT") return [];
+        throw err;
+    }
+}
+
+export function hasWritingPosts(): boolean {
+    return readWritingFileNames().some((f) => f.endsWith(".md"));
+}
+
 export interface IWritingPost {
     slug: string;
     title: string;
@@ -23,7 +36,7 @@ export function getReadingTime(content: string): number {
 }
 
 export function getSortedWritingData(): IWritingPost[] {
-    const fileNames = fs.readdirSync(writingDirectory);
+    const fileNames = readWritingFileNames();
 
     const posts: IWritingPost[] = fileNames
         .filter((f) => f.endsWith(".md"))
@@ -49,7 +62,7 @@ export function getSortedWritingData(): IWritingPost[] {
 }
 
 export function getAllWritingSlugs(): { params: { slug: string } }[] {
-    const fileNames = fs.readdirSync(writingDirectory);
+    const fileNames = readWritingFileNames();
     return fileNames
         .filter((f) => f.endsWith(".md"))
         .map((fileName) => ({

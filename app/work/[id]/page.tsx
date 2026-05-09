@@ -3,6 +3,7 @@ import { getAllPostIds, getPostData } from "../../../lib/work";
 import { getGalleryItems } from "../../../lib/getGalleryProps";
 import { GalleryShell } from "../../../components/Gallery";
 import { HeroBio } from "../../../components/HeroBio";
+import { hasWritingPosts } from "../../../lib/writing";
 
 // MIGRATED: Removed `export const dynamicParams = false` — incompatible with cacheComponents.
 // generateStaticParams still defines the valid set; unknown IDs will 404 via file-read error.
@@ -81,7 +82,7 @@ export default async function WorkPage({
                 }}
             />
             <GalleryShell items={items} initialItem={id}>
-                <HeroBio />
+                <HeroBio showWriting={hasWritingPosts()} />
             </GalleryShell>
         </>
     );

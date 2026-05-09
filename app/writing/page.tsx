@@ -1,4 +1,5 @@
-import { getSortedWritingData } from "../../lib/writing";
+import { notFound } from "next/navigation";
+import { getSortedWritingData, hasWritingPosts } from "../../lib/writing";
 import { WritingList } from "./WritingList";
 import type { Metadata } from "next";
 
@@ -8,6 +9,8 @@ export const metadata: Metadata = {
 };
 
 export default function WritingPage() {
+    if (!hasWritingPosts()) notFound();
+
     const posts = getSortedWritingData();
 
     return <WritingList posts={posts} />;
