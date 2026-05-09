@@ -1,5 +1,5 @@
 @import "tailwindcss";
-/* Removed @tailwindcss/typography plugin; using custom content styles instead */
+/* Custom content styles below — typography plugin is not installed. */
 
 /* Tailwind v4 theme tokens migrated from tailwind.config.js */
 @theme {
@@ -12,6 +12,9 @@
         var(--font-inter), Inter, ui-sans-serif, system-ui, Arial,
         "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
         "Noto Color Emoji";
+    --font-mono:
+        "Commit Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
 
     /* Custom brand colors */
     --color-twitter: #1da1f2;
@@ -70,29 +73,149 @@
     color: var(--semantic-text-muted);
 }
 
-/* @media (prefers-color-scheme: dark) {
-  .text-heading { color: var(--semantic-text-heading-dark); }
-  .text-primary { color: var(--semantic-text-primary-dark); }
-  .text-secondary { color: var(--semantic-text-secondary-dark); }
-  .text-muted { color: var(--semantic-text-muted-dark); }
+@media (prefers-color-scheme: dark) {
+    .text-heading {
+        color: var(--semantic-text-heading-dark);
+    }
+    .text-primary {
+        color: var(--semantic-text-primary-dark);
+    }
+    .text-secondary {
+        color: var(--semantic-text-secondary-dark);
+    }
+    .text-muted {
+        color: var(--semantic-text-muted-dark);
+    }
 }
 
-@media (prefers-color-scheme: light) {
-    html,
-    body {
-        background-color: #fff;
+:root {
+    color-scheme: light dark;
+    --backdrop-rgb: 255 255 255;
+    /* Reserve scrollbar space at all times so width doesn't shift between
+       short pages (gallery rail) and tall pages (gallery detail, writing). */
+    scrollbar-gutter: stable both-edges;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --backdrop-rgb: 10 10 10;
     }
+}
+
+html,
+body {
+    background-color: #fff;
+    color: var(--color-gray-900);
+    /* clip rather than hidden so body doesn't become its own scroll
+       container, which would conflict with scrollbar-gutter on :root */
+    overflow-x: clip;
 }
 
 @media (prefers-color-scheme: dark) {
     html,
     body {
-        background-color: #000;
+        background-color: #0a0a0a;
+        color: var(--color-gray-100);
     }
-} */
+}
 
-html,
-body {
-    background-color: #fff;
-    overflow-x: hidden;
+/* Page transitions for the writing section.
+   Driven by data-view-transition on <html>, set by TransitionLink.
+   Direct URL loads don't trigger startViewTransition, so they bypass entirely. */
+::view-transition-old(root) {
+    animation: 450ms cubic-bezier(0.32, 0.72, 0, 1) both page-out-left;
+}
+::view-transition-new(root) {
+    animation: 450ms cubic-bezier(0.32, 0.72, 0, 1) both page-in-right;
+}
+
+:root[data-view-transition="back"]::view-transition-old(root) {
+    animation: 450ms cubic-bezier(0.32, 0.72, 0, 1) both page-out-right;
+}
+:root[data-view-transition="back"]::view-transition-new(root) {
+    animation: 450ms cubic-bezier(0.32, 0.72, 0, 1) both page-in-left;
+}
+
+/* Fade-through: pure cross-fade with subtle blur, no directional slide */
+:root[data-view-transition="fade"]::view-transition-old(root) {
+    animation: 350ms cubic-bezier(0.32, 0.72, 0, 1) both page-fade-out;
+}
+:root[data-view-transition="fade"]::view-transition-new(root) {
+    animation: 350ms cubic-bezier(0.32, 0.72, 0, 1) both page-fade-in;
+}
+
+@keyframes page-in-right {
+    from {
+        transform: translateX(3%);
+        opacity: 0;
+        filter: blur(2px);
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+        filter: blur(0);
+    }
+}
+@keyframes page-out-left {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+        filter: blur(0);
+    }
+    to {
+        transform: translateX(-3%);
+        opacity: 0;
+        filter: blur(2px);
+    }
+}
+@keyframes page-in-left {
+    from {
+        transform: translateX(-3%);
+        opacity: 0;
+        filter: blur(2px);
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+        filter: blur(0);
+    }
+}
+@keyframes page-out-right {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+        filter: blur(0);
+    }
+    to {
+        transform: translateX(3%);
+        opacity: 0;
+        filter: blur(2px);
+    }
+}
+@keyframes page-fade-in {
+    from {
+        opacity: 0;
+        filter: blur(2px);
+    }
+    to {
+        opacity: 1;
+        filter: blur(0);
+    }
+}
+@keyframes page-fade-out {
+    from {
+        opacity: 1;
+        filter: blur(0);
+    }
+    to {
+        opacity: 0;
+        filter: blur(2px);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+        animation-duration: 0ms !important;
+    }
 }

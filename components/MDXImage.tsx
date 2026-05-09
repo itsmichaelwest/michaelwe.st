@@ -1,0 +1,200 @@
+"use client";
+
+import Image from "next/image";
+import { useEffect, useId, useRef, useState } from "react";
+import {
+    motion,
+    AnimatePresence,
+    useReducedMotion,
+    type Transition,
+} from "motion/react";
+import { createPortal } from "react-dom";
+import clsx from "clsx";
+
+interface MDXImageProps {
+    src: string;
+    alt?: string;
+    height?: number | string;
+    width?: number | string;
+}
+
+export function MDXImage({ src, alt = "", height, width }: MDXImageProps) {
+    const [loaded, setLoaded] = useState(false);
+    const [lightboxLoaded, setLightboxLoaded] = useState(false);
+    const [open, setOpen] = useState(false);
+    const [mounted, setMounted] = useState(false);
+    const fallbackRef = useRef<HTMLImageElement>(null);
+    const lightboxRef = useRef<HTMLImageElement>(null);
+    const reducedMotion = useReducedMotion();
+    const id = useId();
+    const layoutId = `mdx-image-${id}`;
+
+    // Canonical "render after mount" pattern — needed so the portal target
+    // (document.body) is only used on the client.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    useEffect(() => setMounted(true), []);
+
+    useEffect(() => {
+        // The Image's `onLoad` doesn't fire when the browser has the image
+        // cached, so we mirror its `complete` flag once after mount.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        if (fallbackRef.current?.complete) setLoaded(true);
+    }, []);
+
+    const triggerRef = useRef<HTMLButtonElement>(null);
+    const closeRef = useRef<HTMLButtonElement>(null);
+
+    useEffect(() => {
+        if (!open) return;
+        // Same cached-image dance as the inline thumbnail above.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        if (lightboxRef.current?.complete) setLightboxLoaded(true);
+        const previouslyFocused =
+            document.activeElement instanceof HTMLElement
+                ? document.activeElement
+                : null;
+        // Capture the trigger node now so the cleanup doesn't read a stale
+        // ref after the component re-renders.
+        const triggerNode = triggerRef.current;
+        // Move focus into the dialog. Tab inside the lightbox is naturally
+        // trapped because there is exactly one focusable element (the close
+        // button); a Tab loop would just reselect it.
+        closeRef.current?.focus();
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === "Escape") setOpen(false);
+        };
+        document.addEventListener("keydown", onKey);
+        const prevOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        return () => {
+            document.removeEventListener("keydown", onKey);
+            document.body.style.overflow = prevOverflow;
+            const target = previouslyFocused ?? triggerNode;
+            target?.focus({ preventScroll: true });
+        };
+    }, [open]);
+
+    const ringClasses = "rounded-xl ring ring-black/5 dark:ring-white/10";
+    const loadClasses = clsx(
+        "transition-[filter,opacity] duration-700 ease-out",
+        loaded ? "opacity-100 blur-0" : "opacity-0 blur-md scale-[1.01]",
+    );
+    const lightboxLoadClasses = clsx(
+        "transition-[filter,opacity] duration-500 ease-out",
+        lightboxLoaded ? "opacity-100 blur-0" : "opacity-0 blur-md",
+    );
+
+    const layoutTransition: Transition = reducedMotion
+        ? { duration: 0 }
+        : { type: "spring", stiffness: 280, damping: 32, mass: 0.6 };
+
+    const hasIntrinsic = Boolean(height && width);
+    const aspect = hasIntrinsic
+        ? Number(width) / Number(height)
+        : 16 / 9;
+    const aspectRatioStyle = `${hasIntrinsic ? width : 16} / ${hasIntrinsic ? height : 9}`;
+
+    return (
+        <figure className="my-16 space-y-4">
+            <motion.button
+                ref={triggerRef}
+                type="button"
+                onClick={() => setOpen(true)}
+                layoutId={layoutId}
+                transition={layoutTransition}
+                style={{ aspectRatio: aspectRatioStyle }}
+                className="relative block w-full cursor-zoom-in appearance-none p-0 border-0 bg-transparent"
+                aria-label={
+                    alt ? `View full size: ${alt}` : "View full size"
+                }
+            >
+                <Image
+                    ref={fallbackRef}
+                    src={src}
+                    alt={alt}
+                    fill
+                    sizes="(max-width: 768px) 100vw, min(80ch, 100vw)"
+                    className={clsx(
+                        ringClasses,
+                        loadClasses,
+                        "object-cover",
+                    )}
+                    onLoad={() => setLoaded(true)}
+                />
+            </motion.button>
+
+            {alt && (
+                <figcaption className="text-sm opacity-50">{alt}</figcaption>
+            )}
+
+            {mounted &&
+                createPortal(
+                    <AnimatePresence>
+                        {open && (
+                            <div
+                                role="dialog"
+                                aria-modal="true"
+                                aria-label={alt || "Image"}
+                            >
+                                <motion.div
+                                    key="mdx-scrim"
+                                    className="fixed inset-0 z-[99]"
+                                    initial={{
+                                        backgroundColor:
+                                            "rgb(0 0 0 / 0)",
+                                        backdropFilter: "blur(0px)",
+                                    }}
+                                    animate={{
+                                        backgroundColor:
+                                            "rgb(0 0 0 / 0.6)",
+                                        backdropFilter: "blur(16px)",
+                                    }}
+                                    exit={{
+                                        backgroundColor:
+                                            "rgb(0 0 0 / 0)",
+                                        backdropFilter: "blur(0px)",
+                                    }}
+                                    transition={{
+                                        duration: 0.35,
+                                        ease: "easeOut",
+                                    }}
+                                    onClick={() => setOpen(false)}
+                                    aria-hidden="true"
+                                />
+                                <motion.button
+                                    ref={closeRef}
+                                    key="mdx-lightbox"
+                                    type="button"
+                                    onClick={() => setOpen(false)}
+                                    layoutId={layoutId}
+                                    transition={layoutTransition}
+                                    style={{
+                                        aspectRatio: aspectRatioStyle,
+                                        width: `min(95vw, calc(92vh * ${aspect}))`,
+                                    }}
+                                    className="fixed top-1/2 left-1/2 z-[100] -translate-x-1/2 -translate-y-1/2 cursor-zoom-out appearance-none p-0 border-0 bg-transparent"
+                                    aria-label="Close image"
+                                >
+                                    <Image
+                                        ref={lightboxRef}
+                                        src={src}
+                                        alt={alt}
+                                        fill
+                                        sizes="95vw"
+                                        className={clsx(
+                                            "rounded-xl object-cover",
+                                            lightboxLoadClasses,
+                                        )}
+                                        onLoad={() =>
+                                            setLightboxLoaded(true)
+                                        }
+                                    />
+                                </motion.button>
+                            </div>
+                        )}
+                    </AnimatePresence>,
+                    document.body,
+                )}
+        </figure>
+    );
+}

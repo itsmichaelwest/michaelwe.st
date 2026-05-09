@@ -5,6 +5,10 @@ const siteMetadata = {
             name: "About",
             link: "/about",
         },
+        {
+            name: "Writing",
+            link: "/writing",
+        },
     ],
     siteURL: "https://www.michaelwe.st/",
     description: "Michael is designing things.",

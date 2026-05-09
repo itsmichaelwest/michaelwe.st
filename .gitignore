@@ -27,8 +27,6 @@ next-env.d.ts
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.vercel
-.env*.local
 
-# claude code local settings
-.claude/settings.local.json
+# tooling caches
+.playwright-mcp/

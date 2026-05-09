@@ -12,27 +12,6 @@ module.exports = {
             },
         },
     },
-    async headers() {
-        const mdLink = (href) => ({
-            key: "Link",
-            value: `<${href}>; rel="alternate describedby"; type="text/markdown"`,
-        });
-        const vary = { key: "Vary", value: "Accept" };
-        return [
-            {
-                source: "/",
-                headers: [mdLink("/api/md"), vary],
-            },
-            {
-                source: "/about",
-                headers: [mdLink("/api/md/about"), vary],
-            },
-            {
-                source: "/work/:id",
-                headers: [mdLink("/api/md/work/:id"), vary],
-            },
-        ];
-    },
     async redirects() {
         return [
             {

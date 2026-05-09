@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Inter } from "next/font/google";
+import "@fontsource/commit-mono/400.css";
+import "@fontsource/commit-mono/600.css";
 import siteMetadata from "../siteMetadata";
+import { hasWritingPosts } from "../lib/writing";
 import "../styles/global.css";
 
 const inter = Inter({
@@ -62,10 +65,26 @@ export default function RootLayout({
                         __html: JSON.stringify(jsonLd),
                     }}
                 />
+                {hasWritingPosts() && (
+                    <link
+                        rel="alternate"
+                        type="application/rss+xml"
+                        title="Michael — Writing"
+                        href="/writing/feed.xml"
+                    />
+                )}
             </head>
             <body>
+                <a
+                    href="#content"
+                    className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-md focus:bg-black focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-white dark:focus:bg-white dark:focus:text-black"
+                >
+                    Skip to content
+                </a>
                 <div
-                    className={`overflow-x-hidden ${inter.className} ${inter.variable} font-sans`}
+                    id="content"
+                    tabIndex={-1}
+                    className={`overflow-x-clip outline-none ${inter.className} ${inter.variable} font-sans`}
                 >
                     {children}
                 </div>

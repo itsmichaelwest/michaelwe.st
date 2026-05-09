@@ -33,6 +33,8 @@ export function GalleryItem({
     onActivate,
     onFocusItem,
     title,
+    priority = false,
+    eager = false,
 }: {
     index: number;
     items: ItemData[];
@@ -53,13 +55,19 @@ export function GalleryItem({
     onActivate: () => void;
     onFocusItem: () => void;
     title: string;
+    priority?: boolean;
+    eager?: boolean;
 }) {
-    const { rect } = useGallery();
-    const cH = rect.height;
+    const { containerRectRef } = useGallery();
+    const cH = containerRectRef.current.height;
     const naturalW = itemFullW(items, index, vh);
     const galScale = itemGalleryScale(items, index, vw, vh);
+    // Render-phase reads of cH are safe: GalleryShell's ResizeObserver
+    // bumps setRectVersion on change, re-rendering this component.
+    // eslint-disable-next-line react-hooks/refs
     const sRail = itemRailScale(items, index, cH, vh);
     const originOff = (naturalW * (1 - sRail)) / 2;
+    // eslint-disable-next-line react-hooks/refs
     const myRailLeft = railLeftOf(items, index, cH);
     const isActive = open && index === current;
     const isNearby = !open || Math.abs(index - current) <= 1;
@@ -96,6 +104,7 @@ export function GalleryItem({
                 }
             }
 
+            const rect = containerRectRef.current;
             const railX = myRailLeft - originOff + rail;
             const galX =
                 index * vw +
@@ -159,7 +168,12 @@ export function GalleryItem({
                         alt={imgAlt ?? ""}
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
-                        loading={isActive ? "eager" : "lazy"}
+                        // priority and loading are mutually exclusive in
+                        // next/image — priority implies eager + high fetch
+                        // priority + a preload link.
+                        {...(priority
+                            ? { priority: true }
+                            : { loading: isActive || eager ? "eager" : "lazy" })}
                         className="absolute inset-0 object-cover pointer-events-none"
                     />
                 ) : (

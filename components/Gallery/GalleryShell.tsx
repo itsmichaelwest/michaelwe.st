@@ -9,24 +9,13 @@ import {
     useMemo,
     type ReactNode,
 } from "react";
-import {
-    motion,
-    useMotionValue,
-    useMotionValueEvent,
-    useSpring,
-    animate,
-} from "motion/react";
+import { motion, useMotionValue, animate } from "motion/react";
 import clsx from "clsx";
 import { useWindowSize } from "../../hooks/useWindowSize";
-import { GalleryContext, type ContainerRect } from "./GalleryContext";
+import { GalleryContext } from "./GalleryContext";
 import type { ItemData } from "./types";
 import { SAMPLE_ITEMS } from "./types";
-import {
-    MAIN_SPRING,
-    PAGE_SPRING,
-    RUBBER_BAND_K,
-    DRAG_DECAY,
-} from "./constants";
+import { MAIN_SPRING, PAGE_SPRING, RUBBER_BAND_K, DRAG_DECAY } from "./constants";
 import { railItemW, railLeftOf, maxRailScroll } from "./utils";
 import { GalleryItem } from "./GalleryItem";
 import { GalleryDetail } from "./GalleryDetail";
@@ -35,23 +24,17 @@ import { AboutModal } from "../AboutModal";
 export function GalleryShell({
     items: realItems,
     children,
+    initialItem,
+    initialAbout = false,
 }: {
     items: ItemData[];
     children?: ReactNode;
+    initialItem?: string;
+    initialAbout?: boolean;
 }) {
-    const isDirectNav =
-        typeof window !== "undefined" &&
-        /^\/work\/.+$/.test(window.location.pathname);
-    const isAboutDirectNav =
-        typeof window !== "undefined" && window.location.pathname === "/about";
-    const [open, setOpen] = useState(isDirectNav);
-    const [aboutOpen, setAboutOpen] = useState(isAboutDirectNav);
-    const aboutDirectNavRef = useRef(isAboutDirectNav);
-
-    const [current, setCurrent] = useState(0);
-    const [showDetail, setShowDetail] = useState(isDirectNav);
-    const detailScrollRef = useRef<HTMLDivElement>(null);
-    const { w: vw, h: vh } = useWindowSize();
+    // Initial state derived from server-supplied route props so the SSR
+    // HTML and the first client render agree (no `typeof window` reads
+    // during render, which would otherwise cause hydration mismatches).
     const items = useMemo(
         () =>
             process.env.NODE_ENV === "production"
@@ -59,23 +42,40 @@ export function GalleryShell({
                 : [...realItems, ...SAMPLE_ITEMS],
         [realItems],
     );
-
     const idToIndex = useMemo(() => {
         const map = new Map<string, number>();
         items.forEach((item, i) => map.set(item.id, i));
         return map;
     }, [items]);
+    const initialIndex =
+        initialItem != null ? (idToIndex.get(initialItem) ?? 0) : 0;
+    const isWorkDirectNav = initialItem != null && initialIndex >= 0;
+
+    const [open, setOpen] = useState(isWorkDirectNav);
+    const [aboutOpen, setAboutOpen] = useState(initialAbout);
+    const aboutDirectNavRef = useRef(initialAbout);
+
+    const [current, setCurrent] = useState(initialIndex);
+    const [showDetail, setShowDetail] = useState(isWorkDirectNav);
+    const detailScrollRef = useRef<HTMLDivElement>(null);
+    const { w: vw, h: vh } = useWindowSize();
 
     const railOffset = useMotionValue(0);
     const galleryPageX = useMotionValue(0);
     const galleryDragX = useMotionValue(0);
     const galleryDragY = useMotionValue(0);
-    const openProgress = useMotionValue(0);
-    const openSpring = useSpring(openProgress, MAIN_SPRING);
+    // openProgress is the actual value children read for the morph
+    // animation. Driven via animate() so we get an onComplete callback
+    // that fires when the spring has truly settled — the previous
+    // useSpring + value-threshold approach left a residual visible jump
+    // (~5px on mobile) when motion's restDelta-based auto-rest snapped
+    // the value from the threshold to 1.
+    const openProgress = useMotionValue(isWorkDirectNav ? 1 : 0);
+    const openSpring = openProgress; // alias for prop compatibility
 
-    const currentRef = useRef(0);
-    const openRef = useRef(isDirectNav);
-    const directNavRef = useRef(isDirectNav);
+    const currentRef = useRef(initialIndex);
+    const openRef = useRef(isWorkDirectNav);
+    const directNavRef = useRef(isWorkDirectNav);
 
     const dragAxisRef = useRef<"x" | "y" | null>(null);
     const dragStartRef = useRef({ x: 0, y: 0 });
@@ -85,32 +85,37 @@ export function GalleryShell({
     const lastPointerRef = useRef({ x: 0, y: 0, t: 0 });
     const velocityRef = useRef({ x: 0, y: 0 });
     const dragOnImageRef = useRef(false);
-    const containerElRef = useRef<HTMLDivElement | null>(null);
-    const [rect, setRect] = useState<ContainerRect>({
+    const containerRef = useRef<HTMLDivElement>(null);
+    const containerRectRef = useRef({
         left: 0,
         bottom: 0,
         width: 0,
         height: 0,
     });
+    const [, setRectVersion] = useState(0);
 
-    const containerRef = useCallback((el: HTMLDivElement | null) => {
-        containerElRef.current = el;
+    useLayoutEffect(() => {
+        const el = containerRef.current;
         if (!el) return;
         const measure = () => {
             const r = el.getBoundingClientRect();
-            setRect((prev) =>
-                prev.height === r.height &&
-                prev.width === r.width &&
-                prev.left === r.left &&
-                prev.bottom === r.bottom
-                    ? prev
-                    : {
-                          left: r.left,
-                          bottom: r.bottom,
-                          width: r.width,
-                          height: r.height,
-                      },
-            );
+            const prev = containerRectRef.current;
+            const sizeChanged =
+                prev.height !== r.height || prev.width !== r.width;
+            const positionChanged =
+                prev.left !== r.left || prev.bottom !== r.bottom;
+            if (!sizeChanged && !positionChanged) return;
+            containerRectRef.current = {
+                left: r.left,
+                bottom: r.bottom,
+                width: r.width,
+                height: r.height,
+            };
+            // Position-only changes (e.g. page scroll) are read live by
+            // motion's useTransform callbacks via the ref — they don't
+            // need a React re-render. Only re-render on size changes,
+            // which feed values consumed in GalleryItem's render body.
+            if (sizeChanged) setRectVersion((v) => v + 1);
         };
         measure();
         const ro = new ResizeObserver(measure);
@@ -124,26 +129,16 @@ export function GalleryShell({
         };
     }, []);
 
-    // Direct navigation — wait for vw so positions are correct before first paint
-    const directNavChecked = useRef(false);
+    // For direct nav (initialItem set), once vw resolves position the
+    // page-level x offset so the correct item is centered. openProgress
+    // is already at 1 from the initial-state branch.
+    const directNavPositioned = useRef(false);
     useLayoutEffect(() => {
-        if (vw <= 0 || directNavChecked.current) return;
-        directNavChecked.current = true;
-        const match = window.location.pathname.match(/^\/work\/(.+)$/);
-        if (!match) return;
-        const idx = idToIndex.get(match[1]);
-        if (idx == null) return;
-        directNavRef.current = true;
-        /* eslint-disable react-hooks/set-state-in-effect -- initial URL-to-state hydration */
-        setCurrent(idx);
-        currentRef.current = idx;
-        setOpen(true);
-        setShowDetail(true);
-        /* eslint-enable react-hooks/set-state-in-effect */
-        openRef.current = true;
+        if (!isWorkDirectNav || vw <= 0 || directNavPositioned.current)
+            return;
+        directNavPositioned.current = true;
         openProgress.jump(1);
-        openSpring.jump(1);
-        galleryPageX.jump(-idx * vw);
+        galleryPageX.jump(-initialIndex * vw);
         galleryDragX.jump(0);
         galleryDragY.jump(0);
     }, [vw]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -154,10 +149,16 @@ export function GalleryShell({
             currentRef.current = i;
             setOpen(true);
             openRef.current = true;
-            openProgress.set(1);
             galleryPageX.jump(-i * vw);
             galleryDragX.jump(0);
             galleryDragY.jump(0);
+            animate(openProgress, 1, {
+                type: "spring",
+                ...MAIN_SPRING,
+                onComplete: () => {
+                    if (openRef.current) setShowDetail(true);
+                },
+            });
             const id = items[i].id;
             if (
                 !/^s\d+$/.test(id) &&
@@ -172,15 +173,15 @@ export function GalleryShell({
     const centerRailOn = useCallback(
         (idx: number, smooth = false) => {
             if (vw <= 0 || vh <= 0) return;
-            const cH = rect.height;
+            const cH = containerRectRef.current.height;
             const w = railItemW(items, idx, cH);
             const center = railLeftOf(items, idx, cH) + w / 2;
             const max = maxRailScroll(
                 items,
                 cH,
-                rect.width,
+                containerRectRef.current.width,
             );
-            const vpCenter = vw / 2 - rect.left;
+            const vpCenter = vw / 2 - containerRectRef.current.left;
             const target = Math.max(-max, Math.min(0, vpCenter - center));
             if (smooth) {
                 animate(railOffset, target, {
@@ -191,15 +192,18 @@ export function GalleryShell({
                 railOffset.jump(target);
             }
         },
-        [railOffset, vw, vh, items, rect],
+        [railOffset, vw, vh, items],
     );
 
     const closeGallery = useCallback(() => {
         window.scrollTo(0, 0);
         setOpen(false);
-        setShowDetail(false);
         openRef.current = false;
-        openProgress.set(0);
+        setShowDetail(false);
+        animate(openProgress, 0, {
+            type: "spring",
+            ...MAIN_SPRING,
+        });
         galleryDragX.jump(0);
         centerRailOn(currentRef.current);
         if (directNavRef.current) {
@@ -306,37 +310,46 @@ export function GalleryShell({
         } else {
             const max = maxRailScroll(
                 items,
-                rect.height,
-                rect.width,
+                containerRectRef.current.height,
+                containerRectRef.current.width,
             );
             const cur = railOffset.get();
             if (cur < -max) railOffset.jump(-max);
             if (cur > 0) railOffset.jump(0);
         }
-    }, [vw, vh, galleryPageX, galleryDragX, railOffset, items, rect]);
+    }, [vw, vh, galleryPageX, galleryDragX, railOffset, items]);
 
-    // Show overlay once the opening spring settles; close paths set showDetail
-    // to false inline (see closeGallery and the popstate handler).
-    useMotionValueEvent(openSpring, "change", (v) => {
-        if (openRef.current && v > 0.99 && !showDetail) {
-            setShowDetail(true);
-        }
-    });
+    // showDetail is set true via animate's onComplete in openGallery (animated
+    // open) or initialized true via useState(isWorkDirectNav) (direct nav).
+    // Close paths set it false inline (closeGallery and the popstate handler).
+
+    // Swap the home view (with the morphing rail item) for the gallery
+    // detail (with the hero at its final position) once the spring is
+    // close to settled. The rail-to-hero translation is ~460px on mobile,
+    // so any residual error at the swap is visible — snap the spring to
+    // exactly 1 so the item lands pixel-perfect on the hero. The tight
+    // restDelta in MAIN_SPRING ensures we get here with a sub-pixel error.
+    // showDetail is now driven by animate's onComplete (in openGallery).
+    // For direct nav, the openProgress is initialized to 1 and showDetail
+    // to true so we never need a threshold-based swap here.
 
     // Rail scroll wheel handler (only when closed — overlay handles wheel when open)
     useEffect(() => {
-        const el = containerElRef.current;
+        const el = containerRef.current;
         if (!el) return;
 
         const onWheel = (e: WheelEvent) => {
             if (openRef.current) return;
+            // Block the browser's horizontal swipe-back gesture so trackpad
+            // scrolls drive the rail instead of navigating history.
+            if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) e.preventDefault();
             const delta =
                 Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
             if (Math.abs(delta) < 1) return;
             const max = maxRailScroll(
                 items,
-                rect.height,
-                rect.width,
+                containerRectRef.current.height,
+                containerRectRef.current.width,
             );
             const cur = railOffset.get();
             railOffset.jump(Math.max(-max, Math.min(0, cur - delta)));
@@ -346,7 +359,7 @@ export function GalleryShell({
         return () => {
             el.removeEventListener("wheel", onWheel);
         };
-    }, [vw, railOffset, galleryDragX, goToPage, items, rect]);
+    }, [vw, railOffset, galleryDragX, goToPage, items]);
 
     const startMomentum = useCallback(
         (velocity: number) => {
@@ -357,8 +370,8 @@ export function GalleryShell({
                     momentumRef.current = null;
                     const max = maxRailScroll(
                         items,
-                        rect.height,
-                        rect.width,
+                        containerRectRef.current.height,
+                        containerRectRef.current.width,
                     );
                     const cur = railOffset.get();
                     if (cur > 0)
@@ -376,8 +389,8 @@ export function GalleryShell({
                 railOffset.set(railOffset.get() + v);
                 const max = maxRailScroll(
                     items,
-                    rect.height,
-                    rect.width,
+                    containerRectRef.current.height,
+                    containerRectRef.current.width,
                 );
                 const cur = railOffset.get();
                 if (cur > 0 || cur < -max) v *= 1 - RUBBER_BAND_K;
@@ -385,7 +398,7 @@ export function GalleryShell({
             };
             momentumRef.current = requestAnimationFrame(tick);
         },
-        [railOffset, items, rect],
+        [railOffset, items],
     );
 
     const stopMomentum = useCallback(() => {
@@ -447,8 +460,8 @@ export function GalleryShell({
                 if (dragAxisRef.current === "x") {
                     const max = maxRailScroll(
                         items,
-                        rect.height,
-                        rect.width,
+                        containerRectRef.current.height,
+                        containerRectRef.current.width,
                     );
                     const cur = railOffset.get();
                     let delta = e.movementX || 0;
@@ -458,12 +471,12 @@ export function GalleryShell({
                 }
             }
         },
-        [railOffset, centerRailOn, items, rect],
+        [railOffset, centerRailOn, items],
     );
 
     const findTappedItem = useCallback(
         (screenX: number, screenY: number, scrollOff: number) => {
-            const rect = containerElRef.current?.getBoundingClientRect();
+            const rect = containerRef.current?.getBoundingClientRect();
             if (!rect) return -1;
             const localX = screenX - rect.left;
             const localY = screenY - rect.top;
@@ -513,8 +526,6 @@ export function GalleryShell({
         [openGallery, startMomentum, railOffset, items, findTappedItem],
     );
 
-    if (!vw) return <div />;
-
     return (
         <GalleryContext.Provider
             value={{
@@ -523,13 +534,13 @@ export function GalleryShell({
                 aboutOpen,
                 openAbout,
                 closeAbout,
-                rect,
+                containerRectRef,
             }}
         >
             {/* Back button — fixed, outside both views */}
             <motion.button
                 className={clsx(
-                    "fixed top-4 left-4 z-[53] size-10 flex items-center justify-center p-0 rounded-full bg-[#EEE]/80 backdrop-blur-2xl border-none cursor-pointer active:scale-96 transition-transform duration-100",
+                    "group fixed top-6 left-6 z-[53] inline-flex h-9 items-center border-none bg-transparent p-0 font-mono text-[13px] text-muted transition-colors duration-200 ease-out hover:text-secondary",
                     open ? "pointer-events-auto" : "pointer-events-none",
                 )}
                 tabIndex={open ? 0 : -1}
@@ -538,15 +549,24 @@ export function GalleryShell({
                 onPointerDown={(e) => e.stopPropagation()}
                 onClick={closeGallery}
             >
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    aria-hidden="true"
+                >
                     <path
-                        d="M11 3L5 9L11 15"
-                        stroke="#333"
-                        strokeWidth="2"
+                        d="M7.5 2.5L4 6L7.5 9.5"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                     />
                 </svg>
+                <span className="ml-0 max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-[max-width,margin-left,opacity] duration-280 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:ml-1.5 group-hover:max-w-[60px] group-hover:opacity-100">
+                    Back
+                </span>
             </motion.button>
 
             {/* Home view — centered viewport, goes invisible when detail is active */}
@@ -571,7 +591,7 @@ export function GalleryShell({
                         onPointerMove={onPointerMove}
                         onPointerUp={onPointerUp}
                     >
-                        {items.map((item, i) => (
+                        {vw > 0 && items.map((item, i) => (
                             <GalleryItem
                                 key={item.id}
                                 index={i}
@@ -591,6 +611,14 @@ export function GalleryShell({
                                 galleryDragX={galleryDragX}
                                 galleryDragY={galleryDragY}
                                 dragOnImageRef={dragOnImageRef}
+                                // LCP: on the home rail the leftmost item is
+                                // the LCP candidate; mark a few neighbors
+                                // eager so they don't lazy-defer above the
+                                // fold. On direct nav the rail is invisible
+                                // (the GalleryDetail hero owns LCP) so we
+                                // skip priority/eager hints here entirely.
+                                priority={!isWorkDirectNav && i === 0}
+                                eager={!isWorkDirectNav && i > 0 && i < 4}
                                 onFocusItem={() => centerRailOn(i, true)}
                                 onActivate={() => {
                                     const canonical = item.canonical;
@@ -611,7 +639,7 @@ export function GalleryShell({
                     <AboutModal
                         open={aboutOpen}
                         onClose={closeAbout}
-                        directNav={isAboutDirectNav}
+                        directNav={initialAbout}
                     />
                 </div>
             </div>
@@ -621,8 +649,11 @@ export function GalleryShell({
                 <GalleryDetail
                     items={items}
                     current={current}
+                    open={open}
                     vw={vw}
                     vh={vh}
+                    openSpring={openSpring}
+                    closeGallery={closeGallery}
                     scrollRef={detailScrollRef}
                 />
             )}

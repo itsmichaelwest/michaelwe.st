@@ -23,8 +23,7 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
     const backdropBlur = useTransform(aboutSpring, (v) => `blur(${v * 4}px)`);
     const backdropBg = useTransform(
         aboutSpring,
-        [0, 1],
-        ["rgb(255 255 255 / 0)", "rgb(255 255 255 / 0.95)"],
+        (v) => `rgb(var(--backdrop-rgb) / ${v * 0.95})`,
     );
 
     useEffect(() => {
@@ -102,9 +101,9 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
                 style={{ opacity: aboutSpring, scale: contentScale }}
             >
                 <article className="w-full md:h-full grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 px-4 pt-24 pb-16 md:pt-0 md:pb-0">
-                    <div className="relative md:h-full md:min-h-0 rounded-xl border border-black/5 overflow-hidden">
+                    <div className="relative rounded-xl border border-black/5 dark:border-white/10 overflow-hidden md:h-full">
                         <Image
-                            className="md:absolute md:inset-0 md:h-full md:w-full md:object-cover"
+                            className="w-full h-auto md:h-full md:w-full md:object-cover"
                             src={PortraitTall}
                             alt="Photo of Michael"
                         />
@@ -148,21 +147,21 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
                             around the world. Check them out:{" "}
                             <Link
                                 href="/work/surface-duo"
-                                className="font-medium text-blue-600 hover:text-blue-700"
+                                className="font-medium text-blue-700 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                             >
                                 Surface Duo
                             </Link>
                             ,{" "}
                             <Link
                                 href="/work/swiftkey-design-system"
-                                className="font-medium text-blue-600 hover:text-blue-700"
+                                className="font-medium text-blue-700 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                             >
                                 SwiftKey
                             </Link>
                             ,{" "}
                             <Link
                                 href="/work/fluent-icons"
-                                className="font-medium text-blue-600 hover:text-blue-700"
+                                className="font-medium text-blue-700 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                             >
                                 Fluent Icons
                             </Link>
@@ -176,13 +175,16 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
                             Awarded 2018-19{" "}
                             <Link
                                 href="https://mvp.microsoft.com/"
-                                className="font-medium text-blue-600 hover:text-blue-700"
+                                className="font-medium text-blue-700 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                             >
                                 Microsoft MVP
                             </Link>{" "}
                             (Most Valuable Professional) for Windows Design.
                         </p>
-                        <Button to="/files/mw-resume-jan2022.pdf">
+                        <Button
+                            className="m-px"
+                            to="/files/mw-resume-jan2022.pdf"
+                        >
                             Download résumé
                         </Button>
                     </section>
@@ -192,17 +194,27 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
             {/* Close button */}
             <motion.button
                 className={clsx(
-                    "fixed top-4 right-4 z-200 size-10 flex items-center justify-center rounded-full bg-[#EEE]/80 backdrop-blur-2xl border-none cursor-pointer",
+                    "group fixed top-6 right-6 z-200 inline-flex h-9 items-center border-none bg-transparent p-0 font-mono text-[13px] text-muted transition-colors duration-200 ease-out hover:text-secondary",
                     open ? "pointer-events-auto" : "pointer-events-none",
                 )}
+                aria-label="Close"
                 style={{ opacity: aboutSpring }}
                 onClick={onClose}
             >
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <span className="mr-0 max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-[max-width,margin-right,opacity] duration-280 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:mr-1.5 group-hover:max-w-[60px] group-hover:opacity-100">
+                    Close
+                </span>
+                <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    aria-hidden="true"
+                >
                     <path
-                        d="M4 4L14 14M14 4L4 14"
+                        d="M3 3L9 9M9 3L3 9"
                         stroke="currentColor"
-                        strokeWidth="2"
+                        strokeWidth="1.5"
                         strokeLinecap="round"
                     />
                 </svg>

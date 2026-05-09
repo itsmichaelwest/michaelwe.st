@@ -1,14 +1,7 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import { createContext, useContext, type RefObject } from "react";
 import type { MotionValue } from "motion/react";
-
-export interface ContainerRect {
-    left: number;
-    bottom: number;
-    width: number;
-    height: number;
-}
 
 interface GalleryContextValue {
     open: boolean;
@@ -16,7 +9,12 @@ interface GalleryContextValue {
     aboutOpen: boolean;
     openAbout: () => void;
     closeAbout: () => void;
-    rect: ContainerRect;
+    containerRectRef: RefObject<{
+        left: number;
+        bottom: number;
+        width: number;
+        height: number;
+    }>;
 }
 
 export const GalleryContext = createContext<GalleryContextValue | null>(null);
