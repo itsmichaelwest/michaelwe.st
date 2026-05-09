@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default async function AboutPage() {
     const items = await getGalleryItems();
     return (
-        <GalleryShell items={items}>
+        <GalleryShell items={items} initialAbout>
             <HeroBio />
         </GalleryShell>
     );

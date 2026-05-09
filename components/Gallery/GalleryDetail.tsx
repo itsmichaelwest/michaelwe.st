@@ -3,23 +3,15 @@
 import { useEffect } from "react";
 import { motion, useReducedMotion, type MotionValue } from "motion/react";
 import Image from "next/image";
-import clsx from "clsx";
 import { MDXClient } from "next-mdx-remote-client";
 import { components } from "../MDXComponents";
 import NoMSFTDisclaimer from "../NoMSFTDisclaimer";
 import Footer from "../Footer";
 import type { ItemData } from "./types";
-import { GALLERY_H } from "./constants";
-import { itemFullW, itemGalleryScale } from "./utils";
 
 export function GalleryDetail({
     items,
     current,
-    open,
-    vw,
-    vh,
-    openSpring,
-    closeGallery,
     scrollRef,
 }: {
     items: ItemData[];
@@ -33,16 +25,7 @@ export function GalleryDetail({
 }) {
     const item = items[current];
     const reducedMotion = useReducedMotion();
-
-    const isMobile = vw < 768;
-
-    // Image dimensions matching GalleryItem's fullscreen position
-    const naturalW = itemFullW(items, current, vh);
-    const galScale = itemGalleryScale(items, current, vw, vh);
-    const imageWidth = isMobile ? vw - 40 : naturalW * galScale;
-    const imageHeight = GALLERY_H * vh * galScale;
-    // Center vertically on desktop, anchor to top on mobile
-    const imageMarginTop = isMobile ? 80 : (vh - imageHeight) / 2;
+    const aspect = item.aspect;
 
     // Scroll to top on mount and page change
     useEffect(() => {
@@ -50,18 +33,30 @@ export function GalleryDetail({
     }, [current]);
 
     return (
-        <div ref={scrollRef} className="min-h-screen bg-white dark:bg-[#0a0a0a] overflow-x-clip">
-            {/* Hero image */}
+        <div
+            ref={scrollRef}
+            className="min-h-screen bg-white dark:bg-[#0a0a0a] overflow-x-clip"
+            style={{ "--aspect": String(aspect) } as React.CSSProperties}
+        >
+            {/* Hero image — top-anchored on mobile (80px), vertically
+                centered in the first viewport on md+ via a CSS-only
+                margin-top. Sized purely in CSS so the box reserves its
+                exact footprint before the image loads or useWindowSize
+                resolves. The wrapper takes (vh + heroH) / 2 of vertical
+                space, leaving the bottom of the first viewport showing a
+                peek of the article header below. */}
             <div
-                className="relative mx-auto rounded-2xl ring ring-black/10 dark:ring-white/10 select-none overflow-hidden"
-                style={{
-                    width: imageWidth,
-                    height: imageHeight,
-                    marginTop: imageMarginTop,
-                    background: !item.img
-                        ? (item.color ?? undefined)
-                        : undefined,
-                }}
+                className="relative mx-auto mt-20 rounded-2xl ring ring-black/10 dark:ring-white/10 select-none overflow-hidden w-[calc(100vw-40px)] md:mt-[var(--hero-mt)] md:w-[min(calc(60vh*var(--aspect)),calc(100vw-64px))]"
+                style={
+                    {
+                        "--hero-mt":
+                            "max(0px, calc((100vh - min(60vh, calc((100vw - 64px) / var(--aspect)))) / 2))",
+                        aspectRatio: String(aspect),
+                        background: !item.img
+                            ? (item.color ?? undefined)
+                            : undefined,
+                    } as React.CSSProperties
+                }
             >
                 {item.img ? (
                     <Image

@@ -80,7 +80,7 @@ export default async function WorkPage({
                     __html: JSON.stringify(jsonLd),
                 }}
             />
-            <GalleryShell items={items}>
+            <GalleryShell items={items} initialItem={id}>
                 <HeroBio />
             </GalleryShell>
         </>

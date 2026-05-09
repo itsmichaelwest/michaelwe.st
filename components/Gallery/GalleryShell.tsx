@@ -9,13 +9,7 @@ import {
     useMemo,
     type ReactNode,
 } from "react";
-import {
-    motion,
-    useMotionValue,
-    useMotionValueEvent,
-    useSpring,
-    animate,
-} from "motion/react";
+import { motion, useMotionValue, animate } from "motion/react";
 import clsx from "clsx";
 import { useWindowSize } from "../../hooks/useWindowSize";
 import { GalleryContext } from "./GalleryContext";
@@ -39,23 +33,17 @@ import { AboutModal } from "../AboutModal";
 export function GalleryShell({
     items: realItems,
     children,
+    initialItem,
+    initialAbout = false,
 }: {
     items: ItemData[];
     children?: ReactNode;
+    initialItem?: string;
+    initialAbout?: boolean;
 }) {
-    const isDirectNav =
-        typeof window !== "undefined" &&
-        /^\/work\/.+$/.test(window.location.pathname);
-    const isAboutDirectNav =
-        typeof window !== "undefined" && window.location.pathname === "/about";
-    const [open, setOpen] = useState(isDirectNav);
-    const [aboutOpen, setAboutOpen] = useState(isAboutDirectNav);
-    const aboutDirectNavRef = useRef(isAboutDirectNav);
-
-    const [current, setCurrent] = useState(0);
-    const [showDetail, setShowDetail] = useState(isDirectNav);
-    const detailScrollRef = useRef<HTMLDivElement>(null);
-    const { w: vw, h: vh } = useWindowSize();
+    // Initial state derived from server-supplied route props so the SSR
+    // HTML and the first client render agree (no `typeof window` reads
+    // during render, which would otherwise cause hydration mismatches).
     const items = useMemo(
         () =>
             process.env.NODE_ENV === "production"
@@ -63,23 +51,40 @@ export function GalleryShell({
                 : [...realItems, ...SAMPLE_ITEMS],
         [realItems],
     );
-
     const idToIndex = useMemo(() => {
         const map = new Map<string, number>();
         items.forEach((item, i) => map.set(item.id, i));
         return map;
     }, [items]);
+    const initialIndex =
+        initialItem != null ? (idToIndex.get(initialItem) ?? 0) : 0;
+    const isWorkDirectNav = initialItem != null && initialIndex >= 0;
+
+    const [open, setOpen] = useState(isWorkDirectNav);
+    const [aboutOpen, setAboutOpen] = useState(initialAbout);
+    const aboutDirectNavRef = useRef(initialAbout);
+
+    const [current, setCurrent] = useState(initialIndex);
+    const [showDetail, setShowDetail] = useState(isWorkDirectNav);
+    const detailScrollRef = useRef<HTMLDivElement>(null);
+    const { w: vw, h: vh } = useWindowSize();
 
     const railOffset = useMotionValue(0);
     const galleryPageX = useMotionValue(0);
     const galleryDragX = useMotionValue(0);
     const galleryDragY = useMotionValue(0);
-    const openProgress = useMotionValue(0);
-    const openSpring = useSpring(openProgress, MAIN_SPRING);
+    // openProgress is the actual value children read for the morph
+    // animation. Driven via animate() so we get an onComplete callback
+    // that fires when the spring has truly settled — the previous
+    // useSpring + value-threshold approach left a residual visible jump
+    // (~5px on mobile) when motion's restDelta-based auto-rest snapped
+    // the value from the threshold to 1.
+    const openProgress = useMotionValue(isWorkDirectNav ? 1 : 0);
+    const openSpring = openProgress; // alias for prop compatibility
 
-    const currentRef = useRef(0);
-    const openRef = useRef(isDirectNav);
-    const directNavRef = useRef(isDirectNav);
+    const currentRef = useRef(initialIndex);
+    const openRef = useRef(isWorkDirectNav);
+    const directNavRef = useRef(isWorkDirectNav);
 
     const dragAxisRef = useRef<"x" | "y" | null>(null);
     const dragStartRef = useRef({ x: 0, y: 0 });
@@ -119,23 +124,16 @@ export function GalleryShell({
         }
     });
 
-    // Direct navigation — wait for vw so positions are correct before first paint
-    const directNavChecked = useRef(false);
+    // For direct nav (initialItem set), once vw resolves position the
+    // page-level x offset so the correct item is centered. openProgress
+    // is already at 1 from the initial-state branch.
+    const directNavPositioned = useRef(false);
     useLayoutEffect(() => {
-        if (vw <= 0 || directNavChecked.current) return;
-        directNavChecked.current = true;
-        const match = window.location.pathname.match(/^\/work\/(.+)$/);
-        if (!match) return;
-        const idx = idToIndex.get(match[1]);
-        if (idx == null) return;
-        directNavRef.current = true;
-        setCurrent(idx);
-        currentRef.current = idx;
-        setOpen(true);
-        openRef.current = true;
+        if (!isWorkDirectNav || vw <= 0 || directNavPositioned.current)
+            return;
+        directNavPositioned.current = true;
         openProgress.jump(1);
-        openSpring.jump(1);
-        galleryPageX.jump(-idx * vw);
+        galleryPageX.jump(-initialIndex * vw);
         galleryDragX.jump(0);
         galleryDragY.jump(0);
     }, [vw]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -146,10 +144,16 @@ export function GalleryShell({
             currentRef.current = i;
             setOpen(true);
             openRef.current = true;
-            openProgress.set(1);
             galleryPageX.jump(-i * vw);
             galleryDragX.jump(0);
             galleryDragY.jump(0);
+            animate(openProgress, 1, {
+                type: "spring",
+                ...MAIN_SPRING,
+                onComplete: () => {
+                    if (openRef.current) setShowDetail(true);
+                },
+            });
             const id = items[i].id;
             if (
                 !/^s\d+$/.test(id) &&
@@ -190,7 +194,11 @@ export function GalleryShell({
         window.scrollTo(0, 0);
         setOpen(false);
         openRef.current = false;
-        openProgress.set(0);
+        setShowDetail(false);
+        animate(openProgress, 0, {
+            type: "spring",
+            ...MAIN_SPRING,
+        });
         galleryDragX.jump(0);
         centerRailOn(currentRef.current);
         if (directNavRef.current) {
@@ -314,11 +322,15 @@ export function GalleryShell({
         }
     }, [open]);
 
-    useMotionValueEvent(openSpring, "change", (v) => {
-        if (openRef.current && v > 0.99 && !showDetail) {
-            setShowDetail(true);
-        }
-    });
+    // Swap the home view (with the morphing rail item) for the gallery
+    // detail (with the hero at its final position) once the spring is
+    // close to settled. The rail-to-hero translation is ~460px on mobile,
+    // so any residual error at the swap is visible — snap the spring to
+    // exactly 1 so the item lands pixel-perfect on the hero. The tight
+    // restDelta in MAIN_SPRING ensures we get here with a sub-pixel error.
+    // showDetail is now driven by animate's onComplete (in openGallery).
+    // For direct nav, the openProgress is initialized to 1 and showDetail
+    // to true so we never need a threshold-based swap here.
 
     // Unmount home view (HeroBio + rail) when fully in gallery view.
     // During animations both views coexist for smooth transitions.
@@ -331,6 +343,9 @@ export function GalleryShell({
 
         const onWheel = (e: WheelEvent) => {
             if (openRef.current) return;
+            // Block the browser's horizontal swipe-back gesture so trackpad
+            // scrolls drive the rail instead of navigating history.
+            if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) e.preventDefault();
             const delta =
                 Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
             if (Math.abs(delta) < 1) return;
@@ -527,8 +542,6 @@ export function GalleryShell({
         ],
     );
 
-    if (!vw) return <div />;
-
     return (
         <GalleryContext.Provider
             value={{ open, openSpring, aboutOpen, openAbout, closeAbout }}
@@ -587,7 +600,7 @@ export function GalleryShell({
                         onPointerMove={onPointerMove}
                         onPointerUp={onPointerUp}
                     >
-                        {items.map((item, i) => (
+                        {vw > 0 && items.map((item, i) => (
                             <GalleryItem
                                 key={item.id}
                                 index={i}
@@ -628,7 +641,7 @@ export function GalleryShell({
                     <AboutModal
                         open={aboutOpen}
                         onClose={closeAbout}
-                        directNav={isAboutDirectNav}
+                        directNav={aboutDirectNavRef.current}
                     />
                 </div>
             </div>
