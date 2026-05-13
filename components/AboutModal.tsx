@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
+import { motion, useMotionValue, useTransform, animate } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import clsx from "clsx";
 import Button from "./Button";
 import { MAIN_SPRING } from "./Gallery/constants";
+
+const CLOSE_EASE: [number, number, number, number] = [0.23, 1, 0.32, 1];
 
 import PortraitTall from "../public/images/michael-portrait-tall.jpg";
 
@@ -17,8 +19,7 @@ interface AboutModalProps {
 }
 
 export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
-    const aboutProgress = useMotionValue(directNav ? 1 : 0);
-    const aboutSpring = useSpring(aboutProgress, MAIN_SPRING);
+    const aboutSpring = useMotionValue(directNav ? 1 : 0);
     const contentScale = useTransform(aboutSpring, [0, 1], [0.97, 1]);
     const backdropBlur = useTransform(aboutSpring, (v) => `blur(${v * 4}px)`);
     const backdropBg = useTransform(
@@ -28,14 +29,19 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
 
     useEffect(() => {
         if (directNav) {
-            aboutProgress.jump(1);
             aboutSpring.jump(1);
         }
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
-        aboutProgress.set(open ? 1 : 0);
-    }, [open, aboutProgress]);
+        // Asymmetric enter/exit: spring open for that "settle" feel, tween
+        // closed so dismissal lands quickly and predictably.
+        if (open) {
+            animate(aboutSpring, 1, { type: "spring", ...MAIN_SPRING });
+        } else {
+            animate(aboutSpring, 0, { duration: 0.2, ease: CLOSE_EASE });
+        }
+    }, [open, aboutSpring]);
 
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
@@ -101,7 +107,7 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
                 style={{ opacity: aboutSpring, scale: contentScale }}
             >
                 <article className="w-full md:h-full grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 px-4 pt-24 pb-16 md:pt-0 md:pb-0">
-                    <div className="relative rounded-xl border border-black/5 dark:border-white/10 overflow-hidden md:h-full">
+                    <div className="relative rounded-xl ring ring-black/10 dark:ring-white/10 overflow-hidden md:h-full">
                         <Image
                             className="w-full h-auto md:h-full md:w-full md:object-cover"
                             src={PortraitTall}
@@ -194,7 +200,7 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
             {/* Close button */}
             <motion.button
                 className={clsx(
-                    "group fixed top-6 right-6 z-200 inline-flex h-9 items-center border-none bg-transparent p-0 font-mono text-[13px] text-muted transition-colors duration-200 ease-out hover:text-secondary",
+                    "group fixed top-6 right-6 z-200 inline-flex h-9 items-center border-none bg-transparent p-0 font-mono text-[13px] text-muted transition-[color,transform] duration-200 ease-out hover:text-secondary active:scale-[0.96]",
                     open ? "pointer-events-auto" : "pointer-events-none",
                 )}
                 aria-label="Close"

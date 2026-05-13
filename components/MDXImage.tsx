@@ -74,9 +74,9 @@ export function MDXImage({ src, alt = "", height, width }: MDXImageProps) {
         };
     }, [open]);
 
-    const ringClasses = "rounded-xl ring ring-black/5 dark:ring-white/10";
+    const ringClasses = "rounded-xl ring ring-black/10 dark:ring-white/10";
     const loadClasses = clsx(
-        "transition-[filter,opacity] duration-700 ease-out",
+        "transition-[filter,opacity] duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]",
         loaded ? "opacity-100 blur-0" : "opacity-0 blur-md scale-[1.01]",
     );
     const lightboxLoadClasses = clsx(

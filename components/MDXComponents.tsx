@@ -31,7 +31,9 @@ export const components: MDXComponents = {
         </h4>
     ),
     p: ({ children }) => (
-        <p className="my-6 leading-relaxed text-secondary">{children}</p>
+        <p className="my-6 leading-relaxed text-secondary text-pretty">
+            {children}
+        </p>
     ),
     strong: ({ children }) => (
         <strong className="font-semibold text-black dark:text-white">

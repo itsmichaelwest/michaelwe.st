@@ -125,7 +125,7 @@ export function WritingList({ posts }: { posts: IWritingPost[] }) {
                                         <TransitionLink
                                             href={`/writing/${post.slug}`}
                                             direction="forward"
-                                            className="group block -mx-3 rounded-lg px-3 py-4 transition-[background-color,transform] duration-200 ease-out hover:bg-gray-50 dark:hover:bg-gray-800/60 active:scale-[0.99] active:bg-gray-100 dark:active:bg-gray-700/60"
+                                            className="group block -mx-3 rounded-lg px-3 py-4 transition-[background-color,transform] duration-200 ease-out hover:bg-gray-50 dark:hover:bg-gray-800/60 active:scale-[0.97] active:bg-gray-100 dark:active:bg-gray-700/60"
                                         >
                                             <h3 className="font-medium text-heading text-balance">
                                                 {post.title}

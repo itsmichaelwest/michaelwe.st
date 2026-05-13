@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, type ReactNode } from "react";
 import { motion, useReducedMotion, type MotionValue } from "motion/react";
 import Image from "next/image";
 import { MDXClient } from "next-mdx-remote-client";
@@ -8,6 +8,43 @@ import { components } from "../MDXComponents";
 import NoMSFTDisclaimer from "../NoMSFTDisclaimer";
 import Footer from "../Footer";
 import type { ItemData } from "./types";
+
+const STAGGER_EASE: [number, number, number, number] = [0.23, 1, 0.32, 1];
+
+function ContentStagger({
+    reducedMotion,
+    index,
+    children,
+}: {
+    reducedMotion: boolean;
+    index: number;
+    children: ReactNode;
+}) {
+    if (reducedMotion) {
+        return (
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2 }}
+            >
+                {children}
+            </motion.div>
+        );
+    }
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+                duration: 0.35,
+                ease: STAGGER_EASE,
+                delay: 0.05 + index * 0.08,
+            }}
+        >
+            {children}
+        </motion.div>
+    );
+}
 
 export function GalleryDetail({
     items,
@@ -86,28 +123,27 @@ export function GalleryDetail({
             </div>
 
             {/* Content */}
-            <motion.div
-                className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6"
-                initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
-                animate={reducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-                transition={{ duration: 0.15, ease: "easeOut" }}
-            >
-                <div className="space-y-2">
-                    {item.year && (
-                        <p className="font-mono text-sm text-muted tabular-nums">
-                            {item.year}
-                        </p>
-                    )}
-                    <h2 className="font-semibold tracking-tight text-2xl text-balance">
-                        {item.title}
-                    </h2>
-                    <p className="text-muted text-pretty">{item.subtitle}</p>
-                    {item.officialURL && (
+            <div className="max-w-[80ch] mx-auto px-6 pt-16 pb-8 space-y-6">
+                <ContentStagger reducedMotion={!!reducedMotion} index={0}>
+                    <div className="space-y-2">
+                        {item.year && (
+                            <p className="font-mono text-sm text-muted tabular-nums">
+                                {item.year}
+                            </p>
+                        )}
+                        <h2 className="font-semibold tracking-tight text-2xl text-balance">
+                            {item.title}
+                        </h2>
+                        <p className="text-muted text-pretty">{item.subtitle}</p>
+                    </div>
+                </ContentStagger>
+                {item.officialURL && (
+                    <ContentStagger reducedMotion={!!reducedMotion} index={1}>
                         <a
                             href={item.officialURL}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 mt-2 px-3 py-1.5 font-mono text-sm font-medium rounded-full bg-[#EEE]/80 dark:bg-gray-800 no-underline text-[#333] dark:text-gray-200 hover:bg-[#DDD] dark:hover:bg-gray-700 transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 font-mono text-sm font-medium rounded-full bg-gray-100/80 dark:bg-gray-800 no-underline text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 active:scale-[0.97] transition-[background-color,transform] duration-200 ease-out"
                         >
                             {item.officialURLText ?? "View project"}
                             <svg
@@ -125,12 +161,21 @@ export function GalleryDetail({
                                 />
                             </svg>
                         </a>
-                    )}
-                </div>
-                {item.noMSFT && <NoMSFTDisclaimer title={item.title} />}
-                {mdxContent}
+                    </ContentStagger>
+                )}
+                {item.noMSFT && (
+                    <ContentStagger reducedMotion={!!reducedMotion} index={2}>
+                        <NoMSFTDisclaimer title={item.title} />
+                    </ContentStagger>
+                )}
+                <ContentStagger
+                    reducedMotion={!!reducedMotion}
+                    index={item.noMSFT ? 3 : 2}
+                >
+                    {mdxContent}
+                </ContentStagger>
                 <Footer />
-            </motion.div>
+            </div>
         </div>
     );
 }

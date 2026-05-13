@@ -237,7 +237,7 @@ export function WritingTOC({ title, headings }: WritingTOCProps) {
                         <ul className="flex flex-col">
                             {headings.map((h, i) => {
                                 const isActive = h.id === activeId;
-                                const delay = open ? i * 18 : 0;
+                                const delay = open ? i * 35 : 0;
                                 return (
                                     <li key={h.id}>
                                         <a
@@ -250,7 +250,7 @@ export function WritingTOC({ title, headings }: WritingTOCProps) {
                                                     ? "location"
                                                     : undefined
                                             }
-                                            className={`flex items-center py-[5px] ${
+                                            className={`flex items-center py-2 ${
                                                 isActive
                                                     ? "text-heading"
                                                     : "text-muted"
