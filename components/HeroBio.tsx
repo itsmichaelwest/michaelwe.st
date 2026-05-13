@@ -24,6 +24,15 @@ export function HeroBio({ showWriting = false }: HeroBioProps) {
             )}
             aria-hidden={open || undefined}
             inert={open || undefined}
+            initial={
+                reducedMotion
+                    ? { opacity: 0 }
+                    : {
+                          opacity: 0,
+                          scale: 0.97,
+                          filter: "blur(8px)",
+                      }
+            }
             animate={
                 reducedMotion
                     ? { opacity: open ? 0 : 1 }
@@ -33,12 +42,20 @@ export function HeroBio({ showWriting = false }: HeroBioProps) {
                           filter: open ? "blur(4px)" : "blur(0px)",
                       }
             }
-            transition={open ? {} : { delay: 0.15 }}
+            transition={
+                open
+                    ? {}
+                    : {
+                          duration: 0.6,
+                          ease: [0.23, 1, 0.32, 1],
+                          delay: 0.1,
+                      }
+            }
         >
             <div className="space-y-6">
                 <div className="flex gap-4 items-center">
                     <Image
-                        className="w-10 rounded-full shadow ring ring-black/10 dark:ring-white/5"
+                        className="w-10 rounded-full shadow ring ring-black/10 dark:ring-white/10"
                         src={Face}
                         alt="Photo of Michael"
                     />

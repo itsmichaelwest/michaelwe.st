@@ -540,7 +540,7 @@ export function GalleryShell({
             {/* Back button — fixed, outside both views */}
             <motion.button
                 className={clsx(
-                    "group fixed top-6 left-6 z-[53] inline-flex h-9 items-center border-none bg-transparent p-0 font-mono text-[13px] text-muted transition-colors duration-200 ease-out hover:text-secondary",
+                    "group fixed top-6 left-6 z-[53] inline-flex h-9 items-center border-none bg-transparent p-0 font-mono text-[13px] text-muted transition-[color,transform] duration-200 ease-out hover:text-secondary active:scale-[0.96]",
                     open ? "pointer-events-auto" : "pointer-events-none",
                 )}
                 tabIndex={open ? 0 : -1}
@@ -619,6 +619,8 @@ export function GalleryShell({
                                 // skip priority/eager hints here entirely.
                                 priority={!isWorkDirectNav && i === 0}
                                 eager={!isWorkDirectNav && i > 0 && i < 4}
+                                entryEnabled={!isWorkDirectNav}
+                                entryDelay={0.15 + i * 0.06}
                                 onFocusItem={() => centerRailOn(i, true)}
                                 onActivate={() => {
                                     const canonical = item.canonical;

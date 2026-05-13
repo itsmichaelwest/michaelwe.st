@@ -1,6 +1,14 @@
 "use client";
 
-import { motion, useTransform, type MotionValue } from "motion/react";
+import { useEffect } from "react";
+import {
+    motion,
+    useMotionValue,
+    useTransform,
+    useReducedMotion,
+    animate,
+    type MotionValue,
+} from "motion/react";
 import Image from "next/image";
 import clsx from "clsx";
 import type { ItemData } from "./types";
@@ -12,6 +20,9 @@ import {
     itemRailScale,
     railLeftOf,
 } from "./utils";
+
+const ENTRY_X_OFFSET = 140;
+const ENTRY_EASE: [number, number, number, number] = [0.23, 1, 0.32, 1];
 
 export function GalleryItem({
     index,
@@ -35,6 +46,8 @@ export function GalleryItem({
     title,
     priority = false,
     eager = false,
+    entryEnabled = false,
+    entryDelay = 0,
 }: {
     index: number;
     items: ItemData[];
@@ -57,7 +70,33 @@ export function GalleryItem({
     title: string;
     priority?: boolean;
     eager?: boolean;
+    entryEnabled?: boolean;
+    entryDelay?: number;
 }) {
+    const reducedMotion = useReducedMotion();
+    // entry: 0 = fully offset/transparent, 1 = settled. Disabled on direct
+    // /work/[id] nav (rail is hidden behind the detail view) and under
+    // reduced motion.
+    const shouldAnimateIn = entryEnabled && !reducedMotion;
+    const entry = useMotionValue(shouldAnimateIn ? 0 : 1);
+
+    useEffect(() => {
+        if (!shouldAnimateIn) {
+            entry.jump(1);
+            return;
+        }
+        const controls = animate(entry, 1, {
+            duration: 0.55,
+            ease: ENTRY_EASE,
+            delay: entryDelay,
+        });
+        return () => controls.stop();
+    }, [shouldAnimateIn, entryDelay, entry]);
+
+    const entryFilter = useTransform(
+        entry,
+        (v) => `blur(${(1 - v) * 4}px)`,
+    );
     const { containerRectRef } = useGallery();
     const cH = containerRectRef.current.height;
     const naturalW = itemFullW(items, index, vh);
@@ -93,10 +132,16 @@ export function GalleryItem({
         galleryPageX,
         galleryDragX,
         galleryDragY,
+        entry,
     ];
     const transformStr = useTransform(
         transformInputs as any, // eslint-disable-line @typescript-eslint/no-explicit-any
-        ([progress, rail, galPageX, galDragX, galDragY]: number[]) => {
+        ([progress, rail, galPageX, galDragX, galDragY, entryV]: number[]) => {
+            // Entry slide-in only applies while on the rail. By the time the
+            // gallery is opening (progress > 0), entry has settled to 1 in
+            // practice, but multiplying by (1 - progress) is cheap insurance.
+            const entryX = (1 - entryV) * ENTRY_X_OFFSET * (1 - progress);
+
             if (progress > 0.5) {
                 const approxCenter = galPageX + galDragX + index * vw;
                 if (Math.abs(approxCenter) > vw * 1.5) {
@@ -113,7 +158,7 @@ export function GalleryItem({
                 galPageX +
                 galDragX;
 
-            const x = railX + progress * (galX - railX);
+            const x = railX + progress * (galX - railX) + entryX;
             const scale = sRail + progress * (targetScale - sRail);
             const visualH = GALLERY_H * vh * scale;
             // Desktop: center vertically. Mobile: anchor at top (80px margin).
@@ -137,6 +182,8 @@ export function GalleryItem({
                 height: GALLERY_H * vh,
                 transformOrigin: "center bottom",
                 transform: transformStr,
+                opacity: entry,
+                filter: entryFilter,
             }}
         >
             {/* Image / color box */}
@@ -149,7 +196,13 @@ export function GalleryItem({
                     if (e.pointerType === "touch" && isActive) return;
                     dragOnImageRef.current = true;
                 }}
-                onFocus={onFocusItem}
+                onFocus={(e) => {
+                    // Only auto-scroll on keyboard focus. Without this gate,
+                    // tapping an off-center item moves focus, animates the
+                    // rail, and the items shift out from under the click —
+                    // the wrong item (or none) gets opened on pointerup.
+                    if (e.target.matches(":focus-visible")) onFocusItem();
+                }}
                 onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
