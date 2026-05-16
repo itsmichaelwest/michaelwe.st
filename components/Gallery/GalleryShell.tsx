@@ -579,7 +579,7 @@ export function GalleryShell({
         >
             {/* Back button — fixed, outside both views */}
             <motion.div
-                className="fixed top-6 left-6 z-[53]"
+                className="fixed top-6 left-6 z-53"
                 style={{ opacity: openSpring }}
                 onPointerDown={(e) => e.stopPropagation()}
             >

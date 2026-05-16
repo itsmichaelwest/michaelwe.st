@@ -141,8 +141,8 @@ export function MDXImage({ src, alt = "", height, width }: MDXImageProps) {
         // the entry — happens when forward-navigation triggered the open
         // via the mount-once popstate listener above.
         const atLightbox =
-            (history.state as { mdxLightbox?: string } | null)
-                ?.mdxLightbox === layoutId;
+            (history.state as { mdxLightbox?: string } | null)?.mdxLightbox ===
+            layoutId;
         if (!atLightbox) {
             history.pushState({ mdxLightbox: layoutId }, "");
         }
@@ -195,9 +195,7 @@ export function MDXImage({ src, alt = "", height, width }: MDXImageProps) {
         : MORPH_SPRING;
 
     const hasIntrinsic = Boolean(height && width);
-    const aspect = hasIntrinsic
-        ? Number(width) / Number(height)
-        : 16 / 9;
+    const aspect = hasIntrinsic ? Number(width) / Number(height) : 16 / 9;
     const aspectRatioStyle = `${hasIntrinsic ? width : 16} / ${hasIntrinsic ? height : 9}`;
 
     // Compute the fitted lightbox dimensions (the image's render size when
@@ -240,18 +238,15 @@ export function MDXImage({ src, alt = "", height, width }: MDXImageProps) {
         return { fitW, fitH, scale, naturalMax, boundFor };
     }, [viewport.w, viewport.h, aspect, hasIntrinsic, width]);
 
-    const dragConstraints = useMemo(
-        () => {
-            const b = fitMetrics.boundFor(zoomed ? fitMetrics.scale : 1);
-            return {
-                left: -b.x,
-                right: b.x,
-                top: -b.y,
-                bottom: b.y,
-            };
-        },
-        [fitMetrics, zoomed],
-    );
+    const dragConstraints = useMemo(() => {
+        const b = fitMetrics.boundFor(zoomed ? fitMetrics.scale : 1);
+        return {
+            left: -b.x,
+            right: b.x,
+            top: -b.y,
+            bottom: b.y,
+        };
+    }, [fitMetrics, zoomed]);
 
     // Drive scale animation from the boolean `zoomed` toggle. Click-zoom is
     // the only thing that flips this — wheel-zoom updates scaleMV directly.
@@ -332,10 +327,10 @@ export function MDXImage({ src, alt = "", height, width }: MDXImageProps) {
             const lb = el.getBoundingClientRect();
             const imgCx = lb.left + lb.width / 2;
             const imgCy = lb.top + lb.height / 2;
-            const ix = (pinchStart.cx - imgCx - pinchStart.panX) /
-                pinchStart.scale;
-            const iy = (pinchStart.cy - imgCy - pinchStart.panY) /
-                pinchStart.scale;
+            const ix =
+                (pinchStart.cx - imgCx - pinchStart.panX) / pinchStart.scale;
+            const iy =
+                (pinchStart.cy - imgCy - pinchStart.panY) / pinchStart.scale;
             const newCx = (a.x + b.x) / 2;
             const newCy = (a.y + b.y) / 2;
             panX.set(newCx - imgCx - ix * next);
@@ -404,9 +399,7 @@ export function MDXImage({ src, alt = "", height, width }: MDXImageProps) {
                 whileTap={reducedMotion ? undefined : { scale: 0.98 }}
                 style={{ aspectRatio: aspectRatioStyle }}
                 className="relative block w-full cursor-zoom-in"
-                aria-label={
-                    alt ? `View full size: ${alt}` : "View full size"
-                }
+                aria-label={alt ? `View full size: ${alt}` : "View full size"}
             >
                 <Image
                     ref={fallbackRef}
@@ -414,11 +407,7 @@ export function MDXImage({ src, alt = "", height, width }: MDXImageProps) {
                     alt={alt}
                     fill
                     sizes="(max-width: 768px) 100vw, min(80ch, 100vw)"
-                    className={clsx(
-                        ringClasses,
-                        loadClasses,
-                        "object-cover",
-                    )}
+                    className={clsx(ringClasses, loadClasses, "object-cover")}
                     onLoad={() => setLoaded(true)}
                 />
             </motion.div>
@@ -440,14 +429,13 @@ export function MDXImage({ src, alt = "", height, width }: MDXImageProps) {
                             >
                                 <motion.div
                                     key="mdx-scrim"
-                                    className="fixed inset-0 z-[99]"
+                                    className="fixed inset-0 z-99"
                                     initial={{
                                         backgroundColor: "oklch(0 0 0 / 0)",
                                         backdropFilter: "blur(0px)",
                                     }}
                                     animate={{
-                                        backgroundColor:
-                                            "oklch(0 0 0 / 0.6)",
+                                        backgroundColor: "oklch(0 0 0 / 0.6)",
                                         backdropFilter: "blur(16px)",
                                     }}
                                     exit={{
@@ -525,16 +513,8 @@ export function MDXImage({ src, alt = "", height, width }: MDXImageProps) {
                                                 // Click-unzoom: glide pan
                                                 // back to the center along
                                                 // with the scale animation.
-                                                animate(
-                                                    panX,
-                                                    0,
-                                                    MORPH_SPRING,
-                                                );
-                                                animate(
-                                                    panY,
-                                                    0,
-                                                    MORPH_SPRING,
-                                                );
+                                                animate(panX, 0, MORPH_SPRING);
+                                                animate(panY, 0, MORPH_SPRING);
                                             } else {
                                                 const lb = lightboxRef.current;
                                                 const tap = tapPointRef.current;
@@ -586,7 +566,7 @@ export function MDXImage({ src, alt = "", height, width }: MDXImageProps) {
                                             setZoomed(!zoomed);
                                         }}
                                         className={clsx(
-                                            "fixed top-1/2 left-1/2 z-[100] -translate-x-1/2 -translate-y-1/2 overflow-hidden select-none",
+                                            "fixed top-1/2 left-1/2 z-100 -translate-x-1/2 -translate-y-1/2 overflow-hidden select-none",
                                             zoomed
                                                 ? "cursor-grab active:cursor-grabbing"
                                                 : "cursor-zoom-in",
@@ -596,12 +576,8 @@ export function MDXImage({ src, alt = "", height, width }: MDXImageProps) {
                                             src={src}
                                             alt={alt}
                                             fill
-                                            sizes={
-                                                zoomed ? "100vw" : "95vw"
-                                            }
-                                            quality={
-                                                zoomed ? 95 : undefined
-                                            }
+                                            sizes={zoomed ? "100vw" : "95vw"}
+                                            quality={zoomed ? 95 : undefined}
                                             draggable={false}
                                             priority
                                             className="pointer-events-none object-cover"
@@ -622,7 +598,7 @@ export function MDXImage({ src, alt = "", height, width }: MDXImageProps) {
                                         duration: 0.2,
                                         ease: "easeOut",
                                     }}
-                                    className="fixed top-6 right-6 z-[110] mix-blend-difference"
+                                    className="fixed top-6 right-6 z-110 mix-blend-difference"
                                 >
                                     <DismissButton
                                         ref={closeRef}
