@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { TransitionLink } from "../../components/TransitionLink";
+import { BackChevron } from "../../components/icons/Glyphs";
 import { parseCalendarDate } from "../../lib/date";
 import type { IWritingPost } from "../../lib/writing";
 
@@ -33,26 +34,6 @@ function groupByYear(posts: IWritingPost[]): YearGroup[] {
         });
 }
 
-function BackArrow() {
-    return (
-        <svg
-            width="12"
-            height="12"
-            viewBox="0 0 12 12"
-            fill="none"
-            aria-hidden="true"
-        >
-            <path
-                d="M7.5 2.5L4 6L7.5 9.5"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            />
-        </svg>
-    );
-}
-
 function HomeBackLinkFixed() {
     const [hovered, setHovered] = useState(false);
     return (
@@ -64,9 +45,9 @@ function HomeBackLinkFixed() {
             <TransitionLink
                 href="/"
                 direction="fade"
-                className="inline-flex h-9 items-center font-mono text-[13px] text-muted transition-colors duration-200 ease-out hover:text-secondary"
+                className="inline-flex h-10 items-center text-caption text-muted transition-colors duration-200 ease-out hover:text-secondary"
             >
-                <BackArrow />
+                <BackChevron />
                 <span
                     className="overflow-hidden whitespace-nowrap"
                     style={{
@@ -93,20 +74,23 @@ export function WritingList({ posts }: { posts: IWritingPost[] }) {
                 <TransitionLink
                     href="/"
                     direction="fade"
-                    className="group mb-6 inline-flex items-center gap-1.5 font-mono text-sm text-muted transition-colors duration-200 ease-out hover:text-secondary md:hidden"
+                    className="group mb-6 inline-flex items-center gap-1.5 text-caption text-muted transition-colors duration-200 ease-out hover:text-secondary md:hidden"
                 >
                     <span className="transition-transform duration-200 ease-out group-hover:-translate-x-0.5">
-                        <BackArrow />
+                        <BackChevron />
                     </span>
                     Home
                 </TransitionLink>
 
-                <h1 className="text-3xl font-semibold tracking-tight text-heading">
+                <p className="text-eyebrow uppercase font-medium text-muted">
+                    Index
+                </p>
+                <h1 className="mt-3 text-h1 font-semibold text-heading">
                     Writing
                 </h1>
 
             {posts.length === 0 ? (
-                <p className="mt-8 text-muted">Nothing here yet.</p>
+                <p className="mt-8 text-body text-muted">Nothing here yet.</p>
             ) : (
                 <div className="mt-12 space-y-12">
                     {groups.map((group) => (
@@ -114,7 +98,7 @@ export function WritingList({ posts }: { posts: IWritingPost[] }) {
                             key={group.year}
                             className="grid grid-cols-[auto_1fr] gap-x-8 sm:gap-x-12"
                         >
-                            <h2 className="pt-4 font-mono text-sm text-muted tabular-nums">
+                            <h2 className="pt-5 text-eyebrow uppercase font-medium text-muted tabular-nums">
                                 {group.year === "undated"
                                     ? "Undated"
                                     : group.year}
@@ -125,17 +109,17 @@ export function WritingList({ posts }: { posts: IWritingPost[] }) {
                                         <TransitionLink
                                             href={`/writing/${post.slug}`}
                                             direction="forward"
-                                            className="group block -mx-3 rounded-lg px-3 py-4 transition-[background-color,transform] duration-200 ease-out hover:bg-gray-50 dark:hover:bg-gray-800/60 active:scale-[0.97] active:bg-gray-100 dark:active:bg-gray-700/60"
+                                            className="group block border-b border-hairline py-5 transition-colors duration-200 ease-out"
                                         >
-                                            <h3 className="font-medium text-heading text-balance">
+                                            <h3 className="text-lead font-medium text-heading text-balance transition-colors duration-200 ease-out group-hover:text-accent">
                                                 {post.title}
                                             </h3>
                                             {post.description && (
-                                                <p className="mt-1 text-sm text-secondary line-clamp-2">
+                                                <p className="mt-1 text-body text-secondary line-clamp-2">
                                                     {post.description}
                                                 </p>
                                             )}
-                                            <p className="mt-1 font-mono text-sm text-muted tabular-nums">
+                                            <p className="mt-2 text-caption text-muted tabular-nums">
                                                 {(() => {
                                                     const d =
                                                         parseCalendarDate(

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useReducedMotion } from "motion/react";
 import { TransitionLink } from "../../../components/TransitionLink";
+import { BackChevron } from "../../../components/icons/Glyphs";
 import type { TOCHeading } from "../../../lib/rehypeWritingHeadings";
 
 interface WritingTOCProps {
@@ -14,26 +15,6 @@ const EASE = "cubic-bezier(0.32, 0.72, 0, 1)";
 const DURATION = 280;
 
 type Mode = "wide" | "mid" | "below";
-
-function BackArrow() {
-    return (
-        <svg
-            width="12"
-            height="12"
-            viewBox="0 0 12 12"
-            fill="none"
-            aria-hidden="true"
-        >
-            <path
-                d="M7.5 2.5L4 6L7.5 9.5"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            />
-        </svg>
-    );
-}
 
 function tickWidth(level: number, isActive: boolean): number {
     if (isActive) return 22;
@@ -172,7 +153,7 @@ export function WritingTOC({ title, headings }: WritingTOCProps) {
                 className="pointer-events-none fixed inset-y-0 left-0 z-20 hidden md:block"
                 style={{
                     width: 360,
-                    background: "rgb(var(--backdrop-rgb))",
+                    background: "oklch(var(--backdrop-l) 0 0)",
                     WebkitMaskImage:
                         "linear-gradient(to right, black 0%, black 65%, transparent 100%)",
                     maskImage:
@@ -202,9 +183,9 @@ export function WritingTOC({ title, headings }: WritingTOCProps) {
                 <TransitionLink
                     href="/writing"
                     direction="back"
-                    className="inline-flex h-9 items-center font-mono text-[13px] text-muted transition-colors duration-200 ease-out hover:text-secondary"
+                    className="inline-flex h-10 items-center text-caption text-muted transition-colors duration-200 ease-out hover:text-secondary"
                 >
-                    <BackArrow />
+                    <BackChevron />
                     <span
                         className="overflow-hidden whitespace-nowrap"
                         style={{
@@ -221,7 +202,7 @@ export function WritingTOC({ title, headings }: WritingTOCProps) {
                 {showNav && (
                     <nav className="mt-7" aria-label="Table of contents">
                         <p
-                            className="font-mono text-[13px] leading-tight text-muted whitespace-nowrap overflow-hidden"
+                            className="text-caption leading-tight text-muted whitespace-nowrap overflow-hidden"
                             style={{
                                 opacity: showTitle ? 1 : 0,
                                 maxHeight: pastHeader ? 32 : 0,
@@ -277,7 +258,7 @@ export function WritingTOC({ title, headings }: WritingTOCProps) {
                                                 }}
                                             />
                                             <span
-                                                className="overflow-hidden text-ellipsis whitespace-nowrap font-mono text-[13px] leading-tight tracking-tight"
+                                                className="overflow-hidden text-ellipsis whitespace-nowrap text-caption leading-tight"
                                                 style={{
                                                     maxWidth: open ? 220 : 0,
                                                     marginLeft: open ? 12 : 0,

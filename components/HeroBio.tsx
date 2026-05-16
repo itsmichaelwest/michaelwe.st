@@ -55,41 +55,38 @@ export function HeroBio({ showWriting = false }: HeroBioProps) {
             <div className="space-y-6">
                 <div className="flex gap-4 items-center">
                     <Image
-                        className="w-10 rounded-full shadow ring ring-black/10 dark:ring-white/10"
+                        className="w-10 rounded-full ring-1 ring-hairline"
                         src={Face}
                         alt="Photo of Michael"
                     />
-                    <div className="-space-y-1">
-                        <h1 className="font-semibold tracking-tight text-balance">
+                    <div>
+                        <h1 className="text-body font-semibold text-balance">
                             Michael West
                         </h1>
-                        <p className="text-sm text-muted">
+                        <p className="text-body text-muted">
                             Senior Designer at Microsoft
                         </p>
                     </div>
                 </div>
                 <div className="space-y-2">
-                    <p className="text-muted italic">
-                        Designer, engineer, builder.
-                    </p>
-                    <p className="text-pretty">
+                    <p className="text-body text-pretty">
                         I currently work on Windows, where our team focuses on
                         making your PC experience more powerful and delightful
                         with AI, while also scaling new tooling across the
                         studio.{" "}
                         <button
-                            className="inline text-muted hover:underline cursor-pointer bg-transparent border-none p-0 font-inherit"
+                            className="inline link-underline-muted cursor-pointer bg-transparent border-none p-0 font-inherit"
                             onClick={() => openAbout()}
                         >
-                            More...
+                            More
                         </button>
                     </p>
                 </div>
             </div>
-            <div className="flex flex-col items-start md:items-end font-mono text-sm text-muted">
+            <div className="flex flex-col items-start md:items-end text-body text-muted">
                 {showWriting && (
                     <TransitionLink
-                        className="hover:underline cursor-pointer bg-transparent border-none p-0 text-inherit"
+                        className="link-underline-muted"
                         href="/writing"
                         direction="fade"
                     >
@@ -97,7 +94,7 @@ export function HeroBio({ showWriting = false }: HeroBioProps) {
                     </TransitionLink>
                 )}
                 <Link
-                    className="hover:underline cursor-pointer bg-transparent border-none p-0 text-inherit"
+                    className="link-underline-muted"
                     href="https://x.com/itsmichaelwest"
                     target="_blank"
                     rel="noopener noreferrer me"
@@ -105,7 +102,7 @@ export function HeroBio({ showWriting = false }: HeroBioProps) {
                     X
                 </Link>
                 <Link
-                    className="hover:underline cursor-pointer bg-transparent border-none p-0 text-inherit"
+                    className="link-underline-muted"
                     href="https://www.linkedin.com/in/itsmichaelwest"
                     target="_blank"
                     rel="noopener noreferrer me"
@@ -113,7 +110,7 @@ export function HeroBio({ showWriting = false }: HeroBioProps) {
                     LinkedIn
                 </Link>
                 <Link
-                    className="hover:underline cursor-pointer bg-transparent border-none p-0 text-inherit"
+                    className="link-underline-muted"
                     href="https://github.com/itsmichaelwest"
                     target="_blank"
                     rel="noopener noreferrer me"

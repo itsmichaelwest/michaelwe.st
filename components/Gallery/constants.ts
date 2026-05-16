@@ -20,9 +20,5 @@ export const PAGE_SPRING = {
 };
 
 // Drag thresholds
-export const DRAG_UP_VELOCITY_THRESHOLD = 0.1;
-export const DRAG_UP_DISTANCE_RATIO = 0.5;
-export const GALLERY_PAGE_THRESHOLD = 0.33;
-export const GALLERY_DISMISS_VELOCITY = 0.1;
 export const RUBBER_BAND_K = 0.5;
 export const DRAG_DECAY = 0.96;

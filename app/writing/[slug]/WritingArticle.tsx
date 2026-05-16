@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { TransitionLink } from "../../../components/TransitionLink";
+import { BackChevron } from "../../../components/icons/Glyphs";
 import { WritingBody } from "./WritingBody";
 import { WritingTOC } from "./WritingTOC";
 import { parseCalendarDate } from "../../../lib/date";
@@ -8,27 +9,6 @@ import type { TOCHeading } from "../../../lib/rehypeWritingHeadings";
 interface NeighborPost {
     slug: string;
     title: string;
-}
-
-function BackArrow() {
-    return (
-        <svg
-            width="12"
-            height="12"
-            viewBox="0 0 12 12"
-            fill="none"
-            aria-hidden="true"
-            className="transition-transform duration-200 ease-out group-hover:-translate-x-0.5"
-        >
-            <path
-                d="M7.5 2.5L4 6L7.5 9.5"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-            />
-        </svg>
-    );
 }
 
 interface WritingArticleProps {
@@ -57,17 +37,29 @@ export function WritingArticle({
                 <TransitionLink
                     href="/writing"
                     direction="back"
-                    className="group mb-6 inline-flex items-center gap-1.5 font-mono text-sm text-muted transition-colors duration-200 ease-out hover:text-secondary md:hidden"
+                    className="group mb-6 inline-flex items-center gap-1.5 text-caption text-muted transition-colors duration-200 ease-out hover:text-secondary md:hidden"
                 >
-                    <BackArrow />
+                    <BackChevron className="transition-transform duration-200 ease-out group-hover:-translate-x-0.5" />
                     Writing
                 </TransitionLink>
 
                 <header id="writing-header" className="mb-12">
-                    <h1 className="text-3xl font-semibold tracking-tight text-heading text-balance">
+                    <p className="text-eyebrow uppercase font-medium text-muted">
+                        {(() => {
+                            const d = parseCalendarDate(date);
+                            return d ? (
+                                <time dateTime={date}>
+                                    {format(d, "MMMM yyyy")}
+                                </time>
+                            ) : (
+                                "Essay"
+                            );
+                        })()}
+                    </p>
+                    <h1 className="mt-3 text-h1 font-semibold text-heading text-balance">
                         {title}
                     </h1>
-                    <p className="mt-3 font-mono text-sm text-muted tabular-nums">
+                    <p className="mt-3 text-caption text-muted tabular-nums">
                         {(() => {
                             const d = parseCalendarDate(date);
                             return d ? (
@@ -88,17 +80,17 @@ export function WritingArticle({
             </article>
 
             {(prev || next) && (
-                <nav className="mt-24 grid grid-cols-2 gap-6 border-t border-gray-100 dark:border-gray-800 pt-8">
+                <nav className="mt-24 grid grid-cols-2 gap-6 border-t border-hairline pt-8">
                     {next && (
                         <TransitionLink
                             href={`/writing/${next.slug}`}
                             direction="forward"
-                            className="group col-start-1 -mx-3 block rounded-lg px-3 py-3 transition-[background-color,transform] duration-200 ease-out hover:bg-gray-50 dark:hover:bg-gray-800/60 active:scale-[0.97] active:bg-gray-100 dark:active:bg-gray-700/60"
+                            className="group col-start-1 block py-3 transition-colors duration-200 ease-out"
                         >
-                            <p className="font-mono text-xs text-muted">
+                            <p className="text-eyebrow uppercase font-medium text-muted">
                                 Newer
                             </p>
-                            <p className="mt-1 text-sm font-medium text-heading text-balance">
+                            <p className="mt-1 text-body font-medium text-heading text-balance group-hover:text-accent transition-colors duration-200 ease-out">
                                 {next.title}
                             </p>
                         </TransitionLink>
@@ -107,12 +99,12 @@ export function WritingArticle({
                         <TransitionLink
                             href={`/writing/${prev.slug}`}
                             direction="forward"
-                            className="group col-start-2 -mx-3 block rounded-lg px-3 py-3 text-right transition-[background-color,transform] duration-200 ease-out hover:bg-gray-50 dark:hover:bg-gray-800/60 active:scale-[0.97] active:bg-gray-100 dark:active:bg-gray-700/60"
+                            className="group col-start-2 block py-3 text-right transition-colors duration-200 ease-out"
                         >
-                            <p className="font-mono text-xs text-muted">
+                            <p className="text-eyebrow uppercase font-medium text-muted">
                                 Older
                             </p>
-                            <p className="mt-1 text-sm font-medium text-heading text-balance">
+                            <p className="mt-1 text-body font-medium text-heading text-balance group-hover:text-accent transition-colors duration-200 ease-out">
                                 {prev.title}
                             </p>
                         </TransitionLink>

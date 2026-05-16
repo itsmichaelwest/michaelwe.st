@@ -18,6 +18,8 @@ Surface Duo combines the absolute best of Microsoft with the absolute best of An
 
 It brings together the power of Microsoft 365 experiences and the full ecosystem of Android mobile apps into one device, with two screens that you can take anywhere.
 
+<YouTube id="kU78s9ExFFA" title="The new Surface Duo. Do one better." />
+
 These groundbreaking experiences are packaged into a robust and sleek industrial design that is synonymous with Surface. It is the thinnest mobile device on the market.
 
 ![Surface Duo is the result of years of Surface design and research. Pictured with Surface Slim Pen and Surface Earbuds.](/images/surface-duo/duo-id.jpg)

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { MDXComponents } from "next-mdx-remote-client/rsc";
 import { MDXImage } from "./MDXImage";
+import { YouTube } from "./YouTube";
 
 // MDX content uses `#` as the top-level heading. The article shell renders the
 // post title as <h1>, so the rehype pipeline shifts content headings down by
@@ -9,7 +10,7 @@ export const components: MDXComponents = {
     h2: ({ children, id }) => (
         <h2
             id={id}
-            className="scroll-mt-24 text-3xl font-semibold tracking-tight text-balance mt-10 mb-3"
+            className="scroll-mt-24 text-h2 font-semibold text-balance mt-12 mb-3"
         >
             {children}
         </h2>
@@ -17,7 +18,7 @@ export const components: MDXComponents = {
     h3: ({ children, id }) => (
         <h3
             id={id}
-            className="scroll-mt-24 text-lg font-semibold text-heading mt-8 mb-2"
+            className="scroll-mt-24 text-h3 font-semibold text-heading mt-8 mb-2"
         >
             {children}
         </h3>
@@ -25,44 +26,44 @@ export const components: MDXComponents = {
     h4: ({ children, id }) => (
         <h4
             id={id}
-            className="scroll-mt-24 text-base font-semibold text-heading mt-6 mb-2"
+            className="scroll-mt-24 text-body font-semibold text-heading mt-6 mb-2"
         >
             {children}
         </h4>
     ),
     p: ({ children }) => (
-        <p className="my-6 leading-relaxed text-secondary text-pretty">
+        <p className="my-6 text-body text-secondary text-pretty">
             {children}
         </p>
     ),
     strong: ({ children }) => (
-        <strong className="font-semibold text-black dark:text-white">
+        <strong className="font-semibold text-heading">
             {children}
         </strong>
     ),
     blockquote: ({ children }) => (
-        <blockquote className="my-8 border-l-4 border-gray-200 dark:border-gray-700 pl-4 italic text-muted">
+        <blockquote className="my-8 border-l border-hairline pl-6 text-secondary">
             {children}
         </blockquote>
     ),
     ul: ({ children }) => (
-        <ul className="my-6 ml-4 list-disc space-y-2 leading-relaxed text-secondary">
+        <ul className="my-6 ml-4 list-disc space-y-2 text-body text-secondary">
             {children}
         </ul>
     ),
     ol: ({ children }) => (
-        <ol className="my-6 ml-4 list-decimal space-y-2 leading-relaxed text-secondary">
+        <ol className="my-6 ml-4 list-decimal space-y-2 text-body text-secondary">
             {children}
         </ol>
     ),
     li: ({ children }) => <li className="pl-1">{children}</li>,
     code: ({ children }) => (
-        <code className="text-sm font-medium bg-gray-50 dark:bg-gray-800 px-1.5 py-0.5 rounded">
+        <code className="font-mono text-[0.875em] bg-black/5 dark:bg-white/8 px-1.5 py-0.5 rounded">
             {children}
         </code>
     ),
     pre: ({ children }) => (
-        <pre className="my-8 overflow-x-auto rounded-lg bg-gray-50 dark:bg-gray-800 p-4 text-sm leading-relaxed">
+        <pre className="my-8 overflow-x-auto rounded-lg bg-black/5 dark:bg-white/5 p-4 font-mono text-caption leading-relaxed">
             {children}
         </pre>
     ),
@@ -76,7 +77,7 @@ export const components: MDXComponents = {
             return <span>{children}</span>;
         }
         const linkClass =
-            "font-medium text-blue-700 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300";
+            "link-underline";
         if (isExternal) {
             return (
                 <Link
@@ -98,6 +99,10 @@ export const components: MDXComponents = {
     img: ({ src, alt, height, width }) => (
         <MDXImage src={src} alt={alt} height={height} width={width} />
     ),
+    // Custom MDX-only tag — usage: <YouTube id="..." title="..." />.
+    // Cast required because next-mdx-remote-client's MDXComponents type is
+    // narrowed to known HTML tags + a small set of MDX primitives.
+    YouTube: YouTube as MDXComponents["img"],
     hr: () => (
         <hr className="my-12 border-gray-100 dark:border-gray-800" />
     ),

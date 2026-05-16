@@ -3,6 +3,13 @@ module.exports = {
     allowedDevOrigins: ["192.168.0.11"],
     images: {
         formats: ["image/avif", "image/webp"],
+        remotePatterns: [
+            {
+                protocol: "https",
+                hostname: "i.ytimg.com",
+                pathname: "/vi/**",
+            },
+        ],
     },
     turbopack: {
         rules: {

@@ -18,22 +18,22 @@ export default function NotFound() {
             }}
             className="mx-auto mt-20 mb-32"
         >
-            <h1 className="text-8xl font-emoji font-bold mb-6">
+            <h1 className="text-8xl font-bold mb-6">
                 <span role="img" aria-label="Loudly crying face emoji">
                     😭
                 </span>
             </h1>
-            <h1 className="font-display font-semibold tracking-tight text-4xl my-4 text-heading">
+            <h1 className="text-display font-semibold my-4 text-heading">
                 Page not found
             </h1>
-            <p className="my-2 text-primary">
+            <p className="my-2 text-body text-secondary">
                 That page doesn&apos;t exist. Try going to the{" "}
-                <Link href="/" className="text-blue-700 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                <Link href="/" className="link-underline">
                     homepage
                 </Link>
                 .
             </p>
-            <p className="text-sm text-muted">HTTP 404</p>
+            <p className="mt-2 text-eyebrow uppercase font-medium text-muted">HTTP 404</p>
         </div>
     );
 }

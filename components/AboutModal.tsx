@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, useMotionValue, useTransform, animate } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import clsx from "clsx";
 import Button from "./Button";
 import { MAIN_SPRING } from "./Gallery/constants";
+import { DismissButton } from "./DismissButton";
 
 const CLOSE_EASE: [number, number, number, number] = [0.23, 1, 0.32, 1];
 
@@ -24,7 +25,7 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
     const backdropBlur = useTransform(aboutSpring, (v) => `blur(${v * 4}px)`);
     const backdropBg = useTransform(
         aboutSpring,
-        (v) => `rgb(var(--backdrop-rgb) / ${v * 0.95})`,
+        (v) => `oklch(var(--backdrop-l) 0 0 / ${v * 0.95})`,
     );
 
     useEffect(() => {
@@ -63,8 +64,10 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
         );
     }, []);
 
+    const sectionElRef = useRef<HTMLElement | null>(null);
     const sectionRef = useCallback(
         (el: HTMLElement | null) => {
+            sectionElRef.current = el;
             if (!el) return;
             const handler = () => updateMask(el);
             updateMask(el);
@@ -73,6 +76,18 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
         },
         [updateMask],
     );
+
+    // Reset the scrollable copy back to the top each time the modal opens.
+    // Without this the section retains whatever scroll position the user
+    // left it at on a previous open, which feels broken — modals should
+    // always present their content from the start.
+    useEffect(() => {
+        if (!open) return;
+        const el = sectionElRef.current;
+        if (!el) return;
+        el.scrollTop = 0;
+        updateMask(el);
+    }, [open, updateMask]);
 
     const maskImage =
         scrollMask === "both"
@@ -107,7 +122,7 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
                 style={{ opacity: aboutSpring, scale: contentScale }}
             >
                 <article className="w-full md:h-full grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 px-4 pt-24 pb-16 md:pt-0 md:pb-0">
-                    <div className="relative rounded-xl ring ring-black/10 dark:ring-white/10 overflow-hidden md:h-full">
+                    <div className="relative rounded-xl ring-1 ring-hairline overflow-hidden md:h-full">
                         <Image
                             className="w-full h-auto md:h-full md:w-full md:object-cover"
                             src={PortraitTall}
@@ -142,7 +157,10 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
                         </p>
                         <p>
                             I&apos;m currently a Senior Designer at{" "}
-                            <Link href="https://www.microsoft.com/">
+                            <Link
+                                href="https://www.microsoft.com/"
+                                className="link-underline"
+                            >
                                 Microsoft
                             </Link>
                             , where I currently work on Windows AI.
@@ -153,21 +171,21 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
                             around the world. Check them out:{" "}
                             <Link
                                 href="/work/surface-duo"
-                                className="font-medium text-blue-700 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                                className="link-underline"
                             >
                                 Surface Duo
                             </Link>
                             ,{" "}
                             <Link
                                 href="/work/swiftkey-design-system"
-                                className="font-medium text-blue-700 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                                className="link-underline"
                             >
                                 SwiftKey
                             </Link>
                             ,{" "}
                             <Link
                                 href="/work/fluent-icons"
-                                className="font-medium text-blue-700 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                                className="link-underline"
                             >
                                 Fluent Icons
                             </Link>
@@ -181,7 +199,7 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
                             Awarded 2018-19{" "}
                             <Link
                                 href="https://mvp.microsoft.com/"
-                                className="font-medium text-blue-700 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                                className="link-underline"
                             >
                                 Microsoft MVP
                             </Link>{" "}
@@ -198,33 +216,16 @@ export function AboutModal({ open, onClose, directNav }: AboutModalProps) {
             </motion.div>
 
             {/* Close button */}
-            <motion.button
-                className={clsx(
-                    "group fixed top-6 right-6 z-200 inline-flex h-9 items-center border-none bg-transparent p-0 font-mono text-[13px] text-muted transition-[color,transform] duration-200 ease-out hover:text-secondary active:scale-[0.96]",
-                    open ? "pointer-events-auto" : "pointer-events-none",
-                )}
-                aria-label="Close"
+            <motion.div
+                className="fixed top-6 right-6 z-200"
                 style={{ opacity: aboutSpring }}
-                onClick={onClose}
             >
-                <span className="mr-0 max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-[max-width,margin-right,opacity] duration-280 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:mr-1.5 group-hover:max-w-[60px] group-hover:opacity-100">
-                    Close
-                </span>
-                <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                    aria-hidden="true"
-                >
-                    <path
-                        d="M3 3L9 9M9 3L3 9"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                    />
-                </svg>
-            </motion.button>
+                <DismissButton
+                    variant="close"
+                    onClick={onClose}
+                    pointerEventsAuto={open}
+                />
+            </motion.div>
         </>
     );
 }

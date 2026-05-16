@@ -83,7 +83,13 @@ export function GalleryDetail({
     return (
         <div
             ref={scrollRef}
-            className="min-h-screen bg-white dark:bg-[#0a0a0a] overflow-x-clip"
+            // display:flow-root establishes a block formatting context so the
+            // hero's mt-[hero-mt] doesn't collapse up through this wrapper to
+            // <body>. Without this, margin-collapse pushes <body> down by
+            // ~hero-mt while GalleryDetail is mounted, which moves the
+            // sibling home view's static position by the same amount — and
+            // unmounting GalleryDetail would snap the home view back to 0.
+            className="min-h-screen bg-white dark:bg-[oklch(0.173_0_0)] overflow-x-clip [display:flow-root]"
             style={{ "--aspect": String(aspect) } as React.CSSProperties}
         >
             {/* Hero image — top-anchored on mobile (80px), vertically
@@ -94,7 +100,14 @@ export function GalleryDetail({
                 space, leaving the bottom of the first viewport showing a
                 peek of the article header below. */}
             <div
-                className="relative mx-auto mt-20 rounded-2xl ring ring-black/10 dark:ring-white/10 select-none overflow-hidden w-[calc(100vw-40px)] md:mt-[var(--hero-mt)] md:w-[min(calc(60vh*var(--aspect)),calc(100vw-64px))]"
+                // Hero size mirrors GalleryItem's open-state size exactly so
+                // the morph swap from GalleryDetail → GalleryItem at the end
+                // of close has zero size discontinuity. Without the
+                // min(60vh*aspect, ...) clamp on mobile the hero would
+                // full-bleed to (100vw - 40px) while GalleryItem stays capped
+                // at its naturalW = 0.6*100vh*aspect, producing a visible
+                // snap when the views swap.
+                className="relative mx-auto mt-20 rounded-2xl ring ring-black/10 dark:ring-white/10 select-none overflow-hidden w-[min(calc(60vh*var(--aspect)),calc(100vw-40px))] md:mt-[var(--hero-mt)] md:w-[min(calc(60vh*var(--aspect)),calc(100vw-64px))]"
                 style={
                     {
                         "--hero-mt":
@@ -127,14 +140,14 @@ export function GalleryDetail({
                 <ContentStagger reducedMotion={!!reducedMotion} index={0}>
                     <div className="space-y-2">
                         {item.year && (
-                            <p className="font-mono text-sm text-muted tabular-nums">
+                            <p className="text-eyebrow uppercase font-medium text-muted tabular-nums">
                                 {item.year}
                             </p>
                         )}
-                        <h2 className="font-semibold tracking-tight text-2xl text-balance">
+                        <h2 className="text-h2 font-semibold text-balance">
                             {item.title}
                         </h2>
-                        <p className="text-muted text-pretty">{item.subtitle}</p>
+                        <p className="text-body text-muted text-pretty">{item.subtitle}</p>
                     </div>
                 </ContentStagger>
                 {item.officialURL && (
@@ -143,7 +156,7 @@ export function GalleryDetail({
                             href={item.officialURL}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 font-mono text-sm font-medium rounded-full bg-gray-100/80 dark:bg-gray-800 no-underline text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 active:scale-[0.97] transition-[background-color,transform] duration-200 ease-out"
+                            className="inline-flex h-10 items-center gap-1.5 px-4 text-caption font-medium rounded-full bg-surface ring-1 ring-hairline no-underline text-heading hover:bg-surface-hover active:scale-[0.96] transition-[scale,color,background-color,box-shadow] duration-200 ease-out"
                         >
                             {item.officialURLText ?? "View project"}
                             <svg

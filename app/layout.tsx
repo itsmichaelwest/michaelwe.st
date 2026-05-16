@@ -1,17 +1,34 @@
 import type { Metadata } from "next";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import dynamic from "next/dynamic";
 import { Inter } from "next/font/google";
 import "@fontsource/commit-mono/400.css";
 import "@fontsource/commit-mono/600.css";
 import siteMetadata from "../siteMetadata";
 import { hasWritingPosts } from "../lib/writing";
 import "../styles/global.css";
+import { Agentation } from "agentation";
 
+// Defer Vercel telemetry to a separate chunk so it doesn't bloat the main
+// bundle. The libraries themselves are client components, so Next will only
+// load them after hydration regardless of ssr settings — dropping `ssr: false`
+// here just lets us call dynamic() from this RSC.
+const Analytics = dynamic(() =>
+    import("@vercel/analytics/react").then((m) => m.Analytics),
+);
+const SpeedInsights = dynamic(() =>
+    import("@vercel/speed-insights/next").then((m) => m.SpeedInsights),
+);
+
+// Inter v4 exposes an `opsz` (optical size) axis. We load it once and switch
+// optical size at the CSS layer via font-variation-settings — body sits at
+// `opsz 14` for legibility at small sizes, headings at `opsz 28` (the
+// "Display" cut) for tighter shapes, smaller dots, and a more refined
+// silhouette at large sizes.
 const inter = Inter({
     subsets: ["latin"],
     display: "swap",
     variable: "--font-inter",
+    axes: ["opsz"],
 });
 
 export const metadata: Metadata = {
@@ -91,6 +108,7 @@ export default function RootLayout({
                 <Analytics />
                 <SpeedInsights />
             </body>
+            {process.env.NODE_ENV === "development" && <Agentation />}
         </html>
     );
 }

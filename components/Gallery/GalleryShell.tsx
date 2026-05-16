@@ -14,12 +14,17 @@ import clsx from "clsx";
 import { useWindowSize } from "../../hooks/useWindowSize";
 import { GalleryContext } from "./GalleryContext";
 import type { ItemData } from "./types";
-import { SAMPLE_ITEMS } from "./types";
-import { MAIN_SPRING, PAGE_SPRING, RUBBER_BAND_K, DRAG_DECAY } from "./constants";
+import {
+    MAIN_SPRING,
+    PAGE_SPRING,
+    RUBBER_BAND_K,
+    DRAG_DECAY,
+} from "./constants";
 import { railItemW, railLeftOf, maxRailScroll } from "./utils";
 import { GalleryItem } from "./GalleryItem";
 import { GalleryDetail } from "./GalleryDetail";
 import { AboutModal } from "../AboutModal";
+import { DismissButton } from "../DismissButton";
 
 export function GalleryShell({
     items: realItems,
@@ -35,13 +40,7 @@ export function GalleryShell({
     // Initial state derived from server-supplied route props so the SSR
     // HTML and the first client render agree (no `typeof window` reads
     // during render, which would otherwise cause hydration mismatches).
-    const items = useMemo(
-        () =>
-            process.env.NODE_ENV === "production"
-                ? realItems
-                : [...realItems, ...SAMPLE_ITEMS],
-        [realItems],
-    );
+    const items = useMemo(() => realItems, [realItems]);
     const idToIndex = useMemo(() => {
         const map = new Map<string, number>();
         items.forEach((item, i) => map.set(item.id, i));
@@ -82,9 +81,12 @@ export function GalleryShell({
     const isDraggingRef = useRef(false);
     const didDragRef = useRef(false);
     const momentumRef = useRef<number | null>(null);
+    // Tracks an in-flight scroll-to-top tween so a second close (e.g. user
+    // hits Back while close is still scrolling) can cancel it rather than
+    // letting two morph springs chain up. See scrollThenMorph below.
+    const scrollAnimRef = useRef<ReturnType<typeof animate> | null>(null);
     const lastPointerRef = useRef({ x: 0, y: 0, t: 0 });
     const velocityRef = useRef({ x: 0, y: 0 });
-    const dragOnImageRef = useRef(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const containerRectRef = useRef({
         left: 0,
@@ -134,8 +136,7 @@ export function GalleryShell({
     // is already at 1 from the initial-state branch.
     const directNavPositioned = useRef(false);
     useLayoutEffect(() => {
-        if (!isWorkDirectNav || vw <= 0 || directNavPositioned.current)
-            return;
+        if (!isWorkDirectNav || vw <= 0 || directNavPositioned.current) return;
         directNavPositioned.current = true;
         openProgress.jump(1);
         galleryPageX.jump(-initialIndex * vw);
@@ -195,24 +196,68 @@ export function GalleryShell({
         [railOffset, vw, vh, items],
     );
 
+    // Two-phase close: smooth-scroll the article back to top, then run the
+    // morph spring from a clean layout state. Reused by closeGallery (user
+    // action) and the popstate handler (browser back). `smoothRail` lets the
+    // popstate path animate the rail recenter so the user sees motion when
+    // navigating back; user-initiated close jumps the rail since the user is
+    // already focused on the morph.
+    const scrollThenMorph = useCallback(
+        (smoothRail = false) => {
+            const runMorph = () => {
+                setOpen(false);
+                openRef.current = false;
+                setShowDetail(false);
+                animate(openProgress, 0, {
+                    type: "spring",
+                    ...MAIN_SPRING,
+                });
+                galleryDragX.jump(0);
+                centerRailOn(currentRef.current, smoothRail);
+            };
+            // Cancel any in-flight scroll tween from a prior close — without
+            // this, a popstate firing while user-initiated close is still
+            // scrolling would chain two runMorph() invocations, launching a
+            // duplicate (no-op but wasteful) morph spring.
+            scrollAnimRef.current?.stop();
+            scrollAnimRef.current = null;
+            const startY = window.scrollY;
+            if (startY > 0) {
+                const scrollAnim = animate(startY, 0, {
+                    duration: 0.28,
+                    ease: [0.32, 0.72, 0, 1],
+                    onUpdate: (v) => window.scrollTo(0, v),
+                });
+                scrollAnimRef.current = scrollAnim;
+                scrollAnim.finished
+                    .then(() => {
+                        if (scrollAnimRef.current === scrollAnim) {
+                            scrollAnimRef.current = null;
+                            runMorph();
+                        }
+                    })
+                    .catch(() => {});
+            } else {
+                runMorph();
+            }
+        },
+        [openProgress, galleryDragX, centerRailOn],
+    );
+
     const closeGallery = useCallback(() => {
-        window.scrollTo(0, 0);
-        setOpen(false);
-        openRef.current = false;
-        setShowDetail(false);
-        animate(openProgress, 0, {
-            type: "spring",
-            ...MAIN_SPRING,
-        });
-        galleryDragX.jump(0);
-        centerRailOn(currentRef.current);
+        // Smooth-scroll the article back to the top first. Once scroll hits 0
+        // the morph runs from a clean, known-good layout state. We use a
+        // short tween rather than the project's spring because the spring's
+        // tight restDelta produces a long settle tail (~half a second of
+        // sub-pixel motion) which shows up as dead time before the morph.
+        scrollThenMorph();
         if (directNavRef.current) {
             directNavRef.current = false;
             history.replaceState(null, "", "/");
         } else {
             history.back();
         }
-    }, [openProgress, galleryDragX, centerRailOn]);
+    }, [scrollThenMorph]);
 
     const openAbout = useCallback(() => {
         setAboutOpen(true);
@@ -278,17 +323,12 @@ export function GalleryShell({
                 const idx = idToIndex.get(match[1]);
                 if (idx != null && !openRef.current) openGallery(idx);
             } else if (openRef.current) {
-                setOpen(false);
-                setShowDetail(false);
-                openRef.current = false;
-                openProgress.set(0);
-                galleryDragX.jump(0);
-                centerRailOn(currentRef.current, true);
+                scrollThenMorph(true);
             }
         };
         window.addEventListener("popstate", onPopState);
         return () => window.removeEventListener("popstate", onPopState);
-    }, [idToIndex, openGallery, openProgress, galleryDragX, centerRailOn]);
+    }, [idToIndex, openGallery, scrollThenMorph]);
 
     // Update document.title for client-side navigation
     useEffect(() => {
@@ -340,11 +380,13 @@ export function GalleryShell({
 
         const onWheel = (e: WheelEvent) => {
             if (openRef.current) return;
+            // Rail responds only to horizontal intent. Vertical scroll is
+            // ignored so a stray trackpad gesture doesn't move the rail.
+            if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
             // Block the browser's horizontal swipe-back gesture so trackpad
             // scrolls drive the rail instead of navigating history.
-            if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) e.preventDefault();
-            const delta =
-                Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+            e.preventDefault();
+            const delta = e.deltaX;
             if (Math.abs(delta) < 1) return;
             const max = maxRailScroll(
                 items,
@@ -531,45 +573,29 @@ export function GalleryShell({
             value={{
                 open,
                 openSpring,
-                aboutOpen,
                 openAbout,
-                closeAbout,
                 containerRectRef,
             }}
         >
             {/* Back button — fixed, outside both views */}
-            <motion.button
-                className={clsx(
-                    "group fixed top-6 left-6 z-[53] inline-flex h-9 items-center border-none bg-transparent p-0 font-mono text-[13px] text-muted transition-[color,transform] duration-200 ease-out hover:text-secondary active:scale-[0.96]",
-                    open ? "pointer-events-auto" : "pointer-events-none",
-                )}
-                tabIndex={open ? 0 : -1}
-                aria-label="Back"
+            <motion.div
+                className="fixed top-6 left-6 z-[53]"
                 style={{ opacity: openSpring }}
                 onPointerDown={(e) => e.stopPropagation()}
-                onClick={closeGallery}
             >
-                <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 12 12"
-                    fill="none"
-                    aria-hidden="true"
-                >
-                    <path
-                        d="M7.5 2.5L4 6L7.5 9.5"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    />
-                </svg>
-                <span className="ml-0 max-w-0 overflow-hidden whitespace-nowrap opacity-0 transition-[max-width,margin-left,opacity] duration-280 ease-[cubic-bezier(0.32,0.72,0,1)] group-hover:ml-1.5 group-hover:max-w-[60px] group-hover:opacity-100">
-                    Back
-                </span>
-            </motion.button>
+                <DismissButton
+                    variant="back"
+                    onClick={closeGallery}
+                    pointerEventsAuto={open}
+                    tabIndex={open ? 0 : -1}
+                />
+            </motion.div>
 
-            {/* Home view — centered viewport, goes invisible when detail is active */}
+            {/* Home view — centered viewport, goes invisible when detail is
+                active. closeGallery smooth-scrolls to 0 BEFORE flipping
+                showDetail, so by the time this swaps from invisible to
+                visible the document is already at scroll=0 and the morph
+                spring runs from a clean layout state. */}
             <div
                 className={clsx(
                     "w-full h-screen flex items-center justify-center",
@@ -577,65 +603,62 @@ export function GalleryShell({
                 )}
                 inert={showDetail || undefined}
             >
-                <div className="relative max-w-[80ch] w-full h-[80vh] md:h-[60vh] mx-auto px-4 flex flex-col">
+                <div className="relative max-w-[80ch] w-full h-[80vh] md:h-[70vh] md:max-h-140 mx-auto px-4 flex flex-col">
                     {children}
 
                     {/* Rail / Gallery container */}
                     <div
                         ref={containerRef}
                         className="absolute bottom-0 inset-x-0 h-1/2 overflow-visible touch-none"
-                        onPointerDownCapture={() => {
-                            dragOnImageRef.current = false;
-                        }}
                         onPointerDown={onPointerDown}
                         onPointerMove={onPointerMove}
                         onPointerUp={onPointerUp}
                     >
-                        {vw > 0 && items.map((item, i) => (
-                            <GalleryItem
-                                key={item.id}
-                                index={i}
-                                items={items}
-                                current={current}
-                                color={item.color}
-                                label={item.label}
-                                title={item.title}
-                                img={item.img}
-                                imgAlt={item.imgAlt}
-                                open={open}
-                                vw={vw}
-                                vh={vh}
-                                openSpring={openSpring}
-                                railScroll={railOffset}
-                                galleryPageX={galleryPageX}
-                                galleryDragX={galleryDragX}
-                                galleryDragY={galleryDragY}
-                                dragOnImageRef={dragOnImageRef}
-                                // LCP: on the home rail the leftmost item is
-                                // the LCP candidate; mark a few neighbors
-                                // eager so they don't lazy-defer above the
-                                // fold. On direct nav the rail is invisible
-                                // (the GalleryDetail hero owns LCP) so we
-                                // skip priority/eager hints here entirely.
-                                priority={!isWorkDirectNav && i === 0}
-                                eager={!isWorkDirectNav && i > 0 && i < 4}
-                                entryEnabled={!isWorkDirectNav}
-                                entryDelay={0.15 + i * 0.06}
-                                onFocusItem={() => centerRailOn(i, true)}
-                                onActivate={() => {
-                                    const canonical = item.canonical;
-                                    if (canonical) {
-                                        window.open(
-                                            canonical,
-                                            "_blank",
-                                            "noopener",
-                                        );
-                                    } else {
-                                        openGallery(i);
-                                    }
-                                }}
-                            />
-                        ))}
+                        {vw > 0 &&
+                            items.map((item, i) => (
+                                <GalleryItem
+                                    key={item.id}
+                                    index={i}
+                                    items={items}
+                                    current={current}
+                                    color={item.color}
+                                    label={item.label}
+                                    title={item.title}
+                                    img={item.img}
+                                    imgAlt={item.imgAlt}
+                                    open={open}
+                                    vw={vw}
+                                    vh={vh}
+                                    openSpring={openSpring}
+                                    railScroll={railOffset}
+                                    galleryPageX={galleryPageX}
+                                    galleryDragX={galleryDragX}
+                                    galleryDragY={galleryDragY}
+                                    // LCP: on the home rail the leftmost item is
+                                    // the LCP candidate; mark a few neighbors
+                                    // eager so they don't lazy-defer above the
+                                    // fold. On direct nav the rail is invisible
+                                    // (the GalleryDetail hero owns LCP) so we
+                                    // skip priority/eager hints here entirely.
+                                    priority={!isWorkDirectNav && i === 0}
+                                    eager={!isWorkDirectNav && i > 0 && i < 4}
+                                    entryEnabled={!isWorkDirectNav}
+                                    entryDelay={0.15 + i * 0.06}
+                                    onFocusItem={() => centerRailOn(i, true)}
+                                    onActivate={() => {
+                                        const canonical = item.canonical;
+                                        if (canonical) {
+                                            window.open(
+                                                canonical,
+                                                "_blank",
+                                                "noopener",
+                                            );
+                                        } else {
+                                            openGallery(i);
+                                        }
+                                    }}
+                                />
+                            ))}
                     </div>
 
                     <AboutModal

@@ -40,7 +40,6 @@ export function GalleryItem({
     galleryPageX,
     galleryDragX,
     galleryDragY,
-    dragOnImageRef,
     onActivate,
     onFocusItem,
     title,
@@ -64,7 +63,6 @@ export function GalleryItem({
     galleryPageX: MotionValue<number>;
     galleryDragX: MotionValue<number>;
     galleryDragY: MotionValue<number>;
-    dragOnImageRef: React.MutableRefObject<boolean>;
     onActivate: () => void;
     onFocusItem: () => void;
     title: string;
@@ -123,7 +121,10 @@ export function GalleryItem({
     });
     const ringBoxShadow = useTransform(openSpring, (progress) => {
         const scale = sRail + progress * (targetScale - sRail);
-        return `0 0 0 ${1 / scale}px rgba(0,0,0,0.1)`;
+        // Use the site-wide hairline token (light-dark aware) so the outline
+        // is true black in light mode and true white in dark mode — never a
+        // tinted neutral, which would read as dirt on the image edge.
+        return `0 0 0 ${1 / scale}px var(--color-hairline)`;
     });
 
     const transformInputs = [
@@ -191,11 +192,12 @@ export function GalleryItem({
                 role="button"
                 tabIndex={open ? -1 : 0}
                 aria-label={title}
-                className="absolute inset-0 cursor-pointer select-none overflow-hidden outline-none focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
-                onPointerDown={(e) => {
-                    if (e.pointerType === "touch" && isActive) return;
-                    dragOnImageRef.current = true;
-                }}
+                className={clsx(
+                    "absolute inset-0 select-none overflow-hidden outline-none focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2",
+                    open
+                        ? "cursor-pointer"
+                        : "cursor-grab active:cursor-grabbing",
+                )}
                 onFocus={(e) => {
                     // Only auto-scroll on keyboard focus. Without this gate,
                     // tapping an off-center item moves focus, animates the

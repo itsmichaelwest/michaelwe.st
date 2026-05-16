@@ -5,8 +5,8 @@ interface NoMSFTDisclaimerProps {
 }
 
 const NoMSFTDisclaimer: React.FC<NoMSFTDisclaimerProps> = ({ title }) => (
-    <div className="p-6 mb-16 space-y-2 rounded-xl ring ring-black/10 dark:ring-white/10 bg-black/1 dark:bg-white/2">
-        <h4 className="text-heading font-medium flex items-center gap-1.5">
+    <div className="p-6 mb-16 space-y-2 rounded-xl ring-1 ring-hairline bg-black/1 dark:bg-white/2">
+        <h4 className="text-heading text-body font-medium flex items-center gap-1.5">
             <span className="inline-block size-5">
                 <svg
                     fill="currentColor"
@@ -18,7 +18,7 @@ const NoMSFTDisclaimer: React.FC<NoMSFTDisclaimerProps> = ({ title }) => (
             </span>
             Not affiliated with Microsoft
         </h4>
-        <p className="text-primary text-sm">
+        <p className="text-secondary text-caption">
             <em>{title}</em> isn&apos;t affiliated with Microsoft. Concepts and
             mockups shown do not represent any product plans past, present, or
             future.

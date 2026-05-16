@@ -16,36 +16,70 @@
         "Commit Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
         "Liberation Mono", "Courier New", monospace;
 
-    /* Custom brand colors */
-    --color-twitter: #1da1f2;
-    --color-mastodon: #595aff;
-    --color-linkedin: #0073b1;
-    --color-dribbble: #ea4c89;
-    --color-behance: #1769ff;
+    /* Type ramp — three sizes for body, three for display, plus eyebrow.
+       Sizes are the only knob; weight + tracking + leading are pinned to
+       the size so we can never compose a "wrong" combination. */
+    --text-eyebrow: 0.6875rem; /* 11px */
+    --text-eyebrow--line-height: 1rem;
+    --text-eyebrow--letter-spacing: 0.14em;
 
-    /* Blue scale */
-    --color-blue-50: #e3f1fd;
-    --color-blue-100: #bcdcfc;
-    --color-blue-200: #92c7fa;
-    --color-blue-300: #68b1f7;
-    --color-blue-400: #4ba1f6;
-    --color-blue-500: #3591f3; /* DEFAULT */
-    --color-blue-600: #3383e5;
-    --color-blue-700: #3071d1;
-    --color-blue-800: #2c60bf;
-    --color-blue-900: #26419f;
+    --text-caption: 0.8125rem; /* 13px */
+    --text-caption--line-height: 1.25rem;
 
-    /* Gray scale */
-    --color-gray-50: #f4f4f4;
-    --color-gray-100: #eaeaea;
-    --color-gray-200: #dadada;
-    --color-gray-300: #d0d0d0;
-    --color-gray-400: #c8c8c8;
-    --color-gray-500: #a6a6a6;
-    --color-gray-600: #666666;
-    --color-gray-700: #3c3c3c;
-    --color-gray-800: #333333;
-    --color-gray-900: #212121;
+    --text-body: 1rem; /* 16px */
+    --text-body--line-height: 1.6;
+
+    --text-lead: 1.125rem; /* 18px */
+    --text-lead--line-height: 1.55;
+
+    --text-h3: 1.25rem; /* 20px */
+    --text-h3--line-height: 1.35;
+    --text-h3--letter-spacing: -0.011em;
+
+    --text-h2: 1.625rem; /* 26px */
+    --text-h2--line-height: 1.25;
+    --text-h2--letter-spacing: -0.018em;
+
+    --text-h1: 2.25rem; /* 36px */
+    --text-h1--line-height: 1.1;
+    --text-h1--letter-spacing: -0.024em;
+
+    --text-display: 3rem; /* 48px */
+    --text-display--line-height: 1.05;
+    --text-display--letter-spacing: -0.028em;
+
+    /* Custom brand colors — converted from hex to oklch (perceptually uniform
+       color space). Each value preserves the original brand color exactly;
+       oklch just gives us a more reliable substrate for any future tweaks. */
+    --color-twitter: oklch(0.682 0.1584 243.35);
+    --color-mastodon: oklch(0.57 0.2378 275.53);
+    --color-linkedin: oklch(0.534 0.1292 243.05);
+    --color-dribbble: oklch(0.652 0.1995 0.71);
+    --color-behance: oklch(0.571 0.2354 261.56);
+
+    /* Blue scale — used as the source for --color-accent. */
+    --color-blue-50: oklch(0.951 0.022 243.8);
+    --color-blue-100: oklch(0.882 0.0559 248.46);
+    --color-blue-200: oklch(0.811 0.0913 248.05);
+    --color-blue-300: oklch(0.742 0.1257 248.93);
+    --color-blue-400: oklch(0.695 0.1504 250.66);
+    --color-blue-500: oklch(0.651 0.1694 253.17); /* DEFAULT */
+    --color-blue-600: oklch(0.612 0.1673 255.57);
+    --color-blue-700: oklch(0.558 0.1624 258.42);
+    --color-blue-800: oklch(0.508 0.1596 261.22);
+    --color-blue-900: oklch(0.415 0.156 267.01);
+
+    /* Neutral scale — true grays (chroma 0). */
+    --color-gray-50: oklch(0.967 0 0);
+    --color-gray-100: oklch(0.937 0 0);
+    --color-gray-200: oklch(0.888 0 0);
+    --color-gray-300: oklch(0.858 0 0);
+    --color-gray-400: oklch(0.833 0 0);
+    --color-gray-500: oklch(0.725 0 0);
+    --color-gray-600: oklch(0.51 0 0);
+    --color-gray-700: oklch(0.356 0 0);
+    --color-gray-800: oklch(0.321 0 0);
+    --color-gray-900: oklch(0.248 0 0);
 }
 
 /* Semantic text color utilities (avoid --text-* namespace to not collide with font sizes) */
@@ -58,6 +92,50 @@
     --semantic-text-muted-dark: var(--color-gray-500);
     --semantic-text-heading: var(--color-gray-900);
     --semantic-text-heading-dark: var(--color-gray-100);
+
+    /* Single site-wide accent. Use sparingly — links, focus rings, the
+       occasional emphasis. If it shows up everywhere it stops meaning anything.
+       The token itself is dark-mode-aware so any Tailwind utility that
+       references it (text-accent, decoration-accent, ring-accent, ...) inherits
+       the right value automatically. */
+    --color-accent: light-dark(var(--color-blue-600), var(--color-blue-400));
+    --color-accent-hover: light-dark(
+        var(--color-blue-700),
+        var(--color-blue-300)
+    );
+
+    /* Hairline tokens — replace ad-hoc shadows. Pure black/white at 0.1
+       opacity matches the design-engineering rule for image outlines: a
+       tinted neutral picks up the surface color underneath and reads as
+       dirt on the image edge. */
+    --color-hairline: light-dark(
+        oklch(0 0 0 / 0.1),
+        oklch(1 0 0 / 0.1)
+    );
+
+    /* Pill / chip surface — slightly inset from the page bg in both modes.
+       Gives secondary buttons a tactile feel without resorting to shadows.
+       Mirrors interfaces.dev's button surface (≈#080808 on a #101010 page). */
+    --color-surface: light-dark(
+        oklch(0 0 0 / 0.04),
+        oklch(1 0 0 / 0.04)
+    );
+    --color-surface-hover: light-dark(
+        oklch(0 0 0 / 0.07),
+        oklch(1 0 0 / 0.07)
+    );
+
+    /* Inverse fill for primary CTAs — black on light, white on dark.
+       Light bg stays pure white (oklch(1 0 0)) so the CTA is the darkest
+       thing on the page; dark bg uses the same lifted #101010 the body
+       uses, so the inverse-on-light treatment doesn't feel like a different
+       neutral system from the page itself. */
+    --color-fg-inverse: light-dark(oklch(1 0 0), oklch(0.173 0 0));
+    --color-bg-inverse: light-dark(oklch(0.173 0 0), oklch(1 0 0));
+    --color-bg-inverse-hover: light-dark(
+        oklch(0.239 0 0),
+        oklch(0.943 0 0)
+    );
 }
 
 @utility text-heading {
@@ -71,6 +149,64 @@
 }
 @utility text-muted {
     color: var(--semantic-text-muted);
+}
+
+/* Premium link underline. Used site-wide: subtle hairline that intensifies on
+   hover. The -muted variant keeps the same shape in muted gray for inline
+   "more"-style affordances that shouldn't compete with body text. Decoration
+   color is derived from currentColor so dark-mode handling needs no extra
+   tokens — set the text color and the underline follows. */
+@utility link-underline {
+    color: var(--color-accent);
+    text-decoration-line: underline;
+    text-decoration-color: color-mix(
+        in srgb,
+        currentColor 30%,
+        transparent
+    );
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+    transition:
+        text-decoration-color 200ms ease,
+        color 200ms ease;
+    &:hover {
+        color: var(--color-accent-hover);
+        text-decoration-color: currentColor;
+    }
+    &:focus-visible {
+        text-decoration-color: currentColor;
+    }
+}
+
+@utility link-underline-muted {
+    color: inherit;
+    text-decoration-line: underline;
+    text-decoration-color: color-mix(
+        in srgb,
+        currentColor 30%,
+        transparent
+    );
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+    transition: text-decoration-color 200ms ease;
+    &:hover,
+    &:focus-visible {
+        text-decoration-color: currentColor;
+    }
+}
+
+/* Optical-size utilities — Inter v4 opsz axis. We default the body to opsz 14
+   for legibility and let h1/h2 (and anything tagged .font-feat-display) opt
+   into opsz 28 for the refined "Display" silhouette. We also lean on cv11
+   (single-storey `a`) and ss03 (curved `r`) to give Inter a slightly more
+   characterful shape — feels less default-Vercel. */
+@utility font-feat-display {
+    font-variation-settings: "opsz" 28;
+    font-feature-settings: "cv11", "ss03";
+}
+@utility font-feat-text {
+    font-variation-settings: "opsz" 14;
+    font-feature-settings: "cv11", "ss03";
 }
 
 @media (prefers-color-scheme: dark) {
@@ -90,7 +226,11 @@
 
 :root {
     color-scheme: light dark;
-    --backdrop-rgb: 255 255 255;
+    /* Backdrop lightness for the about/lightbox scrims. Components animate
+       opacity over this value via oklch(var(--backdrop-l) 0 0 / alpha) so the
+       backdrop tracks the page bg in both color schemes without us having to
+       hard-code rgb triples. */
+    --backdrop-l: 1;
     /* Reserve scrollbar space at all times so width doesn't shift between
        short pages (gallery rail) and tall pages (gallery detail, writing). */
     scrollbar-gutter: stable both-edges;
@@ -98,23 +238,53 @@
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --backdrop-rgb: 10 10 10;
+        --backdrop-l: 0.173;
     }
 }
 
 html,
 body {
-    background-color: #fff;
+    /* Light mode bg is provably pure white. Don't introduce off-whites
+       (e.g. oklch(0.99 0 0)) — they read as dirty against any photo or
+       image with a true-white background. */
+    background-color: oklch(1 0 0);
     color: var(--color-gray-900);
     /* clip rather than hidden so body doesn't become its own scroll
        container, which would conflict with scrollbar-gutter on :root */
     overflow-x: clip;
+    /* Belt-and-braces: prevent the browser from interpreting trackpad
+       horizontal swipes as page back/forward navigation. The rail's wheel
+       handler also calls preventDefault, but contain ensures the gesture
+       never bubbles to history navigation in Safari/Chromium. */
+    overscroll-behavior-x: contain;
+    /* Default to the Text optical size + characterful alts. Headings opt
+       into the Display cut via .font-feat-display. */
+    font-variation-settings: "opsz" 14;
+    font-feature-settings: "cv11", "ss03";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
+
+/* Anything h2 and up automatically gets the Display optical size. Inline
+   overrides remain possible by adding font-feat-text to the element. */
+h1,
+h2,
+.font-feat-display {
+    font-variation-settings: "opsz" 28;
+}
+
+/* Anything h2 and up automatically gets the Display optical size. Inline
+   overrides remain possible by adding font-feat-text to the element. */
 
 @media (prefers-color-scheme: dark) {
     html,
     body {
-        background-color: #0a0a0a;
+        /* Slightly lifted off true black — matches interfaces.dev / Vercel
+           dashboards. Pure black combined with white text causes harsh
+           halos at the edges of glyphs; #101010 reads as black to the eye
+           but softens the contrast just enough to feel premium. */
+        background-color: oklch(0.173 0 0);
         color: var(--color-gray-100);
     }
 }

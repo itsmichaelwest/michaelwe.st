@@ -6,9 +6,7 @@ import type { MotionValue } from "motion/react";
 interface GalleryContextValue {
     open: boolean;
     openSpring: MotionValue<number>;
-    aboutOpen: boolean;
     openAbout: () => void;
-    closeAbout: () => void;
     containerRectRef: RefObject<{
         left: number;
         bottom: number;
