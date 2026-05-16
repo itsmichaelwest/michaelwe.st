@@ -3,6 +3,14 @@
         "next-devtools": {
             "command": "npx",
             "args": ["-y", "next-devtools-mcp@latest"]
+        },
+        "agentation": {
+            "command": "npx",
+            "args": ["-y", "agentation-mcp", "server"]
+        },
+        "chrome-devtools": {
+            "command": "npx",
+            "args": ["-y", "chrome-devtools-mcp@latest"]
         }
     }
 }
